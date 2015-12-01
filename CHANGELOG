@@ -1,0 +1,77 @@
+[33m5cadbce[m[33m ([1;36mHEAD[m[33m, [1;31morigin/CFY-3170-add-env-var-support[m[33m, [1;32mCFY-3170-add-env-var-support[m[33m)[m updated version to 0.2.0!
+[33m6e9f541[m[33m ([1;31morigin/add-env-var-support[m[33m, [1;32madd-env-var-support[m[33m)[m added env var support for providing variables to repex
+[33m2c8149e[m Merge branch 'master' of github.com:cloudify-cosmo/repex
+[33m465ae01[m updated version to 0.1.1
+[33md0f2e51[m Merge pull request #8 from cloudify-cosmo/add-validator-option
+[33m42c41df[m[33m ([1;31morigin/add-validator-option[m[33m)[m Merge branch 'master' into add-validator-option
+[33m3c217a8[m sudo false dude
+[33m5c21688[m updated version to 0.1.1
+[33m880b839[m readme fixes
+[33m730af2c[m reamde update
+[33m82fb1e9[m a more robust validator test
+[33mdd9ecab[m added validator feature
+[33mebd89d4[m minor stuff
+[33m3b6d7c5[m Merge pull request #7 from cloudify-cosmo/some-fixes
+[33m8d03ede[m now supporting python 2.6. bah!
+[33m6f0eb98[m tox is now verbose
+[33m3d33f19[m minor stuff and documentation
+[33m22ef4f1[m[33m ([1;33mtag: 3.2m7[m[33m, [1;33mtag: 3.2m6[m[33m)[m Merge pull request #6 from cloudify-cosmo/add-shields-to-readme
+[33me25f6ce[m[33m ([1;33mtag: 3.2m5[m[33m, [1;33mtag: 3.2m4[m[33m)[m flake8 fixes
+[33m8b4081b[m Merge pull request #5 from cloudify-cosmo/support-in-config-variables
+[33mfab1107[m some tox modifications and added in config variables support
+[33m4804f52[m[33m ([1;33mtag: 3.2m3[m[33m)[m hardcode coverage version
+[33mc08333f[m[33m ([1;33mtag: 3.2m2[m[33m)[m Update .gitignore
+[33mebe95f9[m Merge pull request #4 from cloudify-cosmo/replace-raises-with-exits
+[33mbed0c3b[m Test fixes
+[33mb121739[m more user oriented error printing and error code mapping
+[33mf45a450[m more user oriented error printing and error code mapping
+[33mb78c961[m Merge pull request #3 from cloudify-cosmo/file-not-found-error-handling
+[33me2d36bc[m done
+[33m410e56d[m added shields
+[33m4043e44[m[33m ([1;33mtag: 3.2m1[m[33m)[m Merge pull request #2 from cloudify-cosmo/handle-path-not-found
+[33me8ef013[m merge fixes
+[33mff56b7e[m Merge pull request #1 from cloudify-cosmo/expand-more-attributes
+[33m38878c4[m Merge branch 'master' into expand-more-attributes
+[33m64b21d6[m Merge branch 'master' of github.com:cloudify-cosmo/repex
+[33m2e08d5f[m Update setup.py
+[33ma0afa61[m doc fix
+[33m6b5f25a[m Even some more docs
+[33m4ae2008[m oops
+[33m1a97455[m some more documentation
+[33mce768c0[m expanded the docs a tad
+[33m856666e[m fixed must_include test. Now more attributes can receive variables
+[33m4c197ad[m some doc fixes
+[33m2c24096[m added a more elaborate description
+[33m3087bd7[m[33m ([1;33mtag: 3.1rc2[m[33m, [1;33mtag: 3.1[m[33m)[m Update README.md
+[33m4c10f8e[m[33m ([1;33mtag: 3.1rc1[m[33m)[m Update README.md
+[33m3728173[m Update README.md
+[33m4f55fee[m added path-not-found handling and some tests
+[33mc020e8b[m Merge branch 'master' of github.com:cloudify-cosmo/repex
+[33m8c79efc[m[33m ([1;33mtag: 3.1m5[m[33m)[m fixed flake8 errors
+[33m6e8d9e9[m Added support for matching files by regular expression Added support for excluding files based on regular expression
+[33m86ed804[m added verbose mode to get_all_files
+[33m5062bf2[m added some tests
+[33mca327f7[m fixed directory exclusion
+[33m9ac772d[m added verbose mode to get_all_files
+[33mc5336ab[m added exclusion option, testing base_dir setup from cmd, and more..
+[33med54d96[m removed much too verbose logging
+[33m8fba75b[m now not forcing pattern and match in file, not configurable yet
+[33m0625ef3[m added missing terms report, py26 tests and some cleanup
+[33mb69e970[m EESHK2!
+[33m5338a12[m EESHK!
+[33m125afa6[m cleanup and documentation
+[33m9d230a4[m fixed problem with identifying regex groups
+[33mba5881d[m removed docs env from tox
+[33ma47f076[m removed docs env
+[33m0d2f3b0[m fixed tsts
+[33md61e34c[m Removed docs
+[33m24e5337[m fixed variable extension bug
+[33m04ad130[m fixed variable extension bug
+[33mfc91a1b[m more user friendly logging
+[33m4eab0cf[m removed content printing
+[33m476a3b6[m fix for multiple occurences
+[33m2e75e95[m some fixes
+[33ma3ba058[m err. done?
+[33ma5c7563[m added tests
+[33m4ed3b65[m MOAR!
+[33m2be65a9[m oi
