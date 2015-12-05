@@ -13,8 +13,8 @@ Still, there are many cases in which you need access to that information.
 `ld` (linux distribution) attempts to implement a more robust and inclusive way of retrieving the distro related information based on new standards and old methods - namely:
 
 * `/etc/os-release`
-* `/etc/*-release`
 * `/etc/lsb-release`
+* `/etc/*-release`
 
 ## Installation
 
@@ -39,10 +39,13 @@ The following distributions are handled:
 * OpenSuSE
 * SuSE
 * Arch
-* Gentoo
 * Slackware
 * Exherbo
 * Oracle
+
+Soon:
+
+* Gentoo
 * Enterprise
 
 
@@ -59,7 +62,7 @@ The following distributions are handled:
 * `ld.version(full=True)` - e.g. `7 (Core)`, `23 (Twenty Three)`
 * `ld.like()` - e.g. `suse`, `rhel fedora`, `debian`
 * `ld.codename()` - e.g. `Core`, `trusty`, `Maipo`
-* `ld.family()` - e.g. `arch`, `gentoo`, `rhel`
+* `ld.base()` - e.g. `arch`, `gentoo`, `rhel`
 
 You can also get the information from some of the release files:
 
