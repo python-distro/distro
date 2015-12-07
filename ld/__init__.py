@@ -5,9 +5,9 @@ import constants as const
 
 class LinuxDistribution(object):
     def __init__(self,
-                 os_release_file='ld/tests/resources/xos-release',
-                 lsb_release_file='ld/tests/resources/xlsb-release',
-                 distro_release_file='ld/tests/resources/slackware-version'):
+                 os_release_file='',
+                 lsb_release_file='',
+                 distro_release_file=''):
         self.os_release_file = os_release_file or const.OS_RELEASE
         self.lsb_release_file = lsb_release_file or const.LSB_RELEASE
         self.distro_release_file = distro_release_file or ''
