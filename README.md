@@ -9,7 +9,7 @@ Python 3.5 deprecates `platform.linux_distribution()` and Python 3.7 removes it 
 
 Still, there are many cases in which you need access to that information.
 
-see: [https://bugs.python.org/issue1322](https://bugs.python.org/issue1322) for more information.
+see [https://bugs.python.org/issue1322](https://bugs.python.org/issue1322) for more information.
 
 `ld` (linux distribution) attempts to implement a more robust and inclusive way of retrieving the distro related information based on new standards and old methods - namely:
 
@@ -52,11 +52,26 @@ Soon:
 
 ## Usage
 
+```python
+
+import ld
+
+ld.linux_distribution(full_distribution_name=False)
+
+'('centos', '7.1.1503', 'Core')'
+```
+
+## Exposed Distribution Properties
+
 `ld` exposes the following parmeters:
 
-* `ld.linux_distribution(full_distribution_name=False)` - attempts to implement Python's `platform.linux_distribution()`.
+### `ld.linux_distribution(full_distribution_name=False)`
 
-* `ld.id()` - e.g. `ubuntu`, `fedora`, `debian`...
+Attempts to implement Python's `platform.linux_distribution()`.
+
+### `ld.id()`
+
+Returns the id of the distribution - e.g. `ubuntu`, `fedora`, `debian`...
 * `ld.name()` - e.g. `Red Hat Enterprise Linux Server`, `Ubuntu`, `openSUSE Leap`
 * `ld.name(pretty=True)` - e.g. `openSUSE Leap 42.1 (x86_64)`, `CentOS Linux 7 (Core)`, `Oracle Linux Server 7.1`
 * `ld.version()` - e.g. .. well.. the version number.
@@ -65,13 +80,14 @@ Soon:
 * `ld.codename()` - e.g. `Core`, `trusty`, `Maipo`
 * `ld.base()` - e.g. `arch`, `gentoo`, `rhel`
 
+
 You can also get the information from some of the release files:
 
 * `ld.os_release_info()` - returns a dictionary containing the info found in `/etc/os-release`
 * `ld.lsb_release_info()` - returns a dictionary containing the info found in `/etc/lsb-release`
 * `ld.distro_release_info()` - returns a dictionary containing the info found in '/etc/*-release' matching your distribution.
 
-## Implementation
+## Lookup Hierarchy
 
 * [os-release](http://www.freedesktop.org/software/systemd/man/os-release.html) is a new standard for providing distro-specific information. This is the first file looked at when attempting to retrieve the distro specific info.
 * [lsb-release](http://linux.die.net/man/1/lsb_release) is usually found by default in Ubuntu. When `/etc/debian_version` is found, we also check for `/etc/lsb-release` to retrieve the information from it.
