@@ -210,7 +210,7 @@ class LinuxDistribution(object):
                 name = self.get_lsb_release_attr('distrib_id') \
                     or self.get_dist_release_attr('name') \
                     or self.id()
-                version = self.version(full=True)
+                version = self.version(pretty=True)
                 # this is only eligable if `name` exists..
                 if version and name:
                     name = '{0} {1}'.format(name, version)
@@ -221,13 +221,13 @@ class LinuxDistribution(object):
                 or self.id()
         return name or ''
 
-    def version(self, full=False):
+    def version(self, pretty=False):
         """Returns the version of a specific distribution.
 
-        If full=False, the version is returned without the codename (e.g. 7.0).
-        If full=True, codename is appended (e.g. 7.0 (Maipo))
+        If pretty=False, the version is returned without codename (e.g. 7.0).
+        If pretty=True, codename is appended (e.g. 7.0 (Maipo))
         """
-        if full:
+        if pretty:
             version = self.get_os_release_attr('version')
             if not version:
                 version = self.get_lsb_release_attr('distrib_release') \
@@ -242,12 +242,12 @@ class LinuxDistribution(object):
         return version or ''
 
     def version_parts(self):
-        """Returns a tuple with (major, minor, buildnumber).
+        """Returns a tuple with (major, minor, build_number).
         """
         if self.version():
             g = re.compile(r'(\d+)\.?(\d+)?\.?(\d+)?')
-            major, minor, buildnumber = g.match(self.version()).groups()
-            return (major, minor or '', buildnumber or '')
+            major, minor, build_number = g.match(self.version()).groups()
+            return (major, minor or '', build_number or '')
         return ('', '', '')
 
     def major_version(self):
@@ -256,7 +256,7 @@ class LinuxDistribution(object):
     def minor_version(self):
         return self.version_parts()[1]
 
-    def buildnumber_version(self):
+    def build_number(self):
         return self.version_parts()[2]
 
     def like(self):
@@ -335,8 +335,8 @@ def name(pretty=False):
     return ldi.name(pretty)
 
 
-def version(full=False):
-    return ldi.version(full)
+def version(pretty=False):
+    return ldi.version(pretty)
 
 
 def major_version():
@@ -347,8 +347,8 @@ def minor_version():
     return ldi.minor_version()
 
 
-def buildnumber_version():
-    return ldi.buildnumber_version()
+def build_number():
+    return ldi.build_number()
 
 
 def like():
