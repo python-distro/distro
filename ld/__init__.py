@@ -75,10 +75,17 @@ class LinuxDistribution(object):
                 v = v.rstrip('\n\r')
                 props[k.lower()] = v
                 if k == 'VERSION':
-                    codename = re.search(r'\(\w+\)', v)
+                    # this handles cases in which the codename is in
+                    # the `(CODENAME)` (rhel, centos, fedora) format
+                    # or in the `, CODENAME` format (Ubuntu).
+                    codename = re.search(r'(\(\D+\))|,(\s+)?\D+', v)
                     if codename:
+                        codename = codename.group()
+                        codename = codename.strip('()')
+                        codename = codename.strip(',')
+                        codename = codename.strip()
                         # codename appears within paranthese.
-                        props['codename'] = codename.group().strip('()')
+                        props['codename'] = codename
                     else:
                         props['codename'] = ''
         return props
@@ -94,7 +101,7 @@ class LinuxDistribution(object):
         # for instance, in SuSE's release file, you might find (x86_64)
         # in parantheses which is obviously not a codename.
         _release_version = re.compile(
-            r'([^0-9]+)?(?: release )?([\d+.]+)[^(]*(?:\(([a-zA-Z]+)\))?')
+            r'([^0-9]+)?(?: release )?([\d+.]+)[^(]*(?:\(([\D]+)\))?')
         name, version, codename = _release_version.match(content).groups()
         props = {
             # `release` is appended to the name.
@@ -234,6 +241,24 @@ class LinuxDistribution(object):
                 or self.get_dist_release_attr('version_id')
         return version or ''
 
+    def version_parts(self):
+        """Returns a tuple with (major, minor, buildnumber).
+        """
+        if self.version():
+            g = re.compile(r'(\d+)\.?(\d+)?\.?(\d+)?')
+            major, minor, buildnumber = g.match(self.version()).groups()
+            return (major, minor or '', buildnumber or '')
+        return ('', '', '')
+
+    def major_version(self):
+        return self.version_parts()[0]
+
+    def minor_version(self):
+        return self.version_parts()[1]
+
+    def buildnumber_version(self):
+        return self.version_parts()[2]
+
     def like(self):
         """Returns the ID_LIKE field contents from os-release if provided.
         """
@@ -312,6 +337,18 @@ def name(pretty=False):
 
 def version(full=False):
     return ldi.version(full)
+
+
+def major_version():
+    return ldi.major_version()
+
+
+def minor_version():
+    return ldi.minor_version()
+
+
+def buildnumber_version():
+    return ldi.buildnumber_version()
 
 
 def like():
