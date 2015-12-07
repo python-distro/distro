@@ -78,7 +78,7 @@ The id should be machine-readable.
 #### Retrieval Hierarchy
 
 * os-release['ID']
-* lsb-release['DISTRIB_ID'] (in lowercase)
+* lsb-release['DISTRIB_ID'] in lowercase.
 * *-release file name prefix (e.g. redhat from redhat-release)
 * first part of the first line of the *-release file
 
