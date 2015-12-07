@@ -187,3 +187,8 @@ tox
 ## Contributions..
 
 Pull requests are always welcome to deal with specific distributions or just for general merriment.
+
+Reference implementations for supporting additional distributions and file formats can be found here:
+
+* https://github.com/saltstack/salt/blob/develop/salt/grains/core.py#L1172
+* https://github.com/chef/ohai/blob/master/lib/ohai/plugins/linux/platform.rb
