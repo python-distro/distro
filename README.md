@@ -5,10 +5,11 @@ ld
 [![PyPI](http://img.shields.io/pypi/dm/ld.svg)](http://img.shields.io/pypi/dm/ld.svg)
 [![PypI](http://img.shields.io/pypi/v/ld.svg)](http://img.shields.io/pypi/v/ld.svg)
 
-Python 3.5 deprecates `platform.linux_distribution()`.
-Python 3.7 removes it altogether.
+Python 3.5 deprecates `platform.linux_distribution()` and Python 3.7 removes it altogether.
 
 Still, there are many cases in which you need access to that information.
+
+see: [https://bugs.python.org/issue1322](https://bugs.python.org/issue1322) for more information.
 
 `ld` (linux distribution) attempts to implement a more robust and inclusive way of retrieving the distro related information based on new standards and old methods - namely:
 

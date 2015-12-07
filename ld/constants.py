@@ -1,5 +1,4 @@
 UNIXCONFDIR = '/etc'
-# UNIXCONFDIR = 'tests/resources'
 LSB_RELEASE = '/etc/lsb-release'
 OS_RELEASE = '/etc/os-release'
 ARCH_RELEASE = '/etc/arch-release'
