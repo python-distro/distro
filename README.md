@@ -151,6 +151,30 @@ Returns the base distribution - e.g. `arch`, `gentoo`, `rhel`
 
 Matching is one first by `ld.name()` and then by `ld.like()`
 
+### `ld.info()`
+
+Returns a dictionary with machine readable info of the distribution with one exception - when id is not identified and returns a `name` instead.
+All results return in lowercase.
+
+This somewhat aggregates the rest of the information into one central call.
+
+Example:
+
+```python
+{
+    'id': 'rhel',
+    'version': '7.0',
+    'version_parts': {
+        'major': '7',
+        'minor': '0',
+        'build_number': ''
+    },
+    'like': 'fedora',
+    'codename': 'maipo',
+    'base': 'fedora'
+}
+```
+
 
 ### Retrieving information directly
 

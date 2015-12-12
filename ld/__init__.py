@@ -18,13 +18,13 @@ class LinuxDistribution(object):
     def os_release_info(self):
         if os.path.isfile(self.os_release_file):
             with open(self.os_release_file, 'r') as f:
-                return self._parse_os_release_file(f)
+                return self._parse_key_value_files(f)
         return {}
 
     def lsb_release_info(self):
         if os.path.isfile(self.lsb_release_file):
             with open(self.lsb_release_file, 'r') as f:
-                return self._parse_lsb_release_file(f)
+                return self._parse_key_value_files(f)
         return {}
 
     def distro_release_info(self):
@@ -35,17 +35,8 @@ class LinuxDistribution(object):
             with open(release_file, 'r') as f:
                 # only parse the first line. For instance, on SuSE there are
                 # multiple lines. We don't want them...
-                return self._parse_dist_specific_release_file(f.readline())
+                return self._parse_release_file(f.readline())
         return {}
-
-    def _parse_lsb_release_file(self, content):
-        return self._parse_key_value_files(content)
-
-    def _parse_os_release_file(self, content):
-        return self._parse_key_value_files(content)
-
-    def _parse_dist_specific_release_file(self, content):
-        return self._parse_release_file(content)
 
     def get_dist_release_attr(self, attribute):
         return self._dist_release_info.get(attribute, '')
@@ -324,6 +315,43 @@ class LinuxDistribution(object):
             self.codename()
         )
 
+    def info(self):
+        """Returns aggregated machine readable distribution info in lowercase.
+
+        e.g.
+
+        {
+            'id': 'rhel',
+            'version': '7.0',
+            'version_parts': {
+                'major': '7',
+                'minor': '0',
+                'build_number': ''
+            },
+            'like': 'fedora',
+            'codename': 'maipo',
+            'base': 'fedora'
+        }
+        """
+        i = dict(
+            id=self.id(),
+            name=self.name(),
+            version=self.version(),
+            version_parts=dict(
+                major=self.major_version(),
+                minor=self.minor_version(),
+                build_number=build_number()
+            ),
+            like=self.like(),
+            codename=self.codename(),
+            base=self.base()
+        )
+        for k, v in i.items():
+            if isinstance(v, str):
+                i[k] = v.lower()
+        return i
+
+
 ldi = LinuxDistribution()
 
 
@@ -377,3 +405,7 @@ def lsb_release_info():
 
 def distro_release_info():
     return ldi.distro_release_info()
+
+
+def info():
+    return ldi.info()

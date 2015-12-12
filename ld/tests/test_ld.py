@@ -21,7 +21,6 @@ class TestOSRelease(testtools.TestCase):
         ldi = ld.LinuxDistribution(
             self.redhat_os_release, 'non', 'non')
 
-        # raise Exception(self.os_release_file)
         self.assertEqual(ldi.id(), 'rhel')
         self.assertEqual(ldi.name(), 'Red Hat Enterprise Linux Server')
         self.assertEqual(
@@ -148,3 +147,24 @@ class TestDistRelease(testtools.TestCase):
         self.assertEqual(ldi.major_version(), '7')
         self.assertEqual(ldi.minor_version(), '1')
         self.assertEqual(ldi.build_number(), '1503')
+
+
+class TestInfo(testtools.TestCase):
+
+    def setUp(self):
+        super(TestInfo, self).setUp()
+        self.redhat_os_release = os.path.join(RESOURCES, 'redhat-os-release')
+
+    def test_info(self):
+        ldi = ld.LinuxDistribution(
+            self.redhat_os_release, 'non', 'non')
+
+        info = ldi.info()
+        self.assertEqual(info['id'], 'rhel')
+        self.assertEqual(info['version'], '7.0')
+        self.assertEqual(info['like'], 'fedora')
+        self.assertEqual(info['codename'], 'maipo')
+        self.assertEqual(info['base'], 'fedora')
+        self.assertEqual(info['version_parts']['major'], '7')
+        self.assertEqual(info['version_parts']['minor'], '0')
+        self.assertEqual(info['version_parts']['build_number'], '')
