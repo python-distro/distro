@@ -1,6 +1,6 @@
 import os
 import re
-import constants as const
+from . import constants as const
 
 
 class LinuxDistribution(object):

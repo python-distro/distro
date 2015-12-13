@@ -17,6 +17,9 @@ see [https://bugs.python.org/issue1322](https://bugs.python.org/issue1322) for m
 * `/etc/lsb-release`
 * `/etc/*-release`
 
+`ld` is tested on Python 2.6, 2.7 and 3.5
+
+
 ## Installation
 
 ```shell
