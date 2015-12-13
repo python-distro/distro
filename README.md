@@ -11,6 +11,9 @@ Still, there are many cases in which you need access to that information.
 
 see [https://bugs.python.org/issue1322](https://bugs.python.org/issue1322) for more information.
 
+THIS IS WIP! It is is no means production ready. See caveats section.
+
+
 `ld` (linux distribution) attempts to implement a more robust and inclusive way of retrieving the distro related information based on new standards and old methods - namely:
 
 * `/etc/os-release`
@@ -72,13 +75,15 @@ ld.linux_distribution(full_distribution_name=False)
 
 Attempts to implement Python's `platform.linux_distribution()`.
 
+If `full_distribution_name` is set to `True`, the `name` will be returned instead of the `id`.
+
 ### `ld.id()`
 
 Returns the id of the distribution - e.g. `ubuntu`, `fedora`, `debian`...
 
 The id should be machine-readable.
 
-#### Retrieval Hierarchy
+#### Lookup Hierarchy
 
 * os-release['ID']
 * lsb-release['DISTRIB_ID'] in lowercase.
@@ -89,7 +94,7 @@ The id should be machine-readable.
 
 Returns the name of the distribution - e.g. `Red Hat Enterprise Linux Server`, `Ubuntu`, `openSUSE Leap`
 
-#### Retrieval Hierarchy
+#### Lookup Hierarchy
 
 * os-release['NAME']
 * lsb-release['DISTRIB_ID']
@@ -100,7 +105,7 @@ Returns the name of the distribution - e.g. `Red Hat Enterprise Linux Server`, `
 
 Returns a prettified name of the distribution - e.g. `openSUSE Leap 42.1 (x86_64)`, `CentOS Linux 7 (Core)`, `Oracle Linux Server 7.1`
 
-#### Retrieval Hierarchy
+#### Lookup Hierarchy
 
 * os-release['PRETTY_NAME']
 * lsb-release['DISTRIB_ID'] + `ld.version(pretty=True)`
@@ -111,7 +116,7 @@ Returns a prettified name of the distribution - e.g. `openSUSE Leap 42.1 (x86_64
 
 Returns the version (i.e. release) of the distribution - e.g. .. well.. the version number.
 
-### Retrieval Hierarchy
+### Lookup Hierarchy
 
 * os-release['VERSION_ID']
 * lsb-release['DISTRIB_RELEASE']
@@ -123,7 +128,7 @@ Returns the version (i.e. release) of the distribution - e.g. .. well.. the vers
 
 Returns a prettified version of the distribution  - e.g. `7 (Core)`, `23 (Twenty Three)`
 
-### Retrieval Hierarchy
+### Lookup Hierarchy
 
 * os-release['VERSION']
 * lsb-release['DISTRIB_RELEASE'] + `ld.codename()` (if codename exists)
@@ -140,7 +145,7 @@ Returns the distribution version's codename - e.g. `Core`, `trusty`, `Maipo`
 
 Note that not all distributions provide a codename for their releases.
 
-#### Retrieval Hierarchy
+#### Lookup Hierarchy
 
 * The second part of os-release['VERSION'] (between parentheses or after a comma)
 * lsb-release['DISTRIB_CODENAME']
@@ -201,6 +206,14 @@ For instance, RHEL 7's os-release file contains the following:
 * [os-release](http://www.freedesktop.org/software/systemd/man/os-release.html) is a new standard for providing distro-specific information. This is the first file looked at when attempting to retrieve the distro specific info.
 * [lsb-release](http://linux.die.net/man/1/lsb_release) is usually found by default in Ubuntu. When `/etc/debian_version` is found, we also check for `/etc/lsb-release` to retrieve the information from it.
 * `*-release` - We fallback to the release file specific to the distribution (e.g. `/etc/redhat-release`, `/etc/centos-release`) and try to extract information (like the version and codename) from it. This is done by looking up the a release file and parsing it.
+
+## Caveats
+
+contributors, please read.
+
+* There will be some consistency issues depending on the system you're running on. For instance, `os-release` returns `rhel` as an id while `redhat-release` returns `redhat`. This means that either the user will have to act upon "either redhat or rhel" or we'll have to decide on one of them and then convert in-code.
+* `codename` of the same distro might be different in some cases. For instance, `os-release` returns `Trusty Tahr` for Ubuntu 14.04 while `lsb-release` returns `trusty`. This again means that we'll either have to tell the user to check `codename.lower().startswith(WHATEVER)` or find a consistent way of dealing with codenames. All in all, relying on version numbers is preferred.
+* `id` and `name` currently fallback to eachother under harsh circumstances. This was done so that at least something is returned to the user. This feels fishy and we need to decide whether we want this or not.
 
 ## Testing
 
