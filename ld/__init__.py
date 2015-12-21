@@ -16,18 +16,40 @@ class LinuxDistribution(object):
         self._dist_release_info = self.distro_release_info()
 
     def os_release_info(self):
+        """Returns a dictionary containing key value pairs
+        of an /etc/os-release file attributes.
+
+        See http://www.freedesktop.org/software/systemd/man/os-release.html
+        as a reference.
+        """
         if os.path.isfile(self.os_release_file):
             with open(self.os_release_file, 'r') as f:
                 return self._parse_key_value_files(f)
         return {}
 
     def lsb_release_info(self):
+        """Returns a dictionary containing key value pairs
+        of an /etc/lsb-release file attributes.
+
+        See http://refspecs.linuxfoundation.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/lsbrelease.html  # NOQA
+        as a reference.
+        """
         if os.path.isfile(self.lsb_release_file):
             with open(self.lsb_release_file, 'r') as f:
                 return self._parse_key_value_files(f)
         return {}
 
     def distro_release_info(self):
+        """Returns a dictionary containing parsed information
+        from the /etc/*-release file matching the relevant platform.
+
+        The dict contains the following keys:
+        `name` - the name of the distribution.
+        `version` - the distribution's release version.
+        `codename` - the distribution's codename.
+
+        Note that any of these could be empty if not found.
+        """
         release_file = self.distro_release_file \
             or self._attempt_to_get_release_file()
         self.dist = self._get_dist_from_release_file(release_file)
@@ -108,8 +130,7 @@ class LinuxDistribution(object):
         """Retrieves the distribution from a release file's name if the file
         provided is indeed a release file.
 
-        This will only return a distribution if it's supported. Otherwise,
-        this will return False.
+        This will only return a distribution if it's supported.
         """
         some_file = os.path.basename(some_file)
         release_file_pattern = re.compile(r'(\w+)([-_])(release|version)')
@@ -137,7 +158,7 @@ class LinuxDistribution(object):
                 return f
         return ''
 
-    def set_distribution_properties(self):
+    def _set_distribution_properties(self):
         """WIP! This should handle all exceptional release files."""
         if os.path.isfile(const.DEBIAN_VERSION):
             dist = self.get_lsb_release_attr('distrib_id').lower()
@@ -218,19 +239,13 @@ class LinuxDistribution(object):
         If pretty=False, the version is returned without codename (e.g. 7.0).
         If pretty=True, codename is appended (e.g. 7.0 (Maipo))
         """
-        if pretty:
-            version = self.get_os_release_attr('version')
-            if not version:
-                version = self.get_lsb_release_attr('distrib_release') \
-                    or self.get_dist_release_attr('version_id')
-                # this is only eligable if `version` exists..
-                if version and self.codename():
-                    version = '{0} ({1})'.format(version, self.codename())
-        else:
-            version = self.get_os_release_attr('version_id') \
-                or self.get_lsb_release_attr('distrib_release') \
-                or self.get_dist_release_attr('version_id')
-        return version or ''
+        version = self.get_os_release_attr('version_id') \
+            or self.get_lsb_release_attr('distrib_release') \
+            or self.get_dist_release_attr('version_id') \
+            or ''
+        if pretty and version and self.codename():
+            version = '{0} ({1})'.format(version, self.codename())
+        return version
 
     def version_parts(self):
         """Returns a tuple with (major, minor, build_number).
@@ -352,60 +367,57 @@ class LinuxDistribution(object):
         return i
 
 
-ldi = LinuxDistribution()
-
-
 def id():
-    return ldi.id()
+    return LinuxDistribution().id()
 
 
 def name(pretty=False):
-    return ldi.name(pretty)
+    return LinuxDistribution().name(pretty)
 
 
 def version(pretty=False):
-    return ldi.version(pretty)
+    return LinuxDistribution().version(pretty)
 
 
 def major_version():
-    return ldi.major_version()
+    return LinuxDistribution().major_version()
 
 
 def minor_version():
-    return ldi.minor_version()
+    return LinuxDistribution().minor_version()
 
 
 def build_number():
-    return ldi.build_number()
+    return LinuxDistribution().build_number()
 
 
 def like():
-    return ldi.like()
+    return LinuxDistribution().like()
 
 
 def codename():
-    return ldi.codename()
+    return LinuxDistribution().codename()
 
 
 def base():
-    return ldi.base()
+    return LinuxDistribution().base()
 
 
 def linux_distribution(full_distribution_name=True):
-    return ldi.linux_distribution(full_distribution_name)
+    return LinuxDistribution().linux_distribution(full_distribution_name)
 
 
 def os_release_info():
-    return ldi.os_release_info()
+    return LinuxDistribution().os_release_info()
 
 
 def lsb_release_info():
-    return ldi.lsb_release_info()
+    return LinuxDistribution().lsb_release_info()
 
 
 def distro_release_info():
-    return ldi.distro_release_info()
+    return LinuxDistribution().distro_release_info()
 
 
 def info():
-    return ldi.info()
+    return LinuxDistribution().info()
