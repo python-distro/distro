@@ -109,19 +109,28 @@ class LinuxDistribution(object):
 
         This will create a dict with the name, version and codename
         extracted from a release file.
+
+        In some cases the codename may be irrelevant.
+        (e.g. openSUSE 42.1 (x86_64)).
+
+        Under consideration:
+        A possible solution could be to not allow codenames which have
+        digits in them as there might not be any.
         """
-        # this assumes that codename can only be made out of letters.
-        # for instance, in SuSE's release file, you might find (x86_64)
-        # in parantheses which is obviously not a codename.
         _release_version = re.compile(
-            r'([^0-9]+)?(?: release )?([\d+.]+)[^(]*(?:\(([\D]+)\))?')
-        name, version, codename = _release_version.match(content).groups()
+            r'(?:\)(.*)\()? *([\d.+\-a-z]*\d) *(?:esaeler *)?(.+)')
+        m = _release_version.match(content[::-1])
+        if not m:
+            name = version = codename = ''
+            # TODO: Maybe improve this way of handling non-matching
+        else:
+            name = m.group(3)[::-1]   # regexp ensures it is non-None
+            version = m.group(2)[::-1]   # regexp ensures it is non-None
+            codename = (m.group(1) or '')[::-1]   # may be None
         props = {
-            # `release` is appended to the name.
-            # TODO: get rid of it completely during grouping.
-            'name': (name or '').replace('release', '').strip(),
-            'version_id': version or '',
-            'codename': codename or ''
+            'name': name,
+            'version_id': version,
+            'codename': codename
         }
         return props
 
