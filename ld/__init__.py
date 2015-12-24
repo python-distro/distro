@@ -1,15 +1,15 @@
 import os
 import re
+import subprocess
+
 from . import constants as const
 
 
 class LinuxDistribution(object):
     def __init__(self,
                  os_release_file='',
-                 lsb_release_file='',
                  distro_release_file=''):
         self.os_release_file = os_release_file or const.OS_RELEASE
-        self.lsb_release_file = lsb_release_file or const.LSB_RELEASE
         self.distro_release_file = distro_release_file or ''
         self._os_release_info = self.os_release_info()
         self._lsb_release_info = self.lsb_release_info()
@@ -28,16 +28,19 @@ class LinuxDistribution(object):
         return {}
 
     def lsb_release_info(self):
-        """Returns a dictionary containing key value pairs
-        of an /etc/lsb-release file attributes.
+        """Returns the parsed output of the `lsb_release -a` command.
 
         See http://refspecs.linuxfoundation.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/lsbrelease.html  # NOQA
         as a reference.
         """
-        if os.path.isfile(self.lsb_release_file):
-            with open(self.lsb_release_file, 'r') as f:
-                return self._parse_key_value_files(f)
-        return {}
+        stdout = subprocess.PIPE
+        stderr = subprocess.PIPE
+        data = subprocess.Popen(
+            'lsb_release -a',
+            shell=True,
+            stdout=stdout,
+            stderr=stderr).stdout
+        return self._parse_lsb_release(data) or {}
 
     def distro_release_info(self):
         """Returns a dictionary containing parsed information
@@ -104,6 +107,20 @@ class LinuxDistribution(object):
         return props
 
     @staticmethod
+    def _parse_lsb_release(content):
+        """Returns a dict containing key:value pairs of the output
+        of the `lsb_release -a` command.
+
+        Note that all keys will be in lower case and any spaces
+        contained within the keys will be replaced with underscores.
+        """
+        props = {}
+        for obj in content:
+            k, v = obj.strip('\n').split(':')
+            props.update({k.replace(' ', '_').lower(): v.strip()})
+        return props
+
+    @staticmethod
     def _parse_release_file(content):
         """Parses a release file.
 
@@ -167,31 +184,6 @@ class LinuxDistribution(object):
                 return f
         return ''
 
-    def _set_distribution_properties(self):
-        """WIP! This should handle all exceptional release files."""
-        if os.path.isfile(const.DEBIAN_VERSION):
-            dist = self.get_lsb_release_attr('distrib_id').lower()
-            if dist:
-                self.dist = dist
-                self.ver = self.get_lsb_release_attr(
-                    'distrib_release').lower()
-                self.code = self.get_lsb_release_attr(
-                    'distrib_codename').lower()
-                return
-            else:
-                if os.path.isfile('/usr/bin/raspi-config'):
-                    self.dist = 'raspbian'
-                else:
-                    self.dist = 'debian'
-                self.distro_release_file = const.DEBIAN_VERSION
-        elif os.path.isfile(const.SUSE_RELEASE):
-            with open(const.SUSE_RELEASE, 'r') as f:
-                if re.search('opensuse', f.read()):
-                    self.dist = 'opensuse'
-                else:
-                    self.dist = 'suse'
-                self.distro_release_file = const.SUSE_RELEASE
-
     def id(self):
         """Returns the id for the distribution.
 
@@ -205,9 +197,8 @@ class LinuxDistribution(object):
         of the distribution if the id cannot be retrieved by any other means.
         """
         return self.get_os_release_attr('id') \
-            or self.get_lsb_release_attr('distrib_id').lower() \
+            or self.get_lsb_release_attr('distributor_id').lower() \
             or self.dist \
-            or self.get_dist_release_attr('name') \
             or ''
 
     def name(self, pretty=False):
@@ -222,24 +213,17 @@ class LinuxDistribution(object):
         Note that if the name cannot be retrieved and the id
         is available, it will be used instead.
         """
+        name = self.get_os_release_attr('name') \
+            or self.get_lsb_release_attr('distributor_id') \
+            or self.get_dist_release_attr('name')
         if pretty:
-            # pretty name should be: name, version (codename)
-            # this might not be true for lsb, but we do it here
-            # to force consistency.
-            name = self.get_os_release_attr('pretty_name')
+            name = self.get_os_release_attr('pretty_name') \
+                or self.get_lsb_release_attr('description')
             if not name:
-                name = self.get_lsb_release_attr('distrib_id') \
-                    or self.get_dist_release_attr('name') \
-                    or self.id()
+                name = self.get_dist_release_attr('name')
                 version = self.version(pretty=True)
-                # this is only eligable if `name` exists..
-                if version and name:
-                    name = '{0} {1}'.format(name, version)
-        else:
-            name = self.get_os_release_attr('name') \
-                or self.get_lsb_release_attr('distrib_id') \
-                or self.get_dist_release_attr('name') \
-                or self.id()
+                if version:
+                    name = name + ' ' + version
         return name or ''
 
     def version(self, pretty=False):
@@ -249,7 +233,7 @@ class LinuxDistribution(object):
         If pretty=True, codename is appended (e.g. 7.0 (Maipo))
         """
         version = self.get_os_release_attr('version_id') \
-            or self.get_lsb_release_attr('distrib_release') \
+            or self.get_lsb_release_attr('release') \
             or self.get_dist_release_attr('version_id') \
             or ''
         if pretty and version and self.codename():
@@ -292,7 +276,7 @@ class LinuxDistribution(object):
              Core (CentOS 7)
         """
         return self.get_os_release_attr('codename') \
-            or self.get_lsb_release_attr('distrib_codename') \
+            or self.get_lsb_release_attr('codename') \
             or self.get_dist_release_attr('codename') \
             or ''
 
@@ -307,7 +291,7 @@ class LinuxDistribution(object):
              'redhat': 'rhel'
         """
         return const.DIST_TO_BASE.get(
-            self.name().lower(),
+            self.id().lower(),
             self.like().lower()) \
             or ''
 
@@ -357,9 +341,8 @@ class LinuxDistribution(object):
             'base': 'fedora'
         }
         """
-        i = dict(
+        return dict(
             id=self.id(),
-            name=self.name(),
             version=self.version(),
             version_parts=dict(
                 major=self.major_version(),
@@ -367,66 +350,63 @@ class LinuxDistribution(object):
                 build_number=build_number()
             ),
             like=self.like(),
-            codename=self.codename(),
             base=self.base()
         )
-        for k, v in i.items():
-            if isinstance(v, str):
-                i[k] = v.lower()
-        return i
+
+_ldi = LinuxDistribution()
 
 
 def id():
-    return LinuxDistribution().id()
+    return _ldi.id()
 
 
 def name(pretty=False):
-    return LinuxDistribution().name(pretty)
+    return _ldi.name(pretty)
 
 
 def version(pretty=False):
-    return LinuxDistribution().version(pretty)
+    return _ldi.version(pretty)
 
 
 def major_version():
-    return LinuxDistribution().major_version()
+    return _ldi.major_version()
 
 
 def minor_version():
-    return LinuxDistribution().minor_version()
+    return _ldi.minor_version()
 
 
 def build_number():
-    return LinuxDistribution().build_number()
+    return _ldi.build_number()
 
 
 def like():
-    return LinuxDistribution().like()
+    return _ldi.like()
 
 
 def codename():
-    return LinuxDistribution().codename()
+    return _ldi.codename()
 
 
 def base():
-    return LinuxDistribution().base()
+    return _ldi.base()
 
 
 def linux_distribution(full_distribution_name=True):
-    return LinuxDistribution().linux_distribution(full_distribution_name)
+    return _ldi.linux_distribution(full_distribution_name)
 
 
 def os_release_info():
-    return LinuxDistribution().os_release_info()
+    return _ldi.os_release_info()
 
 
 def lsb_release_info():
-    return LinuxDistribution().lsb_release_info()
+    return _ldi.lsb_release_info()
 
 
 def distro_release_info():
-    return LinuxDistribution().distro_release_info()
+    return _ldi.distro_release_info()
 
 
 def info():
-    return LinuxDistribution().info()
+    return _ldi.info()

@@ -17,7 +17,7 @@ THIS IS WIP! It is is no means production ready. See caveats section.
 `ld` (linux distribution) attempts to implement a more robust and inclusive way of retrieving the distro related information based on new standards and old methods - namely:
 
 * `/etc/os-release`
-* `/etc/lsb-release`
+* the output of the `lsb_release -a` command
 * `/etc/*-release`
 
 `ld` is tested on Python 2.6, 2.7 and 3.5
@@ -86,9 +86,8 @@ The id should be machine-readable.
 #### Lookup Hierarchy
 
 * os-release['ID']
-* lsb-release['DISTRIB_ID'] in lowercase.
+* lsb-release['Distributor ID'] in lowercase.
 * *-release file name prefix (e.g. redhat from redhat-release)
-* first part of the first line of the *-release file
 
 ### `ld.name()`
 
@@ -97,9 +96,8 @@ Returns the name of the distribution - e.g. `Red Hat Enterprise Linux Server`, `
 #### Lookup Hierarchy
 
 * os-release['NAME']
-* lsb-release['DISTRIB_ID']
+* lsb-release['Distributor ID']
 * first part of the first line of the *-release file
-* `ld.id()`
 
 ### `ld.name(pretty=True)`
 
@@ -108,9 +106,8 @@ Returns a prettified name of the distribution - e.g. `openSUSE Leap 42.1 (x86_64
 #### Lookup Hierarchy
 
 * os-release['PRETTY_NAME']
-* lsb-release['DISTRIB_ID'] + `ld.version(pretty=True)`
+* lsb-release['Description']
 * first part of the first line of the *-release file + `ld.version(pretty=True)`
-* `ld.id()` + `ld.version(pretty=True)`
 
 ### `ld.version()`
 
@@ -119,7 +116,7 @@ Returns the version (i.e. release) of the distribution - e.g. .. well.. the vers
 ### Lookup Hierarchy
 
 * os-release['VERSION_ID']
-* lsb-release['DISTRIB_RELEASE']
+* lsb-release['Release']
 * second part of the first line of the *-release file
 
 `ld.minor_version()`, `ld.major_version()` and `ld.build_number()` are also exposed and are based on `ld.version_parts()`.
@@ -131,7 +128,7 @@ Returns a prettified version of the distribution  - e.g. `7 (Core)`, `23 (Twenty
 ### Lookup Hierarchy
 
 * os-release['VERSION']
-* lsb-release['DISTRIB_RELEASE'] + `ld.codename()` (if codename exists)
+* lsb-release['Release'] + `ld.codename()` (if codename exists)
 * second part of the first line of the *-release file + `ld.codename()` (if codename exists)
 
 ### `ld.like()`
@@ -148,7 +145,7 @@ Note that not all distributions provide a codename for their releases.
 #### Lookup Hierarchy
 
 * The second part of os-release['VERSION'] (between parentheses or after a comma)
-* lsb-release['DISTRIB_CODENAME']
+* lsb-release['Codename']
 * third part of the first line of the *-release files (between parentheses)
 
 ### `ld.base()`
@@ -161,10 +158,8 @@ Matching is one first by `ld.name()` and then by `ld.like()`
 
 ### `ld.info()`
 
-Returns a dictionary with machine readable info of the distribution with one exception - when id is not identified and returns a `name` instead.
-All results return in lowercase.
-
-This somewhat aggregates the rest of the information into one central call.
+Returns a dictionary with machine readable info of the distribution.
+This is just an aggregate of the rest of the information.
 
 Example:
 
@@ -178,7 +173,6 @@ Example:
         'build_number': ''
     },
     'like': 'fedora',
-    'codename': 'maipo',
     'base': 'fedora'
 }
 ```
@@ -187,7 +181,7 @@ Example:
 ### Retrieving information directly
 
 * `ld.os_release_info()` - returns a dictionary containing the info found in `/etc/os-release`
-* `ld.lsb_release_info()` - returns a dictionary containing the info found in `/etc/lsb-release`
+* `ld.lsb_release_info()` - returns a dictionary containing the info parsed from `lsb_release -a`
 * `ld.distro_release_info()` - returns a dictionary containing the info found in '/etc/*-release' matching your distribution.
 
 You can also get the information from some of the release files directly. This allows you to retrieve information that is not exposed via the API.
@@ -201,10 +195,10 @@ For instance, RHEL 7's os-release file contains the following:
 `ld.get_lsb_release_attr()` and `ld.get_dist_release_attr()` are also exposed.
 
 
-## Lookup files
+## Lookup Locations
 
 * [os-release](http://www.freedesktop.org/software/systemd/man/os-release.html) is a new standard for providing distro-specific information. This is the first file looked at when attempting to retrieve the distro specific info.
-* [lsb-release](http://linux.die.net/man/1/lsb_release) is usually found by default in Ubuntu. When `/etc/debian_version` is found, we also check for `/etc/lsb-release` to retrieve the information from it.
+* [lsb_release](http://linux.die.net/man/1/lsb_release) is usually found by default in Ubuntu. When `/etc/debian_version` is found, we also check for `lsb_release -a` to retrieve the information from it.
 * `*-release` - We fallback to the release file specific to the distribution (e.g. `/etc/redhat-release`, `/etc/centos-release`) and try to extract information (like the version and codename) from it. This is done by looking up the a release file and parsing it.
 
 ## Caveats
@@ -212,8 +206,7 @@ For instance, RHEL 7's os-release file contains the following:
 contributors, please read.
 
 * There will be some consistency issues depending on the system you're running on. For instance, `os-release` returns `rhel` as an id while `redhat-release` returns `redhat`. This means that either the user will have to act upon "either redhat or rhel" or we'll have to decide on one of them and then convert in-code.
-* `codename` of the same distro might be different in some cases. For instance, `os-release` returns `Trusty Tahr` for Ubuntu 14.04 while `lsb-release` returns `trusty`. This again means that we'll either have to tell the user to check `codename.lower().startswith(WHATEVER)` or find a consistent way of dealing with codenames. All in all, relying on version numbers is preferred.
-* `id` and `name` currently fallback to eachother under harsh circumstances. This was done so that at least something is returned to the user. This feels fishy and we need to decide whether we want this or not.
+* `codename` of the same distro might be different in some cases. For instance, `os-release` returns `Trusty Tahr` for Ubuntu 14.04 while `lsb_release -a` returns `trusty`. This again means that we'll either have to tell the user to check `codename.lower().startswith(WHATEVER)` or find a consistent way of dealing with codenames. All in all, relying on version numbers is preferred.
 
 ## Testing
 
