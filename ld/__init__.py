@@ -7,12 +7,13 @@ from . import constants as const
 
 class LinuxDistribution(object):
     def __init__(self,
+                 include_lsb=True,
                  os_release_file='',
                  distro_release_file=''):
         self.os_release_file = os_release_file or const.OS_RELEASE
         self.distro_release_file = distro_release_file or ''
         self._os_release_info = self.os_release_info()
-        self._lsb_release_info = self.lsb_release_info()
+        self._lsb_release_info = self.lsb_release_info() if include_lsb else {}
         self._dist_release_info = self.distro_release_info()
 
     def os_release_info(self):
