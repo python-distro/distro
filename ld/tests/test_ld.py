@@ -74,7 +74,6 @@ class TestLSBRelease(testtools.TestCase):
     @staticmethod
     def _mock_lsb_release_info():
         with open(LSB_RELEASE_FILE, 'r') as data:
-            data = data.read().decode('ascii').splitlines()
             return ld.LinuxDistribution()._parse_lsb_release(data) or {}
 
     def test_lsb_release(self):
