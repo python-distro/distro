@@ -41,7 +41,8 @@ class LinuxDistribution(object):
             shell=True,
             stdout=stdout,
             stderr=stderr).stdout
-        return self._parse_lsb_release(r.read().splitlines()) or {}
+        return self._parse_lsb_release(
+            r.read().decode('ascii').splitlines()) or {}
 
     def distro_release_info(self):
         """Returns a dictionary containing parsed information
