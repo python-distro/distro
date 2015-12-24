@@ -12,16 +12,13 @@ def read(*parts):
 
 setup(
     name='ld',
-    version="0.1.2",
+    version="0.2.0",
     url='https://github.com/nir0s/ld',
     author='nir0s',
     author_email='nir36g@gmail.com',
     license='LICENSE',
     platforms='All',
-    description='OS Platform Information API',
+    description='Linux OS Platform Information API',
     long_description=read('README.rst'),
-    packages=['ld'],
-    install_requires=[
-        "click==6.2",
-    ],
+    packages=['ld']
 )
