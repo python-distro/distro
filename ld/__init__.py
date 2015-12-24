@@ -36,12 +36,12 @@ class LinuxDistribution(object):
         """
         stdout = subprocess.PIPE
         stderr = subprocess.PIPE
-        data = subprocess.Popen(
+        r = subprocess.Popen(
             'lsb_release -a',
             shell=True,
             stdout=stdout,
             stderr=stderr).stdout
-        return self._parse_lsb_release(data) or {}
+        return self._parse_lsb_release(r.read().splitlines()) or {}
 
     def distro_release_info(self):
         """Returns a dictionary containing parsed information
