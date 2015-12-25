@@ -12,7 +12,7 @@ def read(*parts):
 
 setup(
     name='ld',
-    version="0.2.0",
+    version="0.2.1",
     url='https://github.com/nir0s/ld',
     author='nir0s',
     author_email='nir36g@gmail.com',

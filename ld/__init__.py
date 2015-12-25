@@ -7,12 +7,13 @@ from . import constants as const
 
 class LinuxDistribution(object):
     def __init__(self,
+                 include_lsb=True,
                  os_release_file='',
                  distro_release_file=''):
         self.os_release_file = os_release_file or const.OS_RELEASE
         self.distro_release_file = distro_release_file or ''
         self._os_release_info = self.os_release_info()
-        self._lsb_release_info = self.lsb_release_info()
+        self._lsb_release_info = self.lsb_release_info() if include_lsb else {}
         self._dist_release_info = self.distro_release_info()
 
     def os_release_info(self):
@@ -35,12 +36,13 @@ class LinuxDistribution(object):
         """
         stdout = subprocess.PIPE
         stderr = subprocess.PIPE
-        data = subprocess.Popen(
+        r = subprocess.Popen(
             'lsb_release -a',
             shell=True,
             stdout=stdout,
             stderr=stderr).stdout
-        return self._parse_lsb_release(data) or {}
+        return self._parse_lsb_release(
+            r.read().decode('ascii').splitlines()) or {}
 
     def distro_release_info(self):
         """Returns a dictionary containing parsed information

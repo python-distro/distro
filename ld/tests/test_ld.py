@@ -19,7 +19,7 @@ class TestOSRelease(testtools.TestCase):
         self.ubuntu_os_release = os.path.join(RESOURCES, 'ubuntu-os-release')
 
     def test_redhat_os_release(self):
-        ldi = ld.LinuxDistribution(self.redhat_os_release, 'non')
+        ldi = ld.LinuxDistribution(False, self.redhat_os_release, 'non')
 
         self.assertEqual(ldi.id(), 'rhel')
         self.assertEqual(ldi.name(), 'Red Hat Enterprise Linux Server')
@@ -33,7 +33,7 @@ class TestOSRelease(testtools.TestCase):
         self.assertEqual(ldi.base(), 'fedora')
 
     def test_suse_os_release(self):
-        ldi = ld.LinuxDistribution(self.suse_os_release, 'non')
+        ldi = ld.LinuxDistribution(False, self.suse_os_release, 'non')
 
         self.assertEqual(ldi.id(), 'opensuse')
         self.assertEqual(ldi.name(), 'openSUSE Leap')
@@ -45,7 +45,7 @@ class TestOSRelease(testtools.TestCase):
         self.assertEqual(ldi.base(), 'suse')
 
     def test_fedora_os_release(self):
-        ldi = ld.LinuxDistribution(self.fedora_os_release, 'non')
+        ldi = ld.LinuxDistribution(False, self.fedora_os_release, 'non')
 
         self.assertEqual(ldi.id(), 'fedora')
         self.assertEqual(ldi.name(), 'Fedora')
@@ -57,7 +57,7 @@ class TestOSRelease(testtools.TestCase):
         self.assertEqual(ldi.base(), 'fedora')
 
     def test_ubuntu_os_release(self):
-        ldi = ld.LinuxDistribution(self.ubuntu_os_release, 'non')
+        ldi = ld.LinuxDistribution(False, self.ubuntu_os_release, 'non')
 
         self.assertEqual(ldi.id(), 'ubuntu')
         self.assertEqual(ldi.name(), 'Ubuntu')
@@ -73,11 +73,11 @@ class TestLSBRelease(testtools.TestCase):
 
     @staticmethod
     def _mock_lsb_release_info():
-        with open(LSB_RELEASE_FILE) as data:
+        with open(LSB_RELEASE_FILE, 'r') as data:
             return ld.LinuxDistribution()._parse_lsb_release(data) or {}
 
     def test_lsb_release(self):
-        ldi = ld.LinuxDistribution('non', 'non')
+        ldi = ld.LinuxDistribution(True, 'non', 'non')
         ldi._lsb_release_info = self._mock_lsb_release_info()
 
         self.assertEqual(ldi.id(), 'ubuntu')
@@ -102,8 +102,7 @@ class TestDistRelease(testtools.TestCase):
         self.empty_release = os.path.join(RESOURCES, 'empty-release')
 
     def test_redhat_release(self):
-        ldi = ld.LinuxDistribution(
-            'non', self.redhat_release)
+        ldi = ld.LinuxDistribution(False, 'non', self.redhat_release)
 
         self.assertEqual(ldi.id(), 'redhat')
         self.assertEqual(ldi.name(), 'Red Hat Enterprise Linux Server')
@@ -118,8 +117,7 @@ class TestDistRelease(testtools.TestCase):
         self.assertEqual(ldi.version_parts(), ('7', '0', ''))
 
     def test_suse_release(self):
-        ldi = ld.LinuxDistribution(
-            'non', self.suse_release)
+        ldi = ld.LinuxDistribution(False, 'non', self.suse_release)
 
         self.assertEqual(ldi.id(), '')
         self.assertEqual(ldi.name(), 'openSUSE')
@@ -134,8 +132,7 @@ class TestDistRelease(testtools.TestCase):
         self.assertEqual(ldi.build_number(), '')
 
     def test_centos_release(self):
-        ldi = ld.LinuxDistribution(
-            'non', self.centos_release)
+        ldi = ld.LinuxDistribution(False, 'non', self.centos_release)
 
         self.assertEqual(ldi.id(), 'centos')
         self.assertEqual(ldi.name(), 'CentOS Linux')
@@ -150,8 +147,7 @@ class TestDistRelease(testtools.TestCase):
         self.assertEqual(ldi.build_number(), '1503')
 
     def test_fedora_release(self):
-        ldi = ld.LinuxDistribution(
-            'non', self.fedora_release)
+        ldi = ld.LinuxDistribution(False, 'non', self.fedora_release)
 
         self.assertEqual(ldi.id(), 'fedora')
         self.assertEqual(ldi.name(), 'Fedora')
@@ -163,8 +159,7 @@ class TestDistRelease(testtools.TestCase):
         self.assertEqual(ldi.base(), 'fedora')
 
     def test_oracle_release(self):
-        ldi = ld.LinuxDistribution(
-            'non', self.oracle_release)
+        ldi = ld.LinuxDistribution(False, 'non', self.oracle_release)
 
         self.assertEqual(ldi.id(), 'oracle')
         self.assertEqual(ldi.name(), 'Oracle Linux Server')
@@ -176,8 +171,7 @@ class TestDistRelease(testtools.TestCase):
         self.assertEqual(ldi.base(), 'rhel')
 
     def test_empty_release(self):
-        ldi = ld.LinuxDistribution(
-            'non', self.empty_release)
+        ldi = ld.LinuxDistribution(False, 'non', self.empty_release)
 
         self.assertEqual(ldi.id(), '')
         self.assertEqual(ldi.name(), '')
@@ -196,8 +190,7 @@ class TestInfo(testtools.TestCase):
         self.redhat_os_release = os.path.join(RESOURCES, 'redhat-os-release')
 
     def test_info(self):
-        ldi = ld.LinuxDistribution(
-            self.redhat_os_release, 'non')
+        ldi = ld.LinuxDistribution(False, self.redhat_os_release, 'non')
 
         info = ldi.info()
         self.assertEqual(info['id'], 'rhel')
@@ -209,8 +202,7 @@ class TestInfo(testtools.TestCase):
         self.assertEqual(info['version_parts']['build_number'], '')
 
     def test_none(self):
-        ldi = ld.LinuxDistribution(
-            'non', 'non')
+        ldi = ld.LinuxDistribution(False, 'non', 'non')
 
         info = ldi.info()
         self.assertEqual(info['id'], '')
@@ -222,12 +214,12 @@ class TestInfo(testtools.TestCase):
         self.assertEqual(info['version_parts']['build_number'], '')
 
     def test_linux_disribution(self):
-        ldi = ld.LinuxDistribution(self.redhat_os_release)
+        ldi = ld.LinuxDistribution(False, self.redhat_os_release)
         i = ldi.linux_distribution()
         self.assertEqual(
             i, ('Red Hat Enterprise Linux Server', '7.0', 'Maipo'))
 
     def test_linux_disribution_full_false(self):
-        ldi = ld.LinuxDistribution(self.redhat_os_release)
+        ldi = ld.LinuxDistribution(False, self.redhat_os_release)
         i = ldi.linux_distribution(full_distribution_name=False)
         self.assertEqual(i, ('rhel', '7.0', 'Maipo'))
