@@ -17,6 +17,7 @@ class TestOSRelease(testtools.TestCase):
         self.suse_os_release = os.path.join(RESOURCES, 'suse-os-release')
         self.fedora_os_release = os.path.join(RESOURCES, 'fedora-os-release')
         self.ubuntu_os_release = os.path.join(RESOURCES, 'ubuntu-os-release')
+        self.arch_os_release = os.path.join(RESOURCES, 'arch-os-release')
 
     def test_redhat_os_release(self):
         ldi = ld.LinuxDistribution(False, self.redhat_os_release, 'non')
@@ -68,6 +69,18 @@ class TestOSRelease(testtools.TestCase):
         self.assertEqual(ldi.codename(), 'Trusty Tahr')
         self.assertEqual(ldi.base(), 'debian')
 
+    def test_arch_os_release(self):
+        ldi = ld.LinuxDistribution(False, self.arch_os_release, 'non')
+
+        self.assertEqual(ldi.id(), 'arch')
+        self.assertEqual(ldi.name(), 'Arch Linux')
+        self.assertEqual(ldi.name(pretty=True), 'Arch Linux')
+        self.assertEqual(ldi.version(), '')
+        self.assertEqual(ldi.version(pretty=True), '')
+        self.assertEqual(ldi.like(), '')
+        self.assertEqual(ldi.codename(), '')
+        self.assertEqual(ldi.base(), '')
+
 
 class TestLSBRelease(testtools.TestCase):
 
@@ -100,6 +113,7 @@ class TestDistRelease(testtools.TestCase):
         self.fedora_release = os.path.join(RESOURCES, 'fedora-release')
         self.oracle_release = os.path.join(RESOURCES, 'oracle-release')
         self.empty_release = os.path.join(RESOURCES, 'empty-release')
+        self.arch_release = os.path.join(RESOURCES, 'arch-release')
 
     def test_redhat_release(self):
         ldi = ld.LinuxDistribution(False, 'non', self.redhat_release)
@@ -172,6 +186,18 @@ class TestDistRelease(testtools.TestCase):
 
     def test_empty_release(self):
         ldi = ld.LinuxDistribution(False, 'non', self.empty_release)
+
+        self.assertEqual(ldi.id(), '')
+        self.assertEqual(ldi.name(), '')
+        self.assertEqual(ldi.name(pretty=True), '')
+        self.assertEqual(ldi.version(), '')
+        self.assertEqual(ldi.version(pretty=True), '')
+        self.assertEqual(ldi.like(), '')
+        self.assertEqual(ldi.codename(), '')
+        self.assertEqual(ldi.base(), '')
+
+    def test_arch_release(self):
+        ldi = ld.LinuxDistribution(False, 'non', self.arch_release)
 
         self.assertEqual(ldi.id(), '')
         self.assertEqual(ldi.name(), '')
