@@ -13,15 +13,16 @@ release: publish
 dev: instdev test
 
 instdev:
-	pip install -rdev-requirements.txt
+	pip install -r dev-requirements.txt
 	python setup.py develop
 
 install:
 	python setup.py install
 
 test:
-	pip install tox==1.7.1
+	sudo pip install 'tox>=1.7.2'
 	tox
 
 publish:
 	python setup.py sdist upload
+
