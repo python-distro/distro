@@ -7,18 +7,18 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-env/
-bin/
-build/
-develop-eggs/
-dist/
-eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
+/env/
+/bin/
+/build/
+/develop-eggs/
+/dist/
+/eggs/
+/lib/
+/lib64/
+/parts/
+/sdist/
+/var/
+/*.egg-info/
 .installed.cfg
 *.egg
 
@@ -27,8 +27,8 @@ pip-log.txt
 pip-delete-this-directory.txt
 
 # Unit test / coverage reports
-htmlcov/
-.tox/
+/htmlcov/
+/.tox/
 .coverage
 .cache
 nosetests.xml
@@ -50,7 +50,7 @@ coverage.xml
 *.pot
 
 # Sphinx documentation
-docs/_build/
+/docs/_build/
 
 *.iml
 
