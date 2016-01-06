@@ -118,7 +118,7 @@ class LinuxDistribution(object):
         """
         props = {}
         for obj in content:
-            k, v = obj.strip('\n').split(':')
+            k, v = obj.strip('\n').split(':', 1)
             props.update({k.replace(' ', '_').lower(): v.strip()})
         return props
 
@@ -138,7 +138,7 @@ class LinuxDistribution(object):
         """
         _release_version = re.compile(
             r'(?:\)(.*)\()? *([\d.+\-a-z]*\d) *(?:esaeler *)?(.+)')
-        m = _release_version.match(content[::-1])
+        m = _release_version.match(content.strip()[::-1])
         if not m:
             name = version = codename = ''
             # TODO: Maybe improve this way of handling non-matching
