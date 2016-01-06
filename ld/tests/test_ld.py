@@ -158,7 +158,8 @@ class TestDistRelease(testtools.TestCase):
         super(TestDistRelease, self).setUp()
 
     def test_rhel7_release(self):
-        distro_release = os.path.join(DISTROS, 'rhel7', 'etc', 'redhat-release')
+        distro_release = os.path.join(DISTROS, 'rhel7', 'etc',
+                                      'redhat-release')
 
         ldi = ld.LinuxDistribution(False, 'non', distro_release)
 
@@ -175,7 +176,8 @@ class TestDistRelease(testtools.TestCase):
         self.assertEqual(ldi.version_parts(), ('7', '0', ''))
 
     def test_rhel6_release(self):
-        distro_release = os.path.join(DISTROS, 'rhel6', 'etc', 'redhat-release')
+        distro_release = os.path.join(DISTROS, 'rhel6', 'etc',
+                                      'redhat-release')
 
         ldi = ld.LinuxDistribution(False, 'non', distro_release)
 
