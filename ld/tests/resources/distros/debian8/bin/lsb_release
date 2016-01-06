@@ -1,4 +1,5 @@
 #!/bin/bash
+#
 # lsb_release command for testing the ld module.
 # Only the -a option is supported.
 #
