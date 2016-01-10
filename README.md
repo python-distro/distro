@@ -37,23 +37,18 @@ pip install https://github.com/nir0s/ld/archive/master.tar.gz
 
 ## Distribution Support
 
-The following distributions are handled (not all versions are tested of course):
+The following distributions are tested (this is by no means an exhaustive list of supported distros as any distro adhering to the same standards should work):
 
-* Red Hat
-* CentOS
-* Ubuntu
-* Debian
-* OpenSuSE
-* SuSE
 * Arch
-* Slackware
+* CentOS 5/7
+* Debian 8
 * Exherbo
-* Oracle
-
-Soon:
-
-* Gentoo
-* Enterprise
+* Fedora 23
+* OpenSuSE 42
+* Oracle 7
+* Red Hat 6/7
+* Slackware 14
+* Ubuntu 14
 
 
 ## Usage
@@ -198,14 +193,14 @@ For instance, RHEL 7's os-release file contains the following:
 ## Lookup Locations
 
 * [os-release](http://www.freedesktop.org/software/systemd/man/os-release.html) is a new standard for providing distro-specific information. This is the first file looked at when attempting to retrieve the distro specific info.
-* [lsb_release](http://linux.die.net/man/1/lsb_release) is usually found by default in Ubuntu. When `/etc/debian_version` is found, we also check for `lsb_release -a` to retrieve the information from it.
+* [lsb_release](http://linux.die.net/man/1/lsb_release) is found by default in Ubuntu. We also check for `lsb_release -a` to retrieve the information from it if it is available.
 * `*-release` - We fallback to the release file specific to the distribution (e.g. `/etc/redhat-release`, `/etc/centos-release`) and try to extract information (like the version and codename) from it. This is done by looking up the a release file and parsing it.
 
 ## Caveats
 
 contributors, please read.
 
-* There will be some consistency issues depending on the system you're running on. For instance, `os-release` returns `rhel` as an id while `redhat-release` returns `redhat`. This means that either the user will have to act upon "either redhat or rhel" or we'll have to decide on one of them and then convert in-code.
+* There will be some consistency issues depending on the system you're running. For instance, `os-release` returns `rhel` as an id while `redhat-release` returns `redhat`. This means that either the user will have to act upon "either redhat or rhel" or we'll have to decide on one of them and then convert in-code.
 * `codename` of the same distro might be different in some cases. For instance, `os-release` returns `Trusty Tahr` for Ubuntu 14.04 while `lsb_release -a` returns `trusty`. This again means that we'll either have to tell the user to check `codename.lower().startswith(WHATEVER)` or find a consistent way of dealing with codenames. All in all, relying on version numbers is preferred.
 
 ## Testing
