@@ -3,11 +3,15 @@ import os
 import testtools
 
 import ld
+from ld import constants as const
 
 
 RESOURCES = os.path.join('tests', 'resources')
 DISTROS = os.path.join(RESOURCES, 'distros')
 SPECIAL = os.path.join(RESOURCES, 'special')
+
+RELATIVE_UNIXCONFDIR = const._UNIXCONFDIR.lstrip('/')
+RELATIVE_OS_RELEASE = const._OS_RELEASE.lstrip('/')
 
 
 class TestOSRelease(testtools.TestCase):
@@ -334,6 +338,208 @@ class TestDistRelease(testtools.TestCase):
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), '')
         self.assertEqual(ldi.base(), 'slackware')
+
+
+class TestOverall(testtools.TestCase):
+
+    def setUp(self):
+        super(TestOverall, self).setUp()
+
+    def _setup_for_distro(self, distro_root):
+        distro_bin = os.path.join(os.getcwd(), distro_root, 'bin')
+        # We don't want to pick up a possibly present lsb_release in the
+        # distro that runs this test, so we use a PATH with only one entry:
+        os.environ["PATH"] = distro_bin
+        const._UNIXCONFDIR = os.path.join(distro_root, RELATIVE_UNIXCONFDIR)
+        const._OS_RELEASE = os.path.join(distro_root, RELATIVE_OS_RELEASE)
+
+    def test_arch_release(self):
+        self._setup_for_distro(os.path.join(DISTROS, 'arch'))
+
+        ldi = ld.LinuxDistribution()
+
+        self.assertEqual(ldi.id(), 'arch')
+        self.assertEqual(ldi.name(), 'Arch Linux')
+        self.assertEqual(ldi.name(pretty=True), 'Arch Linux')
+        # Arch Linux has a continuous release concept:
+        self.assertEqual(ldi.version(), '')
+        self.assertEqual(ldi.version(pretty=True), '')
+        self.assertEqual(ldi.like(), '')
+        self.assertEqual(ldi.codename(), '')
+        self.assertEqual(ldi.base(), 'arch')
+
+    def test_centos5_release(self):
+        self._setup_for_distro(os.path.join(DISTROS, 'centos5'))
+
+        ldi = ld.LinuxDistribution()
+
+        self.assertEqual(ldi.id(), 'centos')
+        self.assertEqual(ldi.name(), 'CentOS')
+        self.assertEqual(ldi.name(pretty=True), 'CentOS 5.11 (Final)')
+        self.assertEqual(ldi.version(), '5.11')
+        self.assertEqual(ldi.version(pretty=True), '5.11 (Final)')
+        self.assertEqual(ldi.like(), '')
+        self.assertEqual(ldi.codename(), 'Final')
+        self.assertEqual(ldi.base(), 'rhel')
+        self.assertEqual(ldi.major_version(), '5')
+        self.assertEqual(ldi.minor_version(), '11')
+        self.assertEqual(ldi.build_number(), '')
+
+    def test_centos7_release(self):
+        self._setup_for_distro(os.path.join(DISTROS, 'centos7'))
+
+        ldi = ld.LinuxDistribution()
+
+        self.assertEqual(ldi.id(), 'centos')
+        self.assertEqual(ldi.name(), 'CentOS Linux')
+        self.assertEqual(ldi.name(pretty=True), 'CentOS Linux 7 (Core)')
+        # TODO: Fix issue that version() looses precision.
+        self.assertEqual(ldi.version(), '7')
+        self.assertEqual(ldi.version(pretty=True), '7 (Core)')
+        self.assertEqual(ldi.like(), 'rhel fedora')
+        self.assertEqual(ldi.codename(), 'Core')
+        self.assertEqual(ldi.base(), 'rhel')
+        self.assertEqual(ldi.major_version(), '7')
+        self.assertEqual(ldi.minor_version(), '')
+        self.assertEqual(ldi.build_number(), '')
+
+    def test_debian8_os_release(self):
+        self._setup_for_distro(os.path.join(DISTROS, 'debian8'))
+
+        ldi = ld.LinuxDistribution()
+
+        self.assertEqual(ldi.id(), 'debian')
+        self.assertEqual(ldi.name(), 'Debian GNU/Linux')
+        self.assertEqual(ldi.name(pretty=True), 'Debian GNU/Linux 8 (jessie)')
+        # TODO: Fix issue that version() looses precision.
+        self.assertEqual(ldi.version(), '8')
+        self.assertEqual(ldi.version(pretty=True), '8 (jessie)')
+        self.assertEqual(ldi.like(), '')
+        self.assertEqual(ldi.codename(), 'jessie')
+        self.assertEqual(ldi.base(), 'debian')
+
+    def test_exherbo_release(self):
+        self._setup_for_distro(os.path.join(DISTROS, 'exherbo'))
+
+        ldi = ld.LinuxDistribution()
+
+        # TODO: This release file is currently empty and should be completed.
+        self.assertEqual(ldi.id(), 'exherbo')
+        self.assertEqual(ldi.name(), '')
+        self.assertEqual(ldi.name(pretty=True), '')
+        self.assertEqual(ldi.version(), '')
+        self.assertEqual(ldi.version(pretty=True), '')
+        self.assertEqual(ldi.like(), '')
+        self.assertEqual(ldi.codename(), '')
+        self.assertEqual(ldi.base(), 'exherbo')
+
+    def test_fedora23_release(self):
+        self._setup_for_distro(os.path.join(DISTROS, 'fedora23'))
+
+        ldi = ld.LinuxDistribution()
+
+        self.assertEqual(ldi.id(), 'fedora')
+        self.assertEqual(ldi.name(), 'Fedora')
+        self.assertEqual(ldi.name(pretty=True), 'Fedora 23 (Twenty Three)')
+        self.assertEqual(ldi.version(), '23')
+        self.assertEqual(ldi.version(pretty=True), '23 (Twenty Three)')
+        self.assertEqual(ldi.like(), '')
+        self.assertEqual(ldi.codename(), 'Twenty Three')
+        self.assertEqual(ldi.base(), 'fedora')
+
+    def test_opensuse42_release(self):
+        self._setup_for_distro(os.path.join(DISTROS, 'opensuse42'))
+
+        ldi = ld.LinuxDistribution()
+
+        self.assertEqual(ldi.id(), 'opensuse')
+        self.assertEqual(ldi.name(), 'openSUSE Leap')
+        self.assertEqual(ldi.name(pretty=True), 'openSUSE Leap 42.1 (x86_64)')
+        self.assertEqual(ldi.version(), '42.1')
+        self.assertEqual(ldi.version(pretty=True), '42.1')
+        self.assertEqual(ldi.like(), 'suse')
+        self.assertEqual(ldi.codename(), '')
+        self.assertEqual(ldi.base(), 'suse')
+        self.assertEqual(ldi.major_version(), '42')
+        self.assertEqual(ldi.minor_version(), '1')
+        self.assertEqual(ldi.build_number(), '')
+
+    def test_oracle7_release(self):
+        self._setup_for_distro(os.path.join(DISTROS, 'oracle7'))
+
+        ldi = ld.LinuxDistribution()
+
+        self.assertEqual(ldi.id(), 'oracle')
+        self.assertEqual(ldi.name(), 'Oracle Linux Server')
+        self.assertEqual(ldi.name(pretty=True), 'Oracle Linux Server 7.1')
+        self.assertEqual(ldi.version(), '7.1')
+        self.assertEqual(ldi.version(pretty=True), '7.1')
+        self.assertEqual(ldi.like(), '')
+        self.assertEqual(ldi.codename(), '')
+        self.assertEqual(ldi.base(), 'rhel')
+
+    def test_rhel6_release(self):
+        self._setup_for_distro(os.path.join(DISTROS, 'rhel6'))
+
+        ldi = ld.LinuxDistribution()
+
+        self.assertEqual(ldi.id(), 'redhat')
+        self.assertEqual(ldi.name(), 'Red Hat Enterprise Linux Server')
+        self.assertEqual(
+            ldi.name(pretty=True),
+            'Red Hat Enterprise Linux Server 6.5 (Santiago)')
+        self.assertEqual(ldi.version(), '6.5')
+        self.assertEqual(ldi.version(pretty=True), '6.5 (Santiago)')
+        self.assertEqual(ldi.like(), '')
+        self.assertEqual(ldi.codename(), 'Santiago')
+        self.assertEqual(ldi.base(), 'rhel')
+        self.assertEqual(ldi.version_parts(), ('6', '5', ''))
+
+    def test_rhel7_release(self):
+        self._setup_for_distro(os.path.join(DISTROS, 'rhel7'))
+
+        ldi = ld.LinuxDistribution()
+
+        # TODO: Resolve issue that the id() has changed compared to rhel6
+        self.assertEqual(ldi.id(), 'rhel')
+        self.assertEqual(ldi.name(), 'Red Hat Enterprise Linux Server')
+        self.assertEqual(
+            ldi.name(pretty=True),
+            'Red Hat Enterprise Linux Server 7.0 (Maipo)')
+        self.assertEqual(ldi.version(), '7.0')
+        self.assertEqual(ldi.version(pretty=True), '7.0 (Maipo)')
+        self.assertEqual(ldi.like(), 'fedora')
+        self.assertEqual(ldi.codename(), 'Maipo')
+        self.assertEqual(ldi.base(), 'fedora')
+        self.assertEqual(ldi.version_parts(), ('7', '0', ''))
+
+    def test_slackware14_release(self):
+        self._setup_for_distro(os.path.join(DISTROS, 'slackware14'))
+
+        ldi = ld.LinuxDistribution()
+
+        self.assertEqual(ldi.id(), 'slackware')
+        self.assertEqual(ldi.name(), 'Slackware')
+        self.assertEqual(ldi.name(pretty=True), 'Slackware 14.1')
+        self.assertEqual(ldi.version(), '14.1')
+        self.assertEqual(ldi.version(pretty=True), '14.1')
+        self.assertEqual(ldi.like(), '')
+        self.assertEqual(ldi.codename(), '')
+        self.assertEqual(ldi.base(), 'slackware')
+
+    def test_ubuntu14_os_release(self):
+        self._setup_for_distro(os.path.join(DISTROS, 'ubuntu14'))
+
+        ldi = ld.LinuxDistribution()
+
+        self.assertEqual(ldi.id(), 'ubuntu')
+        self.assertEqual(ldi.name(), 'Ubuntu')
+        self.assertEqual(ldi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
+        self.assertEqual(ldi.version(), '14.04')
+        self.assertEqual(ldi.version(pretty=True), '14.04 (Trusty Tahr)')
+        self.assertEqual(ldi.like(), 'debian')
+        self.assertEqual(ldi.codename(), 'Trusty Tahr')
+        self.assertEqual(ldi.base(), 'debian')
 
 
 class TestInfo(testtools.TestCase):

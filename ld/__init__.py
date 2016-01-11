@@ -11,7 +11,8 @@ class LinuxDistribution(object):
                  os_release_file='',
                  distro_release_file=''):
         self.os_release_file = os_release_file or const._OS_RELEASE
-        self.distro_release_file = distro_release_file or ''
+        self.distro_release_file = distro_release_file or \
+            self._attempt_to_get_release_file()
         self._os_release_info = self.os_release_info()
         self._lsb_release_info = self.lsb_release_info() if include_lsb else {}
         self._dist_release_info = self.distro_release_info()
@@ -55,11 +56,9 @@ class LinuxDistribution(object):
 
         Note that any of these could be empty if not found.
         """
-        release_file = self.distro_release_file \
-            or self._attempt_to_get_release_file()
-        self.dist = self._get_dist_from_release_file(release_file)
-        if os.path.isfile(release_file):
-            with open(release_file, 'r') as f:
+        self.dist = self._get_dist_from_release_file(self.distro_release_file)
+        if os.path.isfile(self.distro_release_file):
+            with open(self.distro_release_file, 'r') as f:
                 # only parse the first line. For instance, on SuSE there are
                 # multiple lines. We don't want them...
                 return self._parse_release_file(f.readline())
@@ -187,7 +186,7 @@ class LinuxDistribution(object):
         files.sort()
         for f in files:
             if self._get_dist_from_release_file(f):
-                return f
+                return os.path.join(const._UNIXCONFDIR, f)
         return ''
 
     def id(self):
