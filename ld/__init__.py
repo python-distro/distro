@@ -118,7 +118,11 @@ class LinuxDistribution(object):
         """
         props = {}
         for obj in content:
-            k, v = obj.strip('\n').split(':', 1)
+            kv = obj.strip('\n').split(':', 1)
+            if len(kv) != 2:
+                # Ignore lines without colon.
+                continue
+            k, v = kv
             props.update({k.replace(' ', '_').lower(): v.strip()})
         return props
 
