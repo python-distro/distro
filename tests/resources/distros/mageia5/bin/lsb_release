@@ -30,7 +30,7 @@ fi
 
 source $LSB_FILE
 
-echo "No LSB modules are available."
+echo "LSB Version:	${LSB_VERSION:-*}"
 echo "Distributor ID:	${DISTRIB_ID:-}"
 echo "Description:	${DISTRIB_DESCRIPTION:-}"
 echo "Release:	${DISTRIB_RELEASE:-}"
