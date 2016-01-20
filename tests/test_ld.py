@@ -8,6 +8,7 @@ from ld import constants as const
 
 RESOURCES = os.path.join('tests', 'resources')
 DISTROS = os.path.join(RESOURCES, 'distros')
+TESTDISTROS = os.path.join(RESOURCES, 'testdistros')
 SPECIAL = os.path.join(RESOURCES, 'special')
 
 RELATIVE_UNIXCONFDIR = const._UNIXCONFDIR.lstrip('/')
@@ -251,14 +252,14 @@ class TestDistRelease(testtools.TestCase):
 
         ldi = ld.LinuxDistribution(False, 'non', distro_release)
 
-        self.assertEqual(ldi.id(), '')
+        self.assertEqual(ldi.id(), 'SuSE')
         self.assertEqual(ldi.name(), 'openSUSE')
         self.assertEqual(ldi.name(pretty=True), 'openSUSE 42.1 (x86_64)')
         self.assertEqual(ldi.version(), '42.1')
         self.assertEqual(ldi.version(pretty=True), '42.1 (x86_64)')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'x86_64')
-        self.assertEqual(ldi.base(), '')
+        self.assertEqual(ldi.base(), 'suse')
         self.assertEqual(ldi.major_version(), '42')
         self.assertEqual(ldi.minor_version(), '1')
         self.assertEqual(ldi.build_number(), '')
@@ -333,7 +334,7 @@ class TestDistRelease(testtools.TestCase):
 
         ldi = ld.LinuxDistribution(False, 'non', distro_release)
 
-        self.assertEqual(ldi.id(), '')
+        self.assertEqual(ldi.id(), 'empty')
         self.assertEqual(ldi.name(), '')
         self.assertEqual(ldi.name(pretty=True), '')
         self.assertEqual(ldi.version(), '')
@@ -495,14 +496,14 @@ class TestOverall(testtools.TestCase):
         ldi = ld.LinuxDistribution()
 
         # TODO: This release file is currently empty and should be completed.
-        self.assertEqual(ldi.id(), 'exherbo')
+        self.assertEqual(ldi.id(), '')
         self.assertEqual(ldi.name(), '')
         self.assertEqual(ldi.name(pretty=True), '')
         self.assertEqual(ldi.version(), '')
         self.assertEqual(ldi.version(pretty=True), '')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), '')
-        self.assertEqual(ldi.base(), 'exherbo')
+        self.assertEqual(ldi.base(), '')
 
     def test_fedora23_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'fedora23'))
@@ -542,9 +543,9 @@ class TestOverall(testtools.TestCase):
         self.assertEqual(ldi.name(), 'openSUSE Leap')
         self.assertEqual(ldi.name(pretty=True), 'openSUSE Leap 42.1 (x86_64)')
         self.assertEqual(ldi.version(), '42.1')
-        self.assertEqual(ldi.version(pretty=True), '42.1')
+        self.assertEqual(ldi.version(pretty=True), '42.1 (x86_64)')
         self.assertEqual(ldi.like(), 'suse')
-        self.assertEqual(ldi.codename(), '')
+        self.assertEqual(ldi.codename(), 'x86_64')
         self.assertEqual(ldi.base(), 'suse')
         self.assertEqual(ldi.major_version(), '42')
         self.assertEqual(ldi.minor_version(), '1')
@@ -626,6 +627,21 @@ class TestOverall(testtools.TestCase):
         self.assertEqual(ldi.like(), 'debian')
         self.assertEqual(ldi.codename(), 'Trusty Tahr')
         self.assertEqual(ldi.base(), 'debian')
+
+    def test_unknowndistro_os_release(self):
+        self._setup_for_distro(os.path.join(TESTDISTROS, 'unknowndistro'))
+
+        ldi = ld.LinuxDistribution()
+
+        self.assertEqual(ldi.id(), 'unknowndistro')
+        self.assertEqual(ldi.name(), 'Unknown Distro')
+        self.assertEqual(ldi.name(pretty=True),
+                         'Unknown Distro 1.0 (Unknown Codename)')
+        self.assertEqual(ldi.version(), '1.0')
+        self.assertEqual(ldi.version(pretty=True), '1.0 (Unknown Codename)')
+        self.assertEqual(ldi.like(), '')
+        self.assertEqual(ldi.codename(), 'Unknown Codename')
+        self.assertEqual(ldi.base(), '')
 
 
 class TestInfo(testtools.TestCase):
