@@ -10,7 +10,7 @@ class LinuxDistribution(object):
                  include_lsb=True,
                  os_release_file='',
                  distro_release_file=''):
-        self.os_release_file = os_release_file or const.OS_RELEASE
+        self.os_release_file = os_release_file or const._OS_RELEASE
         self.distro_release_file = distro_release_file or ''
         self._os_release_info = self.os_release_info()
         self._lsb_release_info = self.lsb_release_info() if include_lsb else {}
@@ -171,7 +171,7 @@ class LinuxDistribution(object):
             # release files are like: redhat-release or slackware_version.
             # the first part is always assumed to be the dist name.
             dist = match.groups()[0]
-            if dist in const.DIST_TO_BASE.keys():
+            if dist in const._DIST_TO_BASE.keys():
                 return dist
 
     def _attempt_to_get_release_file(self):
@@ -183,7 +183,7 @@ class LinuxDistribution(object):
         # we sort for very specific cases in which
         # there are two distro specific files e.g. CentOS, Oracle, Enterprise
         # all also containing `redhat-release` on top of their own.
-        files = os.listdir(const.UNIXCONFDIR)
+        files = os.listdir(const._UNIXCONFDIR)
         files.sort()
         for f in files:
             if self._get_dist_from_release_file(f):
@@ -296,7 +296,7 @@ class LinuxDistribution(object):
              'oracle': 'rhel'
              'redhat': 'rhel'
         """
-        return const.DIST_TO_BASE.get(
+        return const._DIST_TO_BASE.get(
             self.id().lower(),
             self.like().lower()) \
             or ''
