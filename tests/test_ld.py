@@ -137,14 +137,47 @@ class TestOSRelease(testtools.TestCase):
 class TestLSBRelease(testtools.TestCase):
 
     @staticmethod
-    def _mock_lsb_release_info():
-        lsb_release_file = os.path.join(SPECIAL, 'lsb_release.ubuntu14.out')
+    def _mock_lsb_release_info(lsb_release_file):
         with open(lsb_release_file, 'r') as data:
             return ld.LinuxDistribution()._parse_lsb_release(data) or {}
 
-    def test_lsb_release(self):
+    def test_lsb_release_normal(self):
+        lsb_release_file = os.path.join(SPECIAL, 'lsb_release.ubuntu14.out')
+
         ldi = ld.LinuxDistribution(True, 'non', 'non')
-        ldi._lsb_release_info = self._mock_lsb_release_info()
+        ldi._lsb_release_info = self._mock_lsb_release_info(lsb_release_file)
+
+        self.assertEqual(ldi.id(), 'ubuntu')
+        self.assertEqual(ldi.name(), 'Ubuntu')
+        self.assertEqual(ldi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
+        self.assertEqual(ldi.version(), '14.04')
+        self.assertEqual(ldi.version(pretty=True), '14.04 (trusty)')
+        self.assertEqual(ldi.like(), '')
+        self.assertEqual(ldi.codename(), 'trusty')
+        self.assertEqual(ldi.base(), 'debian')
+
+    def test_lsb_release_nomodules(self):
+        lsb_release_file = os.path.join(
+            SPECIAL, 'lsb_release.ubuntu14.nomodules.out')
+
+        ldi = ld.LinuxDistribution(True, 'non', 'non')
+        ldi._lsb_release_info = self._mock_lsb_release_info(lsb_release_file)
+
+        self.assertEqual(ldi.id(), 'ubuntu')
+        self.assertEqual(ldi.name(), 'Ubuntu')
+        self.assertEqual(ldi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
+        self.assertEqual(ldi.version(), '14.04')
+        self.assertEqual(ldi.version(pretty=True), '14.04 (trusty)')
+        self.assertEqual(ldi.like(), '')
+        self.assertEqual(ldi.codename(), 'trusty')
+        self.assertEqual(ldi.base(), 'debian')
+
+    def test_lsb_release_trailingblanks(self):
+        lsb_release_file = os.path.join(
+            SPECIAL, 'lsb_release.ubuntu14.trailingblanks.out')
+
+        ldi = ld.LinuxDistribution(True, 'non', 'non')
+        ldi._lsb_release_info = self._mock_lsb_release_info(lsb_release_file)
 
         self.assertEqual(ldi.id(), 'ubuntu')
         self.assertEqual(ldi.name(), 'Ubuntu')
