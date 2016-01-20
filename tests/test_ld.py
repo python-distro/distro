@@ -5,7 +5,7 @@ import testtools
 import ld
 
 
-RESOURCES = os.path.join('ld', 'tests', 'resources')
+RESOURCES = os.path.join('tests', 'resources')
 DISTROS = os.path.join(RESOURCES, 'distros')
 SPECIAL = os.path.join(RESOURCES, 'special')
 
