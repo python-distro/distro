@@ -407,6 +407,14 @@ class TestOverall(testtools.TestCase):
 
     def setUp(self):
         super(TestOverall, self).setUp()
+        # The environment stays the same across all testcases, so we
+        # save and restore the PATH env var in each test case that
+        # changes it:
+        self._saved_path = os.environ["PATH"]
+
+    def tearDown(self):
+        super(TestOverall, self).tearDown()
+        os.environ["PATH"] = self._saved_path
 
     def _setup_for_distro(self, distro_root):
         distro_bin = os.path.join(os.getcwd(), distro_root, 'bin')
