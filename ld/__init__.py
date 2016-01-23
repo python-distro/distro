@@ -23,11 +23,13 @@ class LinuxDistribution(object):
             "LinuxDistribution(" \
             "os_release_file=%r, " \
             "distro_release_file=%r, " \
+            "dist=%r, " \
             "_os_release_info=%r, " \
             "_lsb_release_info=%r, " \
             "_distro_release_info=%r)" % \
             (self.os_release_file,
              self.distro_release_file,
+             getattr(self, "dist", None),
              self._os_release_info,
              self._lsb_release_info,
              self._distro_release_info)
