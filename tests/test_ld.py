@@ -13,6 +13,7 @@ SPECIAL = os.path.join(RESOURCES, 'special')
 RELATIVE_UNIXCONFDIR = const._UNIXCONFDIR.lstrip('/')
 RELATIVE_OS_RELEASE = const._OS_RELEASE.lstrip('/')
 
+MODULE_LDI = ld._ldi
 
 class TestOSRelease(testtools.TestCase):
 
@@ -660,3 +661,68 @@ class TestInfo(testtools.TestCase):
         ldi = ld.LinuxDistribution(False, self.rhel7_os_release)
         i = ldi.linux_distribution(full_distribution_name=False)
         self.assertEqual(i, ('rhel', '7.0', 'Maipo'))
+
+class TestGlobal(testtools.TestCase):
+    """Test the global module-level functions, and default values of their
+    arguments."""
+
+    def test_global(self):
+        # Because the module-level functions use the module-global
+        # LinuxDistribution instance, it would influence the tested
+        # code too much if we mocked that in order to use the distro
+        # specific release files. Instead, we let the functions use
+        # the release files of the distro this test runs on, and
+        # compare the result of the global functions with the result
+        # of the methods on the global LinuxDistribution object.
+        self.assertEqual(ld.id(),
+            MODULE_LDI.id())
+        self.assertEqual(ld.name(),
+            MODULE_LDI.name(pretty=False))
+        self.assertEqual(ld.name(pretty=False),
+            MODULE_LDI.name())
+        self.assertEqual(ld.name(pretty=True),
+            MODULE_LDI.name(pretty=True))
+        self.assertEqual(ld.version(),
+            MODULE_LDI.version(pretty=False))
+        self.assertEqual(ld.version(pretty=False),
+            MODULE_LDI.version())
+        self.assertEqual(ld.version(pretty=True),
+            MODULE_LDI.version(pretty=True))
+        self.assertEqual(ld.major_version(),
+            MODULE_LDI.major_version())
+        self.assertEqual(ld.minor_version(),
+            MODULE_LDI.minor_version())
+        self.assertEqual(ld.build_number(),
+            MODULE_LDI.build_number())
+        self.assertEqual(ld.like(),
+            MODULE_LDI.like())
+        self.assertEqual(ld.codename(),
+            MODULE_LDI.codename())
+        self.assertEqual(ld.base(),
+            MODULE_LDI.base())
+        self.assertEqual(ld.linux_distribution(),
+            MODULE_LDI.linux_distribution(full_distribution_name=True))
+        self.assertEqual(ld.linux_distribution(full_distribution_name=True),
+            MODULE_LDI.linux_distribution())
+        self.assertEqual(ld.linux_distribution(full_distribution_name=False),
+            MODULE_LDI.linux_distribution(full_distribution_name=False))
+        self.assertEqual(ld.os_release_info(),
+            MODULE_LDI.os_release_info())
+        self.assertEqual(ld.lsb_release_info(),
+            MODULE_LDI.lsb_release_info())
+        self.assertEqual(ld.distro_release_info(),
+            MODULE_LDI.distro_release_info())
+        self.assertEqual(ld.info(),
+            MODULE_LDI.info())
+
+class TestRepr(testtools.TestCase):
+    """Test the __repr__() method."""
+
+    def test_repr(self):
+        # We test that the class name and the names of all instance attributes
+        # show up in the repr() string.
+        repr_str = repr(ld._ldi)
+        self.assertIn("LinuxDistribution", repr_str)
+        for attr in MODULE_LDI.__dict__.keys():
+            self.assertIn(attr+'=', repr_str)
+

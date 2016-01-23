@@ -13,23 +13,26 @@ class LinuxDistribution(object):
         self.os_release_file = os_release_file or const._OS_RELEASE
         self.distro_release_file = distro_release_file or \
             self._attempt_to_get_release_file()
-        self._os_release_info = self.os_release_info()
-        self._lsb_release_info = self.lsb_release_info() if include_lsb else {}
-        self._dist_release_info = self.distro_release_info()
+        self._os_release_info = self._get_os_release_info()
+        self._lsb_release_info = self._get_lsb_release_info() \
+            if include_lsb else {}
+        self._distro_release_info = self._get_distro_release_info()
 
     def __repr__(self):
         return \
             "LinuxDistribution(" \
             "os_release_file=%r, " \
             "distro_release_file=%r, " \
+            "dist=%r, " \
             "_os_release_info=%r, " \
             "_lsb_release_info=%r, " \
-            "_dist_release_info=%r)" % \
+            "_distro_release_info=%r)" % \
             (self.os_release_file,
              self.distro_release_file,
+             getattr(self, "dist", None),
              self._os_release_info,
              self._lsb_release_info,
-             self._dist_release_info)
+             self._distro_release_info)
 
     def os_release_info(self):
         """Returns a dictionary containing key value pairs
@@ -38,6 +41,9 @@ class LinuxDistribution(object):
         See http://www.freedesktop.org/software/systemd/man/os-release.html
         as a reference.
         """
+        return self._os_release_info
+
+    def _get_os_release_info(self):
         if os.path.isfile(self.os_release_file):
             with open(self.os_release_file, 'r') as f:
                 return self._parse_key_value_files(f)
@@ -49,6 +55,9 @@ class LinuxDistribution(object):
         See http://refspecs.linuxfoundation.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/lsbrelease.html  # NOQA
         as a reference.
         """
+        return self._lsb_release_info
+
+    def _get_lsb_release_info(self):
         stdout = subprocess.PIPE
         stderr = subprocess.PIPE
         r = subprocess.Popen(
@@ -70,7 +79,11 @@ class LinuxDistribution(object):
 
         Note that any of these could be empty if not found.
         """
-        self.dist = self._get_dist_from_release_file(self.distro_release_file)
+        return self._distro_release_info
+
+    def _get_distro_release_info(self):
+        self.dist = self._get_distro_from_release_file(
+            self.distro_release_file)
         if os.path.isfile(self.distro_release_file):
             with open(self.distro_release_file, 'r') as f:
                 # only parse the first line. For instance, on SuSE there are
@@ -78,8 +91,8 @@ class LinuxDistribution(object):
                 return self._parse_release_file(f.readline())
         return {}
 
-    def get_dist_release_attr(self, attribute):
-        return self._dist_release_info.get(attribute, '')
+    def get_distro_release_attr(self, attribute):
+        return self._distro_release_info.get(attribute, '')
 
     def get_os_release_attr(self, attribute):
         return self._os_release_info.get(attribute, '')
@@ -171,7 +184,7 @@ class LinuxDistribution(object):
         return props
 
     @staticmethod
-    def _get_dist_from_release_file(some_file):
+    def _get_distro_from_release_file(some_file):
         """Retrieves the distribution from a release file's name if the file
         provided is indeed a release file.
 
@@ -199,7 +212,7 @@ class LinuxDistribution(object):
         files = os.listdir(const._UNIXCONFDIR)
         files.sort()
         for f in files:
-            if self._get_dist_from_release_file(f):
+            if self._get_distro_from_release_file(f):
                 return os.path.join(const._UNIXCONFDIR, f)
         return ''
 
@@ -234,12 +247,12 @@ class LinuxDistribution(object):
         """
         name = self.get_os_release_attr('name') \
             or self.get_lsb_release_attr('distributor_id') \
-            or self.get_dist_release_attr('name')
+            or self.get_distro_release_attr('name')
         if pretty:
             name = self.get_os_release_attr('pretty_name') \
                 or self.get_lsb_release_attr('description')
             if not name:
-                name = self.get_dist_release_attr('name')
+                name = self.get_distro_release_attr('name')
                 version = self.version(pretty=True)
                 if version:
                     name = name + ' ' + version
@@ -253,7 +266,7 @@ class LinuxDistribution(object):
         """
         version = self.get_os_release_attr('version_id') \
             or self.get_lsb_release_attr('release') \
-            or self.get_dist_release_attr('version_id') \
+            or self.get_distro_release_attr('version_id') \
             or ''
         if pretty and version and self.codename():
             version = '{0} ({1})'.format(version, self.codename())
@@ -296,7 +309,7 @@ class LinuxDistribution(object):
         """
         return self.get_os_release_attr('codename') \
             or self.get_lsb_release_attr('codename') \
-            or self.get_dist_release_attr('codename') \
+            or self.get_distro_release_attr('codename') \
             or ''
 
     def base(self):
