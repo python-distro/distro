@@ -13,9 +13,10 @@ class LinuxDistribution(object):
         self.os_release_file = os_release_file or const._OS_RELEASE
         self.distro_release_file = distro_release_file or \
             self._attempt_to_get_release_file()
-        self._os_release_info = self.os_release_info()
-        self._lsb_release_info = self.lsb_release_info() if include_lsb else {}
-        self._dist_release_info = self.distro_release_info()
+        self._os_release_info = self._get_os_release_info()
+        self._lsb_release_info = self._get_lsb_release_info() \
+            if include_lsb else {}
+        self._dist_release_info = self._get_distro_release_info()
 
     def __repr__(self):
         return \
@@ -38,6 +39,9 @@ class LinuxDistribution(object):
         See http://www.freedesktop.org/software/systemd/man/os-release.html
         as a reference.
         """
+        return self._os_release_info
+
+    def _get_os_release_info(self):
         if os.path.isfile(self.os_release_file):
             with open(self.os_release_file, 'r') as f:
                 return self._parse_key_value_files(f)
@@ -49,6 +53,9 @@ class LinuxDistribution(object):
         See http://refspecs.linuxfoundation.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/lsbrelease.html  # NOQA
         as a reference.
         """
+        return self._lsb_release_info
+
+    def _get_lsb_release_info(self):
         stdout = subprocess.PIPE
         stderr = subprocess.PIPE
         r = subprocess.Popen(
@@ -70,6 +77,9 @@ class LinuxDistribution(object):
 
         Note that any of these could be empty if not found.
         """
+        return self._distro_release_info
+
+    def _get_distro_release_info(self):
         self.dist = self._get_dist_from_release_file(self.distro_release_file)
         if os.path.isfile(self.distro_release_file):
             with open(self.distro_release_file, 'r') as f:
