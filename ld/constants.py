@@ -23,5 +23,6 @@ _DIST_TO_BASE = {
     'gentoo': 'gentoo',
     'slackware': 'slackware',
     'arch': 'arch',
-    'exherbo': 'exherbo'
+    'exherbo': 'exherbo',
+    'mageia': 'mandrake'
 }

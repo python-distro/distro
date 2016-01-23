@@ -17,6 +17,20 @@ class LinuxDistribution(object):
         self._lsb_release_info = self.lsb_release_info() if include_lsb else {}
         self._dist_release_info = self.distro_release_info()
 
+    def __repr__(self):
+        return \
+            "LinuxDistribution(" \
+            "os_release_file=%r, " \
+            "distro_release_file=%r, " \
+            "_os_release_info=%r, " \
+            "_lsb_release_info=%r, " \
+            "_dist_release_info=%r)" % \
+            (self.os_release_file,
+             self.distro_release_file,
+             self._os_release_info,
+             self._lsb_release_info,
+             self._dist_release_info)
+
     def os_release_info(self):
         """Returns a dictionary containing key value pairs
         of an /etc/os-release file attributes.
@@ -140,7 +154,7 @@ class LinuxDistribution(object):
         digits in them as there might not be any.
         """
         _release_version = re.compile(
-            r'(?:\)(.*)\()? *([\d.+\-a-z]*\d) *(?:esaeler *)?(.+)')
+            r'(?:[^)]*\)(.*)\()? *([\d.+\-a-z]*\d) *(?:esaeler *)?(.+)')
         m = _release_version.match(content.strip()[::-1])
         if not m:
             name = version = codename = ''

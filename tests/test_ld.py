@@ -119,6 +119,20 @@ class TestOSRelease(testtools.TestCase):
         self.assertEqual(ldi.codename(), 'jessie')
         self.assertEqual(ldi.base(), 'debian')
 
+    def test_mageia5_os_release(self):
+        os_release = os.path.join(DISTROS, 'mageia5', 'etc', 'os-release')
+
+        ldi = ld.LinuxDistribution(False, os_release, 'non')
+
+        self.assertEqual(ldi.id(), 'mageia')
+        self.assertEqual(ldi.name(), 'Mageia')
+        self.assertEqual(ldi.name(pretty=True), 'Mageia 5')
+        self.assertEqual(ldi.version(), '5')
+        self.assertEqual(ldi.version(pretty=True), '5')
+        self.assertEqual(ldi.like(), 'mandriva fedora')
+        self.assertEqual(ldi.codename(), '')
+        self.assertEqual(ldi.base(), 'mandrake')
+
     def test_slackware14_os_release(self):
         os_release = os.path.join(DISTROS, 'slackware14', 'etc', 'os-release')
 
@@ -357,6 +371,21 @@ class TestDistRelease(testtools.TestCase):
         self.assertEqual(ldi.codename(), '')
         self.assertEqual(ldi.base(), 'exherbo')
 
+    def test_mageia5_release(self):
+        distro_release = os.path.join(DISTROS, 'mageia5', 'etc',
+                                      'mageia-release')
+
+        ldi = ld.LinuxDistribution(False, 'non', distro_release)
+
+        self.assertEqual(ldi.id(), 'mageia')
+        self.assertEqual(ldi.name(), 'Mageia')
+        self.assertEqual(ldi.name(pretty=True), 'Mageia 5 (Official)')
+        self.assertEqual(ldi.version(), '5')
+        self.assertEqual(ldi.version(pretty=True), '5 (Official)')
+        self.assertEqual(ldi.like(), '')
+        self.assertEqual(ldi.codename(), 'Official')
+        self.assertEqual(ldi.base(), 'mandrake')
+
     def test_slackware14_release(self):
         distro_release = os.path.join(DISTROS, 'slackware14', 'etc',
                                       'slackware-version')
@@ -479,6 +508,21 @@ class TestOverall(testtools.TestCase):
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'Twenty Three')
         self.assertEqual(ldi.base(), 'fedora')
+
+    def test_mageia5_release(self):
+        self._setup_for_distro(os.path.join(DISTROS, 'mageia5'))
+
+        ldi = ld.LinuxDistribution()
+
+        self.assertEqual(ldi.id(), 'mageia')
+        self.assertEqual(ldi.name(), 'Mageia')
+        self.assertEqual(ldi.name(pretty=True), 'Mageia 5')
+        self.assertEqual(ldi.version(), '5')
+        self.assertEqual(ldi.version(pretty=True), '5 (thornicroft)')
+        self.assertEqual(ldi.like(), 'mandriva fedora')
+        # TODO: Codename differs between distro release file and lsb_release.
+        self.assertEqual(ldi.codename(), 'thornicroft')
+        self.assertEqual(ldi.base(), 'mandrake')
 
     def test_opensuse42_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'opensuse42'))
