@@ -4,13 +4,29 @@ import subprocess
 
 from . import constants as const
 
+# Pattern for content of distro release file (reversed)
+_DISTRO_RELEASE_CONTENT_REVERSED_PATTERN = re.compile(
+    r'(?:[^)]*\)(.*)\()? *([\d.+\-a-z]*\d) *(?:esaeler *)?(.+)')
+
+# Pattern for base file name of distro release file
+_DISTRO_RELEASE_BASENAME_PATTERN = re.compile(
+    r'(\w+)[-_](release|version)')
+
+# Base file names to be ignored when searching for distro release file
+_DISTRO_RELEASE_IGNORE_BASENAMES = [
+    'debian_version',
+    'system-release',
+    const._OS_RELEASE_BASENAME
+]
+
 
 class LinuxDistribution(object):
     def __init__(self,
                  include_lsb=True,
                  os_release_file='',
                  distro_release_file=''):
-        self.os_release_file = os_release_file or const._OS_RELEASE
+        self.os_release_file = os_release_file or \
+            os.path.join(const._UNIXCONFDIR, const._OS_RELEASE_BASENAME)
         self.distro_release_file = distro_release_file or ''
         self._os_release_info = self._get_os_release_info()
         self._lsb_release_info = self._get_lsb_release_info() \
@@ -109,31 +125,31 @@ class LinuxDistribution(object):
             # its file name or content does not match the expected pattern.
             distro_info = self._parse_distro_release_file(
                 self.distro_release_file)
-            basefile = os.path.basename(self.distro_release_file)
+            basename = os.path.basename(self.distro_release_file)
             # The file name pattern for user-specified distro release files
             # is somewhat more tolerant (compared to when searching for the
             # file), because we want to use what was specified as best as
             # possible.
-            release_file_pattern = re.compile(r'(\w+)[-_](release|version)')
-            match = release_file_pattern.match(basefile)
+            match = _DISTRO_RELEASE_BASENAME_PATTERN.match(basename)
             if match:
                 distro_id = match.group(1)
                 # TODO: Normalize distro_id
                 distro_info['id'] = distro_id
             return distro_info
         else:
-            files = os.listdir(const._UNIXCONFDIR)
+            basenames = os.listdir(const._UNIXCONFDIR)
             # We sort for repeatability in cases where there are multiple
             # distro specific files; e.g. CentOS, Oracle, Enterprise all
             # containing `redhat-release` on top of their own.
-            files.sort()
-            release_file_pattern = re.compile(r'(\w+)[-_]release')
-            for basefile in files:
-                match = release_file_pattern.match(basefile)
+            basenames.sort()
+            for basename in basenames:
+                if basename in _DISTRO_RELEASE_IGNORE_BASENAMES:
+                    continue
+                match = _DISTRO_RELEASE_BASENAME_PATTERN.match(basename)
                 if match:
                     distro_id = match.group(1)
                     # TODO: Normalize distro_id
-                    filepath = os.path.join(const._UNIXCONFDIR, basefile)
+                    filepath = os.path.join(const._UNIXCONFDIR, basename)
                     distro_info = self._parse_distro_release_file(filepath)
                     if 'name' in distro_info:
                         # The name is always present if the pattern matches
@@ -213,9 +229,8 @@ class LinuxDistribution(object):
 
     @staticmethod
     def _parse_distro_release_content(content):
-        _release_version = re.compile(
-            r'(?:[^)]*\)(.*)\()? *([\d.+\-a-z]*\d) *(?:esaeler *)?(.+)')
-        m = _release_version.match(content.strip()[::-1])
+        m = _DISTRO_RELEASE_CONTENT_REVERSED_PATTERN.match(
+            content.strip()[::-1])
         distro_info = {}
         if m:
             distro_info['name'] = m.group(3)[::-1]   # regexp ensures non-None
