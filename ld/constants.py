@@ -1,5 +1,5 @@
 _UNIXCONFDIR = '/etc'
-_OS_RELEASE = '/etc/os-release'
+_OS_RELEASE_BASENAME = 'os-release'
 
 _DIST_TO_BASE = {
     'debian': 'debian',

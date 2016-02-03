@@ -4,15 +4,30 @@ import subprocess
 
 from . import constants as const
 
+# Pattern for content of distro release file (reversed)
+_DISTRO_RELEASE_CONTENT_REVERSED_PATTERN = re.compile(
+    r'(?:[^)]*\)(.*)\()? *([\d.+\-a-z]*\d) *(?:esaeler *)?(.+)')
+
+# Pattern for base file name of distro release file
+_DISTRO_RELEASE_BASENAME_PATTERN = re.compile(
+    r'(\w+)[-_](release|version)')
+
+# Base file names to be ignored when searching for distro release file
+_DISTRO_RELEASE_IGNORE_BASENAMES = [
+    'debian_version',
+    'system-release',
+    const._OS_RELEASE_BASENAME
+]
+
 
 class LinuxDistribution(object):
     def __init__(self,
                  include_lsb=True,
                  os_release_file='',
                  distro_release_file=''):
-        self.os_release_file = os_release_file or const._OS_RELEASE
-        self.distro_release_file = distro_release_file or \
-            self._attempt_to_get_release_file()
+        self.os_release_file = os_release_file or \
+            os.path.join(const._UNIXCONFDIR, const._OS_RELEASE_BASENAME)
+        self.distro_release_file = distro_release_file or ''
         self._os_release_info = self._get_os_release_info()
         self._lsb_release_info = self._get_lsb_release_info() \
             if include_lsb else {}
@@ -23,13 +38,11 @@ class LinuxDistribution(object):
             "LinuxDistribution(" \
             "os_release_file=%r, " \
             "distro_release_file=%r, " \
-            "dist=%r, " \
             "_os_release_info=%r, " \
             "_lsb_release_info=%r, " \
             "_distro_release_info=%r)" % \
             (self.os_release_file,
              self.distro_release_file,
-             getattr(self, "dist", None),
              self._os_release_info,
              self._lsb_release_info,
              self._distro_release_info)
@@ -69,27 +82,81 @@ class LinuxDistribution(object):
             r.read().decode('ascii').splitlines()) or {}
 
     def distro_release_info(self):
-        """Returns a dictionary containing parsed information
-        from the /etc/*-release file matching the relevant platform.
+        """Returns a dict with information from a distro release file.
 
-        The dict contains the following keys:
-        `name` - the name of the distribution.
-        `version` - the distribution's release version.
-        `codename` - the distribution's codename.
+        If `self.distro_release_file` is set (i.e. `distro_release_file` was
+        specified in the constructor), it is used as the path name of the
+        distro release file, and the returned dict will have those entries for
+        which data was found. Note that the returned dict may be empty.
 
-        Note that any of these could be empty if not found.
+        If `self.distro_release_file` is not set, a distro release file is
+        searched in the `/etc` directory that satisfies all of the following
+        conditions:
+        * Its file name matches the file name patterns `*-release` or
+          `*_release`.
+        * Its first line matches the pattern
+          `<name> [[[release] <release>] (<codename>)]`,
+          whereby components in square brackets are optional.
+        If such a file is found, the returned dict will have those entries for
+        which data was found, and `self.distro_release_file` is set to the
+        path name of the file. If such a file is not found, an empty dict is
+        returned.
+
+        The returned dict will have zero or more of the following entries:
+        * `id`: (string) Distro ID (e.g. `ubuntu`, `centos`, `redhat`), taken
+          from the first part of the file name.
+        * `name`: (string) Distro name (e.g. `Ubuntu`, `Debian GNU/Linux`),
+          as found in the first line of the file.
+        * `version_id`: (string) Distro version (e.g. `14.04 LTS`),
+          as found in the first line of the file.
+        * `codename`: (string) Distro code name (e.g. `Trusty Tahr`),
+          as found in the first line of the file.
+
+        TODO: In some cases the code name may be irrelevant (e.g.
+        `openSUSE 42.1 (x86_64)`). A possible solution for such code names
+        could be to not allow code names which have digits in them as there
+        might not be any.
         """
         return self._distro_release_info
 
     def _get_distro_release_info(self):
-        self.dist = self._get_distro_from_release_file(
-            self.distro_release_file)
-        if os.path.isfile(self.distro_release_file):
-            with open(self.distro_release_file, 'r') as f:
-                # only parse the first line. For instance, on SuSE there are
-                # multiple lines. We don't want them...
-                return self._parse_release_file(f.readline())
-        return {}
+        if self.distro_release_file:
+            # If it was specified, we use it and parse what we can, even if
+            # its file name or content does not match the expected pattern.
+            distro_info = self._parse_distro_release_file(
+                self.distro_release_file)
+            basename = os.path.basename(self.distro_release_file)
+            # The file name pattern for user-specified distro release files
+            # is somewhat more tolerant (compared to when searching for the
+            # file), because we want to use what was specified as best as
+            # possible.
+            match = _DISTRO_RELEASE_BASENAME_PATTERN.match(basename)
+            if match:
+                distro_id = match.group(1)
+                # TODO: Normalize distro_id
+                distro_info['id'] = distro_id
+            return distro_info
+        else:
+            basenames = os.listdir(const._UNIXCONFDIR)
+            # We sort for repeatability in cases where there are multiple
+            # distro specific files; e.g. CentOS, Oracle, Enterprise all
+            # containing `redhat-release` on top of their own.
+            basenames.sort()
+            for basename in basenames:
+                if basename in _DISTRO_RELEASE_IGNORE_BASENAMES:
+                    continue
+                match = _DISTRO_RELEASE_BASENAME_PATTERN.match(basename)
+                if match:
+                    distro_id = match.group(1)
+                    # TODO: Normalize distro_id
+                    filepath = os.path.join(const._UNIXCONFDIR, basename)
+                    distro_info = self._parse_distro_release_file(filepath)
+                    if 'name' in distro_info:
+                        # The name is always present if the pattern matches
+                        self.distro_release_file = filepath
+                        distro_info['id'] = distro_id
+                        return distro_info
+            return {}
 
     def get_distro_release_attr(self, attribute):
         return self._distro_release_info.get(attribute, '')
@@ -152,69 +219,26 @@ class LinuxDistribution(object):
             props.update({k.replace(' ', '_').lower(): v.strip()})
         return props
 
-    @staticmethod
-    def _parse_release_file(content):
-        """Parses a release file.
-
-        This will create a dict with the name, version and codename
-        extracted from a release file.
-
-        In some cases the codename may be irrelevant.
-        (e.g. openSUSE 42.1 (x86_64)).
-
-        Under consideration:
-        A possible solution could be to not allow codenames which have
-        digits in them as there might not be any.
-        """
-        _release_version = re.compile(
-            r'(?:[^)]*\)(.*)\()? *([\d.+\-a-z]*\d) *(?:esaeler *)?(.+)')
-        m = _release_version.match(content.strip()[::-1])
-        if not m:
-            name = version = codename = ''
-            # TODO: Maybe improve this way of handling non-matching
-        else:
-            name = m.group(3)[::-1]   # regexp ensures it is non-None
-            version = m.group(2)[::-1]   # regexp ensures it is non-None
-            codename = (m.group(1) or '')[::-1]   # may be None
-        props = {
-            'name': name,
-            'version_id': version,
-            'codename': codename
-        }
-        return props
+    def _parse_distro_release_file(self, filepath):
+        if os.path.isfile(filepath):
+            with open(filepath, 'r') as fp:
+                # Only parse the first line. For instance, on SuSE there
+                # are multiple lines. We don't want them...
+                return self._parse_distro_release_content(fp.readline())
+        return {}
 
     @staticmethod
-    def _get_distro_from_release_file(some_file):
-        """Retrieves the distribution from a release file's name if the file
-        provided is indeed a release file.
-
-        This will only return a distribution if it's supported.
-        """
-        some_file = os.path.basename(some_file)
-        release_file_pattern = re.compile(r'(\w+)([-_])(release|version)')
-        match = release_file_pattern.match(some_file)
-        if match:
-            # release files are like: redhat-release or slackware_version.
-            # the first part is always assumed to be the dist name.
-            dist = match.groups()[0]
-            if dist in const._DIST_TO_BASE.keys():
-                return dist
-
-    def _attempt_to_get_release_file(self):
-        """Looks for release files in the system.
-
-        If a file is found that matches one of the supported distros,
-        this will return it.
-        """
-        # we sort for very specific cases in which
-        # there are two distro specific files e.g. CentOS, Oracle, Enterprise
-        # all also containing `redhat-release` on top of their own.
-        files = os.listdir(const._UNIXCONFDIR)
-        files.sort()
-        for f in files:
-            if self._get_distro_from_release_file(f):
-                return os.path.join(const._UNIXCONFDIR, f)
-        return ''
+    def _parse_distro_release_content(content):
+        m = _DISTRO_RELEASE_CONTENT_REVERSED_PATTERN.match(
+            content.strip()[::-1])
+        distro_info = {}
+        if m:
+            distro_info['name'] = m.group(3)[::-1]   # regexp ensures non-None
+            if m.group(2):
+                distro_info['version_id'] = m.group(2)[::-1]
+            if m.group(1):
+                distro_info['codename'] = m.group(1)[::-1]
+        return distro_info
 
     def id(self):
         """Returns the id for the distribution.
@@ -230,7 +254,7 @@ class LinuxDistribution(object):
         """
         return self.get_os_release_attr('id') \
             or self.get_lsb_release_attr('distributor_id').lower() \
-            or self.dist \
+            or self.get_distro_release_attr('id') \
             or ''
 
     def name(self, pretty=False):
