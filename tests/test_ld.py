@@ -1,4 +1,8 @@
 import os
+try:
+    from StringIO import StringIO  # Python 2.x
+except ImportError:
+    from io import StringIO  # Python 3.x
 
 import testtools
 
@@ -778,7 +782,7 @@ class TestGetAttr(DistroTestCase):
                 self.assertEqual(info[key],
                                  ldi.get_os_release_attr(key),
                                  "distro: %s, key: %s" % (distro, key))
-            
+
     def test_lsb_release_attr(self):
         distros = os.listdir(DISTROS)
         for distro in distros:
@@ -791,7 +795,7 @@ class TestGetAttr(DistroTestCase):
                 self.assertEqual(info[key],
                                  ldi.get_lsb_release_attr(key),
                                  "distro: %s, key: %s" % (distro, key))
-            
+
     def test_distro_release_attr(self):
         distros = os.listdir(DISTROS)
         for distro in distros:
@@ -804,7 +808,7 @@ class TestGetAttr(DistroTestCase):
                 self.assertEqual(info[key],
                                  ldi.get_distro_release_attr(key),
                                  "distro: %s, key: %s" % (distro, key))
-            
+
 
 class TestInfo(testtools.TestCase):
 
@@ -847,6 +851,242 @@ class TestInfo(testtools.TestCase):
         ldi = ld.LinuxDistribution(False, self.rhel7_os_release)
         i = ldi.linux_distribution(full_distribution_name=False)
         self.assertEqual(i, ('rhel', '7.0', 'Maipo'))
+
+
+class TestKeyValueParsing(testtools.TestCase):
+    """Test the key-value parsing used for os-release files."""
+
+    def setUp(self):
+        self.ldi = ld.LinuxDistribution(False, None, None)
+        self.ldi.debug = True
+        super(TestKeyValueParsing, self).setUp()
+
+    def test_kv_01_empty_file(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            '',
+        ))
+        self.assertEqual(len(props), 0)
+
+    def test_kv_02_empty_line(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            '\n',
+        ))
+        self.assertEqual(len(props), 0)
+
+    def test_kv_03_empty_line_with_crlf(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            '\r\n',
+        ))
+        self.assertEqual(len(props), 0)
+
+    def test_kv_04_empty_line_with_just_cr(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            '\r',
+        ))
+        self.assertEqual(len(props), 0)
+
+    def test_kv_05_comment(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            '# KEY=value\n'
+        ))
+        self.assertEqual(len(props), 0)
+
+    def test_kv_06_empty_value(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY=\n'
+        ))
+        self.assertEqual(props.get('key', None),
+            '')
+
+    def test_kv_07_empty_value_single_quoted(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY=\'\'\n'
+        ))
+        self.assertEqual(props.get('key', None),
+            '')
+
+    def test_kv_08_empty_value_double_quoted(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY=""\n'
+        ))
+        self.assertEqual(props.get('key', None),
+            '')
+
+    def test_kv_09_word(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY=value\n'
+        ))
+        self.assertEqual(props.get('key', None),
+            'value')
+
+    def test_kv_10_word_no_newline(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY=value'
+        ))
+        self.assertEqual(props.get('key', None),
+            'value')
+
+    def test_kv_11_word_with_crlf(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY=value\r\n'
+        ))
+        self.assertEqual(props.get('key', None),
+            'value')
+
+    def test_kv_12_word_with_just_cr(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY=value\r'
+        ))
+        self.assertEqual(props.get('key', None),
+            'value')
+
+    def test_kv_13_word_with_multi_blanks(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY=  cmd   \n'
+        ))
+        self.assertEqual(props.get('key', None),
+            '')
+        # Note: Without quotes, this assigns the empty string, and 'cmd' is
+        # a separate token that is being ignored (it would be a command
+        # in the shell).
+
+    def test_kv_14_unquoted_words(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY=value cmd\n'
+        ))
+        self.assertEqual(props.get('key', None),
+            'value')
+
+    def test_kv_15_double_quoted_words(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY="a simple value" cmd\n'
+        ))
+        self.assertEqual(props.get('key', None),
+            'a simple value')
+
+    def test_kv_16_double_quoted_words_with_multi_blanks(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY=" a  simple   value "\n'
+        ))
+        self.assertEqual(props.get('key', None),
+            ' a  simple   value ')
+
+    def test_kv_17_double_quoted_word_with_single_quote(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY="it\'s value"\n'
+        ))
+        self.assertEqual(props.get('key', None),
+            'it\'s value')
+
+    def test_kv_18_double_quoted_word_with_double_quote(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY="a \\"bold\\" move"\n'
+        ))
+        self.assertEqual(props.get('key', None),
+            'a "bold" move')
+
+    def test_kv_19_single_quoted_words(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY=\'a simple value\'\n'
+        ))
+        self.assertEqual(props.get('key', None),
+            'a simple value')
+
+    def test_kv_20_single_quoted_words_with_multi_blanks(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY=\' a  simple   value \'\n'
+        ))
+        self.assertEqual(props.get('key', None),
+            ' a  simple   value ')
+
+    def test_kv_21_single_quoted_word_with_double_quote(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY=\'a "bold" move\'\n'
+        ))
+        self.assertEqual(props.get('key', None),
+            'a "bold" move')
+
+    def test_kv_22_quoted_unicode_wordchar(self):
+        # "wordchar" means it is in the shlex.wordchars variable.
+        props = self.ldi._parse_key_value_files(StringIO(
+            u'KEY="wordchar: \u00CA (E accent grave)"\n'
+        ))
+        self.assertEqual(props.get('key', None),
+            u'wordchar: \u00CA (E accent grave)')
+
+    def test_kv_23_quoted_unicode_non_wordchar(self):
+        # "non-wordchar" means it is not in the shlex.wordchars variable.
+        props = self.ldi._parse_key_value_files(StringIO(
+            u'KEY="non-wordchar: \u00A1 (inverted exclamation mark)"\n'
+        ))
+        self.assertEqual(props.get('key', None),
+            u'non-wordchar: \u00A1 (inverted exclamation mark)')
+
+    def test_kv_24_double_quoted_entire_single_quoted_word(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY="\'value\'"\n'
+        ))
+        self.assertEqual(props.get('key', None),
+            "'value'")
+
+    def test_kv_25_single_quoted_entire_double_quoted_word(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY=\'"value"\'\n'
+        ))
+        self.assertEqual(props.get('key', None),
+            '"value"')
+
+    def test_kv_26_double_quoted_multiline(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY="a multi\n'
+            'line value"\n'
+        ))
+        self.assertEqual(props.get('key', None),
+            'a multi\nline value')
+        # TODO: Find out why the result is not 'a multi line value'
+
+    def test_kv_27_double_quoted_multiline_2(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY="a multi\n'
+            'line=value"\n'
+        ))
+        self.assertEqual(props.get('key', None),
+            'a multi\nline=value')
+        # TODO: Find out why the result is not 'a multi line=value'
+
+    def test_kv_28_double_quoted_word_with_equal(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY="var=value"\n'
+        ))
+        self.assertEqual(props.get('key', None),
+            'var=value')
+
+    def test_kv_29_single_quoted_word_with_equal(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY=\'var=value\'\n'
+        ))
+        self.assertEqual(props.get('key', None),
+            'var=value')
+
+    def test_kx_01(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            'KEY1=value1\n'
+            'KEY2="value  2"\n'
+        ))
+        self.assertEqual(props.get('key1', None),
+            'value1')
+        self.assertEqual(props.get('key2', None),
+            'value  2')
+
+    def test_kx_02(self):
+        props = self.ldi._parse_key_value_files(StringIO(
+            '# KEY1=value1\n'
+            'KEY2="value  2"\n'
+        ))
+        self.assertEqual(props.get('key1', None),
+            None)
+        self.assertEqual(props.get('key2', None),
+            'value  2')
 
 
 class TestGlobal(testtools.TestCase):

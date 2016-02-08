@@ -1,6 +1,8 @@
+import sys
 import os
 import re
 import subprocess
+import shlex
 
 from . import constants as const
 
@@ -177,13 +179,32 @@ class LinuxDistribution(object):
         the codename from it as it is sometimes found there.
         """
         props = {}
-        for line in content:
-            if '=' in line:
-                k, v = line.split('=')
-                # cleanup value
-                v = v.replace('"', '')
-                v = v.replace("'", '')
-                v = v.rstrip('\n\r')
+        lexer = shlex.shlex(content, posix=True)
+        lexer.whitespace_split = True
+
+        # The shlex module defines its `wordchars` variable using literals,
+        # making it dependent on the encoding of the Python source file.
+        # In Python 2.6 and 2.7, the shlex source file is encoded in
+        # 'iso-8859-1', and the `wordchars` variable is defined as a byte
+        # string. This causes a UnicodeDecodeError to be raised when the
+        # parsed content is a unicode object. The following fix resolves that
+        # (... but it should be fixed in shlex...):
+        if sys.version_info[0] == 2 and isinstance(lexer.wordchars, str):
+            lexer.wordchars = lexer.wordchars.decode('iso-8859-1')
+
+        tokens = list(lexer)
+        for token in tokens:
+            # At this point, all shell-like parsing has been done (i.e.
+            # comments processed, quotes and backslash escape sequences
+            # processed, multi-line values assembled, trailing newlines
+            # stripped, etc.), so the tokens are now either:
+            # * variable assignments: var=value
+            # * commands or their arguments (not allowed in os-release)
+            if '=' in token:
+                k, v = token.split('=', 1)
+                if sys.version_info[0] == 2 and isinstance(v, str) \
+                   or isinstance(v, bytes):
+                    v = v.decode("utf-8")
                 props[k.lower()] = v
                 if k == 'VERSION':
                     # this handles cases in which the codename is in
@@ -199,6 +220,9 @@ class LinuxDistribution(object):
                         props['codename'] = codename
                     else:
                         props['codename'] = ''
+            else:
+                # Ignore any tokens that are not variable assignments
+                pass
         return props
 
     @staticmethod
