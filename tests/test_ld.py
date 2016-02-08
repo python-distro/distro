@@ -57,6 +57,7 @@ class TestOSRelease(testtools.TestCase):
         self.assertEqual(ldi.name(pretty=True), 'Arch Linux')
         self.assertEqual(ldi.version(), '')
         self.assertEqual(ldi.version(pretty=True), '')
+        self.assertEqual(ldi.version(best=True), '')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), '')
 
@@ -70,6 +71,7 @@ class TestOSRelease(testtools.TestCase):
         self.assertEqual(ldi.name(pretty=True), 'CentOS Linux 7 (Core)')
         self.assertEqual(ldi.version(), '7')
         self.assertEqual(ldi.version(pretty=True), '7 (Core)')
+        self.assertEqual(ldi.version(best=True), '7')
         self.assertEqual(ldi.like(), 'rhel fedora')
         self.assertEqual(ldi.codename(), 'Core')
 
@@ -83,6 +85,7 @@ class TestOSRelease(testtools.TestCase):
         self.assertEqual(ldi.name(pretty=True), 'Debian GNU/Linux 8 (jessie)')
         self.assertEqual(ldi.version(), '8')
         self.assertEqual(ldi.version(pretty=True), '8 (jessie)')
+        self.assertEqual(ldi.version(best=True), '8')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'jessie')
 
@@ -96,6 +99,7 @@ class TestOSRelease(testtools.TestCase):
         self.assertEqual(ldi.name(pretty=True), 'Fedora 23 (Twenty Three)')
         self.assertEqual(ldi.version(), '23')
         self.assertEqual(ldi.version(pretty=True), '23 (Twenty Three)')
+        self.assertEqual(ldi.version(best=True), '23')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'Twenty Three')
 
@@ -109,6 +113,7 @@ class TestOSRelease(testtools.TestCase):
         self.assertEqual(ldi.name(pretty=True), 'Mageia 5')
         self.assertEqual(ldi.version(), '5')
         self.assertEqual(ldi.version(pretty=True), '5')
+        self.assertEqual(ldi.version(best=True), '5')
         self.assertEqual(ldi.like(), 'mandriva fedora')
         self.assertEqual(ldi.codename(), '')
 
@@ -122,6 +127,7 @@ class TestOSRelease(testtools.TestCase):
         self.assertEqual(ldi.name(pretty=True), 'openSUSE Leap 42.1 (x86_64)')
         self.assertEqual(ldi.version(), '42.1')
         self.assertEqual(ldi.version(pretty=True), '42.1')
+        self.assertEqual(ldi.version(best=True), '42.1')
         self.assertEqual(ldi.like(), 'suse')
         self.assertEqual(ldi.codename(), '')
 
@@ -137,6 +143,7 @@ class TestOSRelease(testtools.TestCase):
             'Red Hat Enterprise Linux Server 7.0 (Maipo)')
         self.assertEqual(ldi.version(), '7.0')
         self.assertEqual(ldi.version(pretty=True), '7.0 (Maipo)')
+        self.assertEqual(ldi.version(best=True), '7.0')
         self.assertEqual(ldi.like(), 'fedora')
         self.assertEqual(ldi.codename(), 'Maipo')
 
@@ -150,6 +157,7 @@ class TestOSRelease(testtools.TestCase):
         self.assertEqual(ldi.name(pretty=True), 'Slackware 14.1')
         self.assertEqual(ldi.version(), '14.1')
         self.assertEqual(ldi.version(pretty=True), '14.1')
+        self.assertEqual(ldi.version(best=True), '14.1')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), '')
 
@@ -163,6 +171,7 @@ class TestOSRelease(testtools.TestCase):
         self.assertEqual(ldi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
         self.assertEqual(ldi.version(), '14.04')
         self.assertEqual(ldi.version(pretty=True), '14.04 (Trusty Tahr)')
+        self.assertEqual(ldi.version(best=True), '14.04')
         self.assertEqual(ldi.like(), 'debian')
         self.assertEqual(ldi.codename(), 'Trusty Tahr')
 
@@ -182,6 +191,7 @@ class TestLSBRelease(DistroTestCase):
         self.assertEqual(ldi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
         self.assertEqual(ldi.version(), '14.04')
         self.assertEqual(ldi.version(pretty=True), '14.04 (trusty)')
+        self.assertEqual(ldi.version(best=True), '14.04')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'trusty')
 
@@ -196,6 +206,7 @@ class TestLSBRelease(DistroTestCase):
         self.assertEqual(ldi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
         self.assertEqual(ldi.version(), '14.04')
         self.assertEqual(ldi.version(pretty=True), '14.04 (trusty)')
+        self.assertEqual(ldi.version(best=True), '14.04')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'trusty')
 
@@ -210,6 +221,7 @@ class TestLSBRelease(DistroTestCase):
         self.assertEqual(ldi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
         self.assertEqual(ldi.version(), '14.04')
         self.assertEqual(ldi.version(pretty=True), '14.04 (trusty)')
+        self.assertEqual(ldi.version(best=True), '14.04')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'trusty')
 
@@ -229,6 +241,7 @@ class TestDistRelease(testtools.TestCase):
         self.assertEqual(ldi.name(pretty=True), '')
         self.assertEqual(ldi.version(), '')
         self.assertEqual(ldi.version(pretty=True), '')
+        self.assertEqual(ldi.version(best=True), '')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), '')
 
@@ -242,6 +255,7 @@ class TestDistRelease(testtools.TestCase):
         self.assertEqual(ldi.name(pretty=True), 'CentOS 5.11 (Final)')
         self.assertEqual(ldi.version(), '5.11')
         self.assertEqual(ldi.version(pretty=True), '5.11 (Final)')
+        self.assertEqual(ldi.version(best=True), '5.11')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'Final')
         self.assertEqual(ldi.major_version(), '5')
@@ -259,6 +273,7 @@ class TestDistRelease(testtools.TestCase):
         self.assertEqual(ldi.name(pretty=True), 'CentOS Linux 7.1.1503 (Core)')
         self.assertEqual(ldi.version(), '7.1.1503')
         self.assertEqual(ldi.version(pretty=True), '7.1.1503 (Core)')
+        self.assertEqual(ldi.version(best=True), '7.1.1503')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'Core')
         self.assertEqual(ldi.major_version(), '7')
@@ -275,6 +290,7 @@ class TestDistRelease(testtools.TestCase):
         self.assertEqual(ldi.name(pretty=True), '')
         self.assertEqual(ldi.version(), '')
         self.assertEqual(ldi.version(pretty=True), '')
+        self.assertEqual(ldi.version(best=True), '')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), '')
 
@@ -290,6 +306,7 @@ class TestDistRelease(testtools.TestCase):
         self.assertEqual(ldi.name(pretty=True), '')
         self.assertEqual(ldi.version(), '')
         self.assertEqual(ldi.version(pretty=True), '')
+        self.assertEqual(ldi.version(best=True), '')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), '')
 
@@ -304,6 +321,7 @@ class TestDistRelease(testtools.TestCase):
         self.assertEqual(ldi.name(pretty=True), 'Fedora 23 (Twenty Three)')
         self.assertEqual(ldi.version(), '23')
         self.assertEqual(ldi.version(pretty=True), '23 (Twenty Three)')
+        self.assertEqual(ldi.version(best=True), '23')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'Twenty Three')
 
@@ -318,6 +336,7 @@ class TestDistRelease(testtools.TestCase):
         self.assertEqual(ldi.name(pretty=True), 'Mageia 5 (Official)')
         self.assertEqual(ldi.version(), '5')
         self.assertEqual(ldi.version(pretty=True), '5 (Official)')
+        self.assertEqual(ldi.version(best=True), '5')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'Official')
 
@@ -332,6 +351,7 @@ class TestDistRelease(testtools.TestCase):
         self.assertEqual(ldi.name(pretty=True), 'openSUSE 42.1 (x86_64)')
         self.assertEqual(ldi.version(), '42.1')
         self.assertEqual(ldi.version(pretty=True), '42.1 (x86_64)')
+        self.assertEqual(ldi.version(best=True), '42.1')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'x86_64')
         self.assertEqual(ldi.major_version(), '42')
@@ -349,6 +369,7 @@ class TestDistRelease(testtools.TestCase):
         self.assertEqual(ldi.name(pretty=True), 'Oracle Linux Server 7.1')
         self.assertEqual(ldi.version(), '7.1')
         self.assertEqual(ldi.version(pretty=True), '7.1')
+        self.assertEqual(ldi.version(best=True), '7.1')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), '')
 
@@ -365,6 +386,7 @@ class TestDistRelease(testtools.TestCase):
             'Red Hat Enterprise Linux Server 6.5 (Santiago)')
         self.assertEqual(ldi.version(), '6.5')
         self.assertEqual(ldi.version(pretty=True), '6.5 (Santiago)')
+        self.assertEqual(ldi.version(best=True), '6.5')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'Santiago')
         self.assertEqual(ldi.version_parts(), ('6', '5', ''))
@@ -382,6 +404,7 @@ class TestDistRelease(testtools.TestCase):
             'Red Hat Enterprise Linux Server 7.0 (Maipo)')
         self.assertEqual(ldi.version(), '7.0')
         self.assertEqual(ldi.version(pretty=True), '7.0 (Maipo)')
+        self.assertEqual(ldi.version(best=True), '7.0')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'Maipo')
         self.assertEqual(ldi.version_parts(), ('7', '0', ''))
@@ -397,6 +420,7 @@ class TestDistRelease(testtools.TestCase):
         self.assertEqual(ldi.name(pretty=True), 'Slackware 14.1')
         self.assertEqual(ldi.version(), '14.1')
         self.assertEqual(ldi.version(pretty=True), '14.1')
+        self.assertEqual(ldi.version(best=True), '14.1')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), '')
 
@@ -443,6 +467,7 @@ class TestOverall(DistroTestCase):
         # Arch Linux has a continuous release concept:
         self.assertEqual(ldi.version(), '')
         self.assertEqual(ldi.version(pretty=True), '')
+        self.assertEqual(ldi.version(best=True), '')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), '')
 
@@ -462,6 +487,7 @@ class TestOverall(DistroTestCase):
         self.assertEqual(ldi.name(pretty=True), 'CentOS 5.11 (Final)')
         self.assertEqual(ldi.version(), '5.11')
         self.assertEqual(ldi.version(pretty=True), '5.11 (Final)')
+        self.assertEqual(ldi.version(best=True), '5.11')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'Final')
         self.assertEqual(ldi.major_version(), '5')
@@ -485,9 +511,9 @@ class TestOverall(DistroTestCase):
         self.assertEqual(ldi.id(), 'centos')
         self.assertEqual(ldi.name(), 'CentOS Linux')
         self.assertEqual(ldi.name(pretty=True), 'CentOS Linux 7 (Core)')
-        # TODO: Fix issue that version() looses precision.
         self.assertEqual(ldi.version(), '7')
         self.assertEqual(ldi.version(pretty=True), '7 (Core)')
+        self.assertEqual(ldi.version(best=True), '7.1.1503')
         self.assertEqual(ldi.like(), 'rhel fedora')
         self.assertEqual(ldi.codename(), 'Core')
         self.assertEqual(ldi.major_version(), '7')
@@ -511,9 +537,9 @@ class TestOverall(DistroTestCase):
         self.assertEqual(ldi.id(), 'debian')
         self.assertEqual(ldi.name(), 'Debian GNU/Linux')
         self.assertEqual(ldi.name(pretty=True), 'Debian GNU/Linux 8 (jessie)')
-        # TODO: Fix issue that version() looses precision.
         self.assertEqual(ldi.version(), '8')
         self.assertEqual(ldi.version(pretty=True), '8 (jessie)')
+        self.assertEqual(ldi.version(best=True), '8.2')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'jessie')
 
@@ -533,6 +559,7 @@ class TestOverall(DistroTestCase):
         self.assertEqual(ldi.name(pretty=True), '')
         self.assertEqual(ldi.version(), '')
         self.assertEqual(ldi.version(pretty=True), '')
+        self.assertEqual(ldi.version(best=True), '')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), '')
 
@@ -549,6 +576,7 @@ class TestOverall(DistroTestCase):
         self.assertEqual(ldi.name(pretty=True), 'Fedora 23 (Twenty Three)')
         self.assertEqual(ldi.version(), '23')
         self.assertEqual(ldi.version(pretty=True), '23 (Twenty Three)')
+        self.assertEqual(ldi.version(best=True), '23')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'Twenty Three')
 
@@ -571,6 +599,7 @@ class TestOverall(DistroTestCase):
         self.assertEqual(ldi.name(pretty=True), 'Mageia 5')
         self.assertEqual(ldi.version(), '5')
         self.assertEqual(ldi.version(pretty=True), '5 (thornicroft)')
+        self.assertEqual(ldi.version(best=True), '5')
         self.assertEqual(ldi.like(), 'mandriva fedora')
         # TODO: Codename differs between distro release file and lsb_release.
         self.assertEqual(ldi.codename(), 'thornicroft')
@@ -594,6 +623,7 @@ class TestOverall(DistroTestCase):
         self.assertEqual(ldi.name(pretty=True), 'openSUSE Leap 42.1 (x86_64)')
         self.assertEqual(ldi.version(), '42.1')
         self.assertEqual(ldi.version(pretty=True), '42.1 (x86_64)')
+        self.assertEqual(ldi.version(best=True), '42.1')
         self.assertEqual(ldi.like(), 'suse')
         self.assertEqual(ldi.codename(), 'x86_64')
         self.assertEqual(ldi.major_version(), '42')
@@ -619,6 +649,7 @@ class TestOverall(DistroTestCase):
         self.assertEqual(ldi.name(pretty=True), 'Oracle Linux Server 7.1')
         self.assertEqual(ldi.version(), '7.1')
         self.assertEqual(ldi.version(pretty=True), '7.1')
+        self.assertEqual(ldi.version(best=True), '7.1')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), '')
 
@@ -643,6 +674,7 @@ class TestOverall(DistroTestCase):
             'Red Hat Enterprise Linux Server 6.5 (Santiago)')
         self.assertEqual(ldi.version(), '6.5')
         self.assertEqual(ldi.version(pretty=True), '6.5 (Santiago)')
+        self.assertEqual(ldi.version(best=True), '6.5')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'Santiago')
         self.assertEqual(ldi.version_parts(), ('6', '5', ''))
@@ -669,6 +701,7 @@ class TestOverall(DistroTestCase):
             'Red Hat Enterprise Linux Server 7.0 (Maipo)')
         self.assertEqual(ldi.version(), '7.0')
         self.assertEqual(ldi.version(pretty=True), '7.0 (Maipo)')
+        self.assertEqual(ldi.version(best=True), '7.0')
         self.assertEqual(ldi.like(), 'fedora')
         self.assertEqual(ldi.codename(), 'Maipo')
         self.assertEqual(ldi.version_parts(), ('7', '0', ''))
@@ -693,6 +726,7 @@ class TestOverall(DistroTestCase):
         self.assertEqual(ldi.name(pretty=True), 'Slackware 14.1')
         self.assertEqual(ldi.version(), '14.1')
         self.assertEqual(ldi.version(pretty=True), '14.1')
+        self.assertEqual(ldi.version(best=True), '14.1')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), '')
 
@@ -715,6 +749,7 @@ class TestOverall(DistroTestCase):
         self.assertEqual(ldi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
         self.assertEqual(ldi.version(), '14.04')
         self.assertEqual(ldi.version(pretty=True), '14.04 (Trusty Tahr)')
+        self.assertEqual(ldi.version(best=True), '14.04')
         self.assertEqual(ldi.like(), 'debian')
         self.assertEqual(ldi.codename(), 'Trusty Tahr')
 
@@ -736,6 +771,7 @@ class TestOverall(DistroTestCase):
                          'Unknown Distro 1.0 (Unknown Codename)')
         self.assertEqual(ldi.version(), '1.0')
         self.assertEqual(ldi.version(pretty=True), '1.0 (Unknown Codename)')
+        self.assertEqual(ldi.version(best=True), '1.0')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'Unknown Codename')
 
@@ -1074,42 +1110,80 @@ class TestGlobal(testtools.TestCase):
         # the release files of the distro this test runs on, and
         # compare the result of the global functions with the result
         # of the methods on the global LinuxDistribution object.
+
         self.assertEqual(ld.id(),
             MODULE_LDI.id())
+
         self.assertEqual(ld.name(),
             MODULE_LDI.name(pretty=False))
         self.assertEqual(ld.name(pretty=False),
             MODULE_LDI.name())
         self.assertEqual(ld.name(pretty=True),
             MODULE_LDI.name(pretty=True))
+
         self.assertEqual(ld.version(),
             MODULE_LDI.version(pretty=False))
         self.assertEqual(ld.version(pretty=False),
             MODULE_LDI.version())
         self.assertEqual(ld.version(pretty=True),
             MODULE_LDI.version(pretty=True))
+        self.assertEqual(ld.version(),
+            MODULE_LDI.version(best=False))
+        self.assertEqual(ld.version(best=False),
+            MODULE_LDI.version())
+        self.assertEqual(ld.version(best=True),
+            MODULE_LDI.version(best=True))
+
+        self.assertEqual(ld.version_parts(),
+            MODULE_LDI.version_parts(best=False))
+        self.assertEqual(ld.version_parts(best=False),
+            MODULE_LDI.version_parts())
+        self.assertEqual(ld.version_parts(best=True),
+            MODULE_LDI.version_parts(best=True))
+
         self.assertEqual(ld.major_version(),
+            MODULE_LDI.major_version(best=False))
+        self.assertEqual(ld.major_version(best=False),
             MODULE_LDI.major_version())
+        self.assertEqual(ld.major_version(best=True),
+            MODULE_LDI.major_version(best=True))
+
         self.assertEqual(ld.minor_version(),
+            MODULE_LDI.minor_version(best=False))
+        self.assertEqual(ld.minor_version(best=False),
             MODULE_LDI.minor_version())
+        self.assertEqual(ld.minor_version(best=True),
+            MODULE_LDI.minor_version(best=True))
+
         self.assertEqual(ld.build_number(),
+            MODULE_LDI.build_number(best=False))
+        self.assertEqual(ld.build_number(best=False),
             MODULE_LDI.build_number())
+        self.assertEqual(ld.build_number(best=True),
+            MODULE_LDI.build_number(best=True))
+
         self.assertEqual(ld.like(),
             MODULE_LDI.like())
+
         self.assertEqual(ld.codename(),
             MODULE_LDI.codename())
+
         self.assertEqual(ld.linux_distribution(),
             MODULE_LDI.linux_distribution(full_distribution_name=True))
         self.assertEqual(ld.linux_distribution(full_distribution_name=True),
             MODULE_LDI.linux_distribution())
         self.assertEqual(ld.linux_distribution(full_distribution_name=False),
             MODULE_LDI.linux_distribution(full_distribution_name=False))
+
         self.assertEqual(ld.os_release_info(),
             MODULE_LDI.os_release_info())
+
         self.assertEqual(ld.lsb_release_info(),
             MODULE_LDI.lsb_release_info())
+
         self.assertEqual(ld.distro_release_info(),
             MODULE_LDI.distro_release_info())
+
         self.assertEqual(ld.info(),
             MODULE_LDI.info())
 
