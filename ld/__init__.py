@@ -609,7 +609,7 @@ class LinuxDistribution(object):
             version_parts=dict(
                 major=self.major_version(),
                 minor=self.minor_version(),
-                build_number=build_number()
+                build_number=self.build_number()
             ),
             like=self.like(),
         )
