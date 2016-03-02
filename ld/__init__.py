@@ -50,12 +50,34 @@ class LinuxDistribution(object):
              self._distro_release_info)
 
     def os_release_info(self):
-        """Returns a dictionary containing key value pairs
-        of an /etc/os-release file attributes.
+        """Returns a dictionary containing key-value pairs for all attributes
+        found in the `os-release` file. If the file does not exist, an
+        empty dictionary is returned. The `os-release` file is expected in the
+        `/etc` directory.
+
+        Lines not containing `attr=value` (that is, no `=`), will be ignored.
+
+        TODO: See issue #50 on lines starting with `#`.
+
+        The attribute names found in the file are processed by translating
+        them to lower case, before they become the keys of the returned
+        dictionary.
+
+        The attribute values found in the file are cleaned up (whitespace,
+        quotes), before they become the values of the returned dictionary.
+
+        TODO: See issue #50 on the processing of the values.
+
+        If the attribute "VERSION" is found in the file, the codename is
+        extracted from its value if it can be found there. If a codename is
+        found, it will be in an additional key "codename" of the returned
+        dictionary.
 
         See http://www.freedesktop.org/software/systemd/man/os-release.html
-        as a reference.
+        for a description of standard attributes defined in the `os-release`
+        file.
         """
+        # For the code of this description, see _parse_key_value_files()
         return self._os_release_info
 
     def _get_os_release_info(self):
@@ -65,11 +87,27 @@ class LinuxDistribution(object):
         return {}
 
     def lsb_release_info(self):
-        """Returns the parsed output of the `lsb_release -a` command.
+        """Returns a dictionary containing key-value pairs for all attributes
+        returned by the `lsb_release -a` command in its standard output. If
+        the command cannot be executed, an empty dictionary is returned.
 
-        See http://refspecs.linuxfoundation.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/lsbrelease.html  # NOQA
-        as a reference.
+        Lines not containing `attr: value` (that is, no `:`), will be ignored.
+
+        The attribute names found in the command output are processed by
+        stripping surrounding blanks, translating any remaining blanks to
+        underscores, and translating them to lower case, before they become
+        the keys of the returned dictionary.
+
+        The attribute values found in the command output are stripped from
+        surrounding blanks, before they become the values of the returned
+        dictionary.
+
+        See
+        http://refspecs.linuxfoundation.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/lsbrelease.html  # NOQA
+        for a description of standard attributes returned by the `lsb_release`
+        command.
         """
+        # For the code of this description, see _parse_lsb_release()
         return self._lsb_release_info
 
     def _get_lsb_release_info(self):
@@ -80,48 +118,63 @@ class LinuxDistribution(object):
             shell=True,
             stdout=stdout,
             stderr=stderr).stdout
-        return self._parse_lsb_release(
-            r.read().decode('ascii').splitlines()) or {}
+        content = r.read().decode('ascii').splitlines()
+        return self._parse_lsb_release(content) or {}
 
     def distro_release_info(self):
-        """Returns a dict with information from a distro release file.
+        """Returns a dictionary containing key-value pairs with information
+        from a distro release file.
 
         If `self.distro_release_file` is set (i.e. `distro_release_file` was
         specified in the constructor), it is used as the path name of the
-        distro release file, and the returned dict will have those entries for
-        which data was found. Note that the returned dict may be empty.
+        distro release file, and the returned dictionary will have those
+        entries for which data was found. Note that the returned dictionary
+        may be empty.
 
         If `self.distro_release_file` is not set, a distro release file is
         searched in the `/etc` directory that satisfies all of the following
         conditions:
-        * Its file name matches the file name patterns `*-release` or
-          `*_release`.
+
+        * Its file name matches the file name patterns `*-release`,
+          `*_release`, `*-version`, or `*_version`.
         * Its first line matches the pattern
           `<name> [[[release] <release>] (<codename>)]`,
           whereby components in square brackets are optional.
-        If such a file is found, the returned dict will have those entries for
-        which data was found, and `self.distro_release_file` is set to the
-        path name of the file. If such a file is not found, an empty dict is
-        returned.
 
-        The returned dict will have zero or more of the following entries:
+        If such a file is found, the returned dictionary will have those
+        entries for which data was found, and `self.distro_release_file` is set
+        to the path name of the file.
+        If such a file is not found, an empty dictionary is returned.
+
+        The returned dictionary will have zero or more of the following
+        entries:
+
         * `id`: (string) Distro ID (e.g. `ubuntu`, `centos`, `redhat`), taken
-          from the first part of the file name.
+          from the first part of the file name (that matches the "*" in the
+          file name patterns shown above).
         * `name`: (string) Distro name (e.g. `Ubuntu`, `Debian GNU/Linux`),
           as found in the first line of the file.
         * `version_id`: (string) Distro version (e.g. `14.04 LTS`),
-          as found in the first line of the file.
+          as found in the first line of the file. If not found, this key
+          will not be in the dictionary.
         * `codename`: (string) Distro code name (e.g. `Trusty Tahr`),
-          as found in the first line of the file.
+          as found in the first line of the file. If not found, this key
+          will not be in the dictionary.
 
         TODO: In some cases the code name may be irrelevant (e.g.
         `openSUSE 42.1 (x86_64)`). A possible solution for such code names
         could be to not allow code names which have digits in them as there
         might not be any.
         """
+        # For the code of this description, see _get_distro_release_info()
         return self._distro_release_info
 
     def _get_distro_release_info(self):
+        """Parses a distro release file and returns a dictionary
+        containing all information found within the file.
+
+        For details, see the description of `distro_release_info()`.
+        """
         if self.distro_release_file:
             # If it was specified, we use it and parse what we can, even if
             # its file name or content does not match the expected pattern.
@@ -134,9 +187,7 @@ class LinuxDistribution(object):
             # possible.
             match = _DISTRO_RELEASE_BASENAME_PATTERN.match(basename)
             if match:
-                distro_id = match.group(1)
-                # TODO: Normalize distro_id
-                distro_info['id'] = distro_id
+                distro_info['id'] = match.group(1)
             return distro_info
         else:
             basenames = os.listdir(const._UNIXCONFDIR)
@@ -149,14 +200,12 @@ class LinuxDistribution(object):
                     continue
                 match = _DISTRO_RELEASE_BASENAME_PATTERN.match(basename)
                 if match:
-                    distro_id = match.group(1)
-                    # TODO: Normalize distro_id
                     filepath = os.path.join(const._UNIXCONFDIR, basename)
                     distro_info = self._parse_distro_release_file(filepath)
                     if 'name' in distro_info:
                         # The name is always present if the pattern matches
                         self.distro_release_file = filepath
-                        distro_info['id'] = distro_id
+                        distro_info['id'] = match.group(1)
                         return distro_info
             return {}
 
@@ -171,12 +220,12 @@ class LinuxDistribution(object):
 
     @staticmethod
     def _parse_key_value_files(content):
-        """Parses an os-release or lsb-release file and returns a
-        dict containing all information found within the file.
+        """Parses the content of an `os-release` file and returns a dictionary
+        containing all information found within the file.
 
-        Lines not containing key=value (that is, no `=`), wil be ignored.
-        Specifically, if "VERSION" is found, this will try to extract
-        the codename from it as it is sometimes found there.
+        For details, see the description of `os_release_info()`.
+
+        content: Iterable through the lines in the `os-release` file.
         """
         props = {}
         lexer = shlex.shlex(content, posix=True)
@@ -227,11 +276,13 @@ class LinuxDistribution(object):
 
     @staticmethod
     def _parse_lsb_release(content):
-        """Returns a dict containing key:value pairs of the output
-        of the `lsb_release -a` command.
+        """Parses the content of the output of the `lsb_release -a` command
+        and returns a dictionary containing all information found within the
+        output.
 
-        Note that all keys will be in lower case and any spaces
-        contained within the keys will be replaced with underscores.
+        For details, see the description of `lsb_release_info()`.
+
+        content: Iterable through the lines of the `lsb_release -a` output.
         """
         props = {}
         for obj in content:
@@ -265,21 +316,86 @@ class LinuxDistribution(object):
         return distro_info
 
     def id(self):
-        """Returns the id for the distribution.
+        """Returns the ID for the distribution, as a machine-readable string.
 
-        This should be a machine readable name.
+        For a number of Linux distributions, the returned distro ID value is
+        *reliable*, in the sense that it is documented and that it does not
+        change across releases of the distribution.
 
-        e.g. ubuntu, centos, oracle, slackware, etc.
+        This package maintains the following reliable distro ID values:
 
-        If os-release and lsb-release do not exist, an attempt to
-        extract the id from the name of the release file will be
-        attempted. It's important to note that this falls back to the name
-        of the distribution if the id cannot be retrieved by any other means.
+        TODO: This list is preliminary and needs review.
+
+        * `ubuntu` - Ubuntu
+        * `debian` - Debian
+        * `rhel` - RedHat Enterprise Linux
+        * `centos` - CentOS
+        * `fedora` - Fedora
+        * `sles` - SUSE Linux Enterprise Server
+        * `opensuse` - openSUSE
+        * `amazon` - Amazon Linux
+        * `arch` - Arch Linux
+        * `cloudlinux` - CloudLinux OS
+        * `exherbo` - Exherbo Linux
+        * `gentoo` - GenToo Linux
+        * `ibm_powerkvm` - IBM PowerKVM
+        * `linuxmint` - Linux Mint
+        * `mageia` - Mageia
+        * `mandriva` - Mandriva Linux
+        * `nexus_centos` - TODO: Clarify
+        * `parallels` - Parallels
+        * `pidora` - Pidora
+        * `raspbian` - Raspbian
+        * `oracle` - Oracle Linux (and Oracle Enterprise Linux)
+        * `scientific` - Scientific Linux
+        * `slackware` - Slackware
+        * `xenserver` - XenServer
+
+        Note that the distro ID as provided by the `*_release_info()` and
+        `get_*_release_attr()` methods is not reliable, these methods provide
+        the values as obtained from the respective sources.
+
+        Details:
+
+        First, the ID is obtained from the following sources, in the specified
+        order. The first available and non-empty value is used:
+
+        * the value of the "ID" attribute of the `os-release` file,
+        * the value of the "Distribution ID" attribute returned by the
+          `lsb_release` command,
+        * the first part of the file name of the distro release file,
+        * the empty string.
+
+        The so determined ID value then passes the following transformations,
+        before it is returned by this method:
+
+        * it is translated to lower case,
+        * blanks (which should not be there anyway) are translated to
+          underscores,
+        * a normalization of the ID is performed, based upon translation
+          tables in the `constants` module. The purpose of this normalization
+          is to ensure that the ID is as reliable as possible, even across
+          incompatible changes in the linux distributions. A common case for
+          such a change is the addition of an `os-release` file or the addition
+          of the `lsb_release` command, with ID values that differ from what
+          was previously determined from the distro release file name.
         """
-        return self.get_os_release_attr('id') \
-            or self.get_lsb_release_attr('distributor_id').lower() \
-            or self.get_distro_release_attr('id') \
-            or ''
+        distro_id = self.get_os_release_attr('id')
+        if distro_id:
+            distro_id = distro_id.lower().replace(' ', '_')
+            return const.NORMALIZED_OS_ID.get(distro_id, distro_id)
+
+        distro_id = self.get_lsb_release_attr('distributor_id')
+        if distro_id:
+            distro_id = distro_id.lower().replace(' ', '_')
+            return const.NORMALIZED_LSB_ID.get(distro_id, distro_id)
+
+        distro_id = self.get_distro_release_attr('id')
+        if distro_id:
+            distro_id = distro_id.lower().replace(' ', '_')
+            return const.NORMALIZED_DISTRO_ID.get(distro_id, distro_id)
+
+        return ''
 
     def name(self, pretty=False):
         """Returns the name of the distribution.
@@ -360,21 +476,6 @@ class LinuxDistribution(object):
             or self.get_distro_release_attr('codename') \
             or ''
 
-    def base(self):
-        """Returns the base distribution upon which the distro is based.
-
-        A table for that is provided in `constants.py` where each supported
-        distribution is converted to its base distribution.
-
-        e.g. 'ubuntu': 'debian'
-             'oracle': 'rhel'
-             'redhat': 'rhel'
-        """
-        return const._DIST_TO_BASE.get(
-            self.id().lower(),
-            self.like().lower()) \
-            or ''
-
     def linux_distribution(self, full_distribution_name=True):
         """This attempts to mimic the original `platform.linux_distribution()`
         function.
@@ -418,7 +519,6 @@ class LinuxDistribution(object):
             },
             'like': 'fedora',
             'codename': 'maipo',
-            'base': 'fedora'
         }
         """
         return dict(
@@ -430,7 +530,6 @@ class LinuxDistribution(object):
                 build_number=build_number()
             ),
             like=self.like(),
-            base=self.base()
         )
 
 _ldi = LinuxDistribution()
@@ -466,10 +565,6 @@ def like():
 
 def codename():
     return _ldi.codename()
-
-
-def base():
-    return _ldi.base()
 
 
 def linux_distribution(full_distribution_name=True):
