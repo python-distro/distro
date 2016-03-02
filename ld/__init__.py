@@ -422,37 +422,117 @@ class LinuxDistribution(object):
                     name = name + ' ' + version
         return name or ''
 
-    def version(self, pretty=False):
-        """Returns the version of a specific distribution.
+    def version(self, pretty=False, best=False):
+        """Returns the version of the distribution as a string.
 
-        If pretty=False, the version is returned without codename (e.g. 7.0).
-        If pretty=True, codename is appended (e.g. 7.0 (Maipo))
+        If `pretty=False`, the version number is returned without codename
+        (e.g. "7.0").
+        If `pretty=True`, the codename in parenthesis is appended (e.g.
+        "7.0 (Maipo)"), if the codename is non-empty.
+
+        Some distributions provide version numbers with different precisions in
+        the different sources of distribution information. Examining the
+        different sources in a fixed priority order does not always yield the
+        most precise version (e.g. for Debian 8.2, or CentOS 7.1).
+        The `best` parameter can be used to control the approach for the
+        returned version:
+        If `best=False`, the first non-empty version number in priority order
+        of the examined sources is returned.
+        If `best=True`, the most precise version number out of all examined
+        sources is returned.
+
+        Details:
+
+        In all cases, the version number is obtained from the following
+        sources. For `best=False`, this order represents the priority order:
+
+        * the value of the "VERSION" attribute of the `os-release` file,
+        * the value of the "Release" attribute returned by the `lsb_release`
+          command,
+        * the version number parsed from the first line of the distro release
+          file,
+        * the version number parsed from the "PRETTY_NAME" attribute of the
+          `os-release` file, if it follows the format of the distro release
+          files.
+        * the version number parsed from the "Description" attribute returned
+          by the `lsb_release` command, if it follows the format of the distro
+          release files.
+        * the empty string.
+
+        TODO: So far, the tested distributions do not have a more precise
+        version in the description fields than in the the official version
+        fields. Review whether parsing the description fields should be done
+        at all.
         """
-        version = self.get_os_release_attr('version_id') \
-            or self.get_lsb_release_attr('release') \
-            or self.get_distro_release_attr('version_id') \
-            or ''
+        versions = [
+            self.get_os_release_attr('version_id'),
+            self.get_lsb_release_attr('release'),
+            self.get_distro_release_attr('version_id'),
+            self._parse_distro_release_content(
+              self.get_os_release_attr('pretty_name')).get('version_id', ''),
+            self._parse_distro_release_content(
+              self.get_lsb_release_attr('description')).get('version_id', ''),
+        ]
+        version = ''
+        if best:
+            # This algorithm uses the last version in priority order that has
+            # the best precision. If the versions are not in conflict, that
+            # does not matter; otherwise, using the last one instead of the
+            # first one might be considered a surprise.
+            for v in versions:
+                if v.count(".") > version.count(".") or version == '':
+                    version = v
+        else:
+            for v in versions:
+                if v != '':
+                    version = v
+                    break
         if pretty and version and self.codename():
             version = '{0} ({1})'.format(version, self.codename())
         return version
 
-    def version_parts(self):
-        """Returns a tuple with (major, minor, build_number).
+    def version_parts(self, best=False):
+        """Returns the version of the distribution as a tuple with (major,
+        minor, build_number). Parts of the version that do not exist,
+        are returned as the empty string in this tuple.
+
+        For a description of the `best` parameter, see `version()`.
         """
-        if self.version():
+        version_str = self.version(best=best)
+        if version_str:
             g = re.compile(r'(\d+)\.?(\d+)?\.?(\d+)?')
-            major, minor, build_number = g.match(self.version()).groups()
-            return (major, minor or '', build_number or '')
+            m = g.match(version_str)
+            if m:
+                major, minor, build_number = m.groups()
+                return (major, minor or '', build_number or '')
         return ('', '', '')
 
-    def major_version(self):
-        return self.version_parts()[0]
+    def major_version(self, best=False):
+        """Returns the major version of the distribution as a string, if
+        provided. Otherwise, the empty string is returned. The major version is
+        the first part of the dot-separated version string.
 
-    def minor_version(self):
-        return self.version_parts()[1]
+        For a description of the `best` parameter, see `version()`.
+        """
+        return self.version_parts(best=best)[0]
 
-    def build_number(self):
-        return self.version_parts()[2]
+    def minor_version(self, best=False):
+        """Returns the minor version of the distribution as a string, if
+        provided. Otherwise, the empty string is returned. The minor version is
+        the second part of the dot-separated version string.
+
+        For a description of the `best` parameter, see `version()`.
+        """
+        return self.version_parts(best=best)[1]
+
+    def build_number(self, best=False):
+        """Returns the build number of the distribution as a string, if
+        provided. Otherwise, the empty string is returned. The build number is
+        the third part of the dot-separated version string.
+
+        For a description of the `best` parameter, see `version()`.
+        """
+        return self.version_parts(best=best)[2]
 
     def like(self):
         """Returns the ID_LIKE field contents from os-release if provided.
@@ -520,6 +600,8 @@ class LinuxDistribution(object):
             'like': 'fedora',
             'codename': 'maipo',
         }
+
+        TODO: Should the version be provided in best precision (best=True)?
         """
         return dict(
             id=self.id(),
@@ -543,20 +625,24 @@ def name(pretty=False):
     return _ldi.name(pretty)
 
 
-def version(pretty=False):
-    return _ldi.version(pretty)
+def version(pretty=False, best=False):
+    return _ldi.version(pretty, best)
 
 
-def major_version():
-    return _ldi.major_version()
+def version_parts(best=False):
+    return _ldi.version_parts(best)
 
 
-def minor_version():
-    return _ldi.minor_version()
+def major_version(best=False):
+    return _ldi.major_version(best)
 
 
-def build_number():
-    return _ldi.build_number()
+def minor_version(best=False):
+    return _ldi.minor_version(best)
+
+
+def build_number(best=False):
+    return _ldi.build_number(best)
 
 
 def like():
