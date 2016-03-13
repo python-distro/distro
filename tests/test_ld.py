@@ -1184,6 +1184,39 @@ class TestGlobal(testtools.TestCase):
         self.assertEqual(ld.distro_release_info(),
             MODULE_LDI.distro_release_info())
 
+        os_release_keys = [
+            'name',
+            'version',
+            'id',
+            'id_like',
+            'pretty_name',
+            'version_id',
+            'codename',
+        ]
+        for key in os_release_keys:
+            self.assertEqual(ld.get_os_release_attr(key),
+                MODULE_LDI.get_os_release_attr(key))
+
+        lsb_release_keys = [
+            'distributor_id',
+            'description',
+            'release',
+            'codename',
+        ]
+        for key in lsb_release_keys:
+            self.assertEqual(ld.get_lsb_release_attr(key),
+                MODULE_LDI.get_lsb_release_attr(key))
+
+        distro_release_keys = [
+            'id',
+            'name',
+            'version_id',
+            'codename',
+        ]
+        for key in distro_release_keys:
+            self.assertEqual(ld.get_distro_release_attr(key),
+                MODULE_LDI.get_distro_release_attr(key))
+
         self.assertEqual(ld.info(),
             MODULE_LDI.info())
 
