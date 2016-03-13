@@ -12,13 +12,25 @@ def read(*parts):
 
 setup(
     name='ld',
-    version="0.2.9",
+    version="0.5.0",
     url='https://github.com/nir0s/ld',
-    author='nir0s',
+    author='Nir Cohen',
     author_email='nir36g@gmail.com',
-    license='LICENSE',
+    license='Apache License, Version 2.0',
     platforms='All',
     description='Linux OS Platform Information API',
     long_description=read('README.rst'),
-    packages=['ld']
+    packages=['ld'],
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: Apache Software License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: System :: Operating System',
+    ]
 )
