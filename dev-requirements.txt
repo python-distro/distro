@@ -3,3 +3,4 @@ nose
 nose-cov
 testfixtures
 testtools
+sphinx>=1.1
