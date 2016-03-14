@@ -548,7 +548,7 @@ class LinuxDistribution(object):
         elif rc == 127:  # Command not found
             return {}
         else:
-            if sys.version_info[0:2] >= (2,7):
+            if sys.version_info[0:2] >= (2, 7):
                 raise subprocess.CalledProcessError(rc, cmd, err)
             else:
                 raise subprocess.CalledProcessError(rc, cmd)
