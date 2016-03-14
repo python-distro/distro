@@ -420,6 +420,9 @@ class LinuxDistribution(object):
         * :py:exc:`IOError`: Some I/O issue with an os-release file or distro
           release file.
 
+        * :py:exc:`subprocess.CalledProcessError`: The lsb_release command
+          had some issue (other than not being found).
+
         * :py:exc:`UnicodeError`: A data source has unexpected characters or
           uses an unexpected encoding.
         """
@@ -531,15 +534,24 @@ class LinuxDistribution(object):
         return {}
 
     def _get_lsb_release_info(self):
-        stdout = subprocess.PIPE
-        stderr = subprocess.PIPE
-        r = subprocess.Popen(
-            'lsb_release -a',
+        cmd = 'lsb_release -a'
+        p = subprocess.Popen(
+            cmd,
             shell=True,
-            stdout=stdout,
-            stderr=stderr).stdout
-        content = r.read().decode('ascii').splitlines()
-        return self._parse_lsb_release(content) or {}
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+        out, err = p.communicate()
+        rc = p.returncode
+        if rc == 0:
+            content = out.decode('ascii').splitlines()
+            return self._parse_lsb_release(content)
+        elif rc == 127:  # Command not found
+            return {}
+        else:
+            if sys.version_info[0:2] >= (2,7):
+                raise subprocess.CalledProcessError(rc, cmd, err)
+            else:
+                raise subprocess.CalledProcessError(rc, cmd)
 
     def _get_distro_release_info(self):
         """Parse a distro release file and return a dictionary containing all
