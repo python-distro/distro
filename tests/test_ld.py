@@ -17,7 +17,7 @@ try:
     from StringIO import StringIO  # Python 2.x
 except ImportError:
     from io import StringIO  # Python 3.x
-
+import subprocess
 import testtools
 
 import ld
@@ -196,8 +196,6 @@ class TestLSBRelease(DistroTestCase):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb',
                                             'ubuntu14_normal'))
 
-        #import pdb; pdb.set_trace()
-
         ldi = ld.LinuxDistribution(True, 'non', 'non')
 
         self.assertEqual(ldi.id(), 'ubuntu')
@@ -238,6 +236,56 @@ class TestLSBRelease(DistroTestCase):
         self.assertEqual(ldi.version(best=True), '14.04')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'trusty')
+
+    def test_lsb_release_rc001(self):
+        self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb', 'lsb_rc001'))
+        try:
+            ldi = ld.LinuxDistribution(True, 'non', 'non')
+            exc = None
+        except Exception as _exc:
+            exc = _exc
+        self.assertEqual(isinstance(exc, subprocess.CalledProcessError), True)
+        self.assertEqual(exc.returncode, 1)
+
+    def test_lsb_release_rc002(self):
+        self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb', 'lsb_rc002'))
+        try:
+            ldi = ld.LinuxDistribution(True, 'non', 'non')
+            exc = None
+        except Exception as _exc:
+            exc = _exc
+        self.assertEqual(isinstance(exc, subprocess.CalledProcessError), True)
+        self.assertEqual(exc.returncode, 2)
+
+    def test_lsb_release_rc126(self):
+        self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb', 'lsb_rc126'))
+        try:
+            ldi = ld.LinuxDistribution(True, 'non', 'non')
+            exc = None
+        except Exception as _exc:
+            exc = _exc
+        self.assertEqual(isinstance(exc, subprocess.CalledProcessError), True)
+        self.assertEqual(exc.returncode, 126)
+
+    def test_lsb_release_rc130(self):
+        self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb', 'lsb_rc130'))
+        try:
+            ldi = ld.LinuxDistribution(True, 'non', 'non')
+            exc = None
+        except Exception as _exc:
+            exc = _exc
+        self.assertEqual(isinstance(exc, subprocess.CalledProcessError), True)
+        self.assertEqual(exc.returncode, 130)
+
+    def test_lsb_release_rc255(self):
+        self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb', 'lsb_rc255'))
+        try:
+            ldi = ld.LinuxDistribution(True, 'non', 'non')
+            exc = None
+        except Exception as _exc:
+            exc = _exc
+        self.assertEqual(isinstance(exc, subprocess.CalledProcessError), True)
+        self.assertEqual(exc.returncode, 255)
 
 
 class TestDistRelease(testtools.TestCase):
