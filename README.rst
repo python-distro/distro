@@ -1,4 +1,7 @@
-The `ld` (linux distribution) package provides information about the
+Linux Distribution - a Linux OS platform information API
+========================================================
+
+The `ld` (for: Linux Distribution) package provides information about the
 Linux distribution it runs on, such as a reliable machine-readable ID, or
 version information.
 
