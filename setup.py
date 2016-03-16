@@ -26,13 +26,13 @@ def read(*parts):
 
 setup(
     name='ld',
-    version="0.5.0",
+    version="0.5.0dev",
     url='https://github.com/nir0s/ld',
     author='Nir Cohen',
     author_email='nir36g@gmail.com',
     license='Apache License, Version 2.0',
     platforms='All',
-    description='Linux OS Platform Information API',
+    description='Linux Distribution - a Linux OS platform information API',
     long_description=read('README.rst'),
     packages=['ld'],
     classifiers=[

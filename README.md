@@ -1,11 +1,11 @@
-ld
-==
+Linux Distribution - a Linux OS platform information API
+========================================================
 
 [![Build Status](https://travis-ci.org/nir0s/ld.svg?branch=master)](https://travis-ci.org/nir0s/ld)
 [![PyPI](http://img.shields.io/pypi/dm/ld.svg)](http://img.shields.io/pypi/dm/ld.svg)
 [![PypI](http://img.shields.io/pypi/v/ld.svg)](http://img.shields.io/pypi/v/ld.svg)
 
-The `ld` (linux distribution) package provides information about the
+The `ld` (for: Linux Distribution) package provides information about the
 Linux distribution it runs on, such as a reliable machine-readable ID, or
 version information.
 
