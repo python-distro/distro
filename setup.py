@@ -35,6 +35,7 @@ setup(
     description='Linux OS Platform Information API',
     long_description=read('README.rst'),
     packages=['ld'],
+    install_requires=['six'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',

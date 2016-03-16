@@ -103,6 +103,20 @@ class TestOSRelease(testtools.TestCase):
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'jessie')
 
+    def test_fedora19_os_release(self):
+        os_release = os.path.join(DISTROS, 'fedora19', 'etc', 'os-release')
+
+        ldi = ld.LinuxDistribution(False, os_release, 'non')
+
+        self.assertEqual(ldi.id(), 'fedora')
+        self.assertEqual(ldi.name(), 'Fedora')
+        self.assertEqual(ldi.name(pretty=True), u'Fedora 19 (Schr\u00F6dinger\u2019s Cat)')
+        self.assertEqual(ldi.version(), '19')
+        self.assertEqual(ldi.version(pretty=True), u'19 (Schr\u00F6dinger\u2019s Cat)')
+        self.assertEqual(ldi.version(best=True), '19')
+        self.assertEqual(ldi.like(), '')
+        self.assertEqual(ldi.codename(), u'Schr\u00F6dinger\u2019s Cat')
+
     def test_fedora23_os_release(self):
         os_release = os.path.join(DISTROS, 'fedora23', 'etc', 'os-release')
 
@@ -372,6 +386,21 @@ class TestDistRelease(testtools.TestCase):
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), '')
 
+    def test_fedora19_dist_release(self):
+        distro_release = os.path.join(DISTROS, 'fedora19', 'etc',
+                                      'fedora-release')
+
+        ldi = ld.LinuxDistribution(False, 'non', distro_release)
+
+        self.assertEqual(ldi.id(), 'fedora')
+        self.assertEqual(ldi.name(), 'Fedora')
+        self.assertEqual(ldi.name(pretty=True), u'Fedora 19 (Schr\u00F6dinger\u2019s Cat)')
+        self.assertEqual(ldi.version(), '19')
+        self.assertEqual(ldi.version(pretty=True), u'19 (Schr\u00F6dinger\u2019s Cat)')
+        self.assertEqual(ldi.version(best=True), '19')
+        self.assertEqual(ldi.like(), '')
+        self.assertEqual(ldi.codename(), u'Schr\u00F6dinger\u2019s Cat')
+
     def test_fedora23_dist_release(self):
         distro_release = os.path.join(DISTROS, 'fedora23', 'etc',
                                       'fedora-release')
@@ -627,6 +656,29 @@ class TestOverall(DistroTestCase):
 
         # Test the info from the searched distro release file
         # TODO: Add tests for searched Exherbo distro release file
+
+    def test_fedora19_release(self):
+        self._setup_for_distro(os.path.join(DISTROS, 'fedora19'))
+
+        ldi = ld.LinuxDistribution()
+
+        self.assertEqual(ldi.id(), 'fedora')
+        self.assertEqual(ldi.name(), 'Fedora')
+        self.assertEqual(ldi.name(pretty=True), u'Fedora 19 (Schr\u00F6dinger\u2019s Cat)')
+        self.assertEqual(ldi.version(), '19')
+        self.assertEqual(ldi.version(pretty=True), u'19 (Schr\u00F6dinger\u2019s Cat)')
+        self.assertEqual(ldi.version(best=True), '19')
+        self.assertEqual(ldi.like(), '')
+        self.assertEqual(ldi.codename(), u'Schr\u00F6dinger\u2019s Cat')
+
+        # Test the info from the searched distro release file
+        self.assertEqual(os.path.basename(ldi.distro_release_file),
+                         'fedora-release')
+        distro_info = ldi.distro_release_info()
+        self.assertEqual(distro_info['id'], 'fedora')
+        self.assertEqual(distro_info['name'], 'Fedora')
+        self.assertEqual(distro_info['version_id'], '19')
+        self.assertEqual(distro_info['codename'], u'Schr\u00F6dinger\u2019s Cat')
 
     def test_fedora23_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'fedora23'))

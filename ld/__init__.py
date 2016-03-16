@@ -166,7 +166,7 @@ bug_report_url     "http://bugs.launchpad.net/ubuntu/"
 Format of the lsb_release command output
 ----------------------------------------
 
-The command output is expected to contain 7-bit ASCII characters only.
+The command output is expected to be encoded in UTF-8.
 
 Only lines in the command output with the following format will be used:
 
@@ -333,6 +333,7 @@ import os
 import re
 import subprocess
 import shlex
+import six
 
 from . import constants as const
 
@@ -557,8 +558,7 @@ class LinuxDistribution(object):
         out, err = p.communicate()
         rc = p.returncode
         if rc == 0:
-            content = out.decode('ascii').splitlines()
-            return self._parse_lsb_release(content)
+            return self._parse_lsb_release(out.splitlines())
         elif rc == 127:  # Command not found
             return {}
         else:
@@ -613,6 +613,8 @@ class LinuxDistribution(object):
         Parameters:
 
         * content: Iterable through the lines in the os-release file.
+                   Each line must be a unicode string or a UTF-8 encoded byte
+                   string.
         """
         props = {}
         lexer = shlex.shlex(content, posix=True)
@@ -638,9 +640,8 @@ class LinuxDistribution(object):
             # * commands or their arguments (not allowed in os-release)
             if '=' in token:
                 k, v = token.split('=', 1)
-                if sys.version_info[0] == 2 and isinstance(v, str) \
-                   or isinstance(v, bytes):
-                    v = v.decode("utf-8")
+                if isinstance(v, six.binary_type):
+                    v = v.decode('utf-8')
                 props[k.lower()] = v
                 if k == 'VERSION':
                     # this handles cases in which the codename is in
@@ -662,7 +663,7 @@ class LinuxDistribution(object):
         return props
 
     @staticmethod
-    def _parse_lsb_release(content):
+    def _parse_lsb_release(lines):
         """Parse the content of the output of the lsb_release command and
         return a dictionary containing all information items found within the
         output.
@@ -670,10 +671,14 @@ class LinuxDistribution(object):
         Parameters:
 
         * content: Iterable through the lines of the lsb_release output.
+                   Each line must be a unicode string or a UTF-8 encoded byte
+                   string.
         """
         props = {}
-        for obj in content:
-            kv = obj.strip('\n').split(':', 1)
+        for line in lines:
+            if isinstance(line, six.binary_type):
+                line = line.decode('utf-8')
+            kv = line.strip('\n').split(':', 1)
             if len(kv) != 2:
                 # Ignore lines without colon.
                 continue
@@ -691,21 +696,24 @@ class LinuxDistribution(object):
         """
         if os.path.isfile(filepath):
             with open(filepath, 'r') as fp:
-                # Only parse the first line. For instance, on SuSE there
+                # Only parse the first line. For instance, on SLES there
                 # are multiple lines. We don't want them...
                 return self._parse_distro_release_content(fp.readline())
         return {}
 
     @staticmethod
-    def _parse_distro_release_content(content):
+    def _parse_distro_release_content(line):
         """Parse a line from a distro release file and return a dictionary
         containing all information items found.
 
         Parameters:
-        * content: string with the line from the distro release file.
+        * line: Line from the distro release file. Must be a unicode string
+                or a UTF-8 encoded byte string.
         """
+        if isinstance(line, six.binary_type):
+            line = line.decode('utf-8')
         m = _DISTRO_RELEASE_CONTENT_REVERSED_PATTERN.match(
-            content.strip()[::-1])
+            line.strip()[::-1])
         distro_info = {}
         if m:
             distro_info['name'] = m.group(3)[::-1]   # regexp ensures non-None
@@ -877,7 +885,7 @@ class LinuxDistribution(object):
         In all cases, the version number is obtained from the following
         sources. For `best=False`, this order represents the priority order:
 
-        * the value of the "VERSION" attribute of the `os-release` file,
+        * the value of the "VERSION_ID" attribute of the `os-release` file,
         * the value of the "Release" attribute returned by the `lsb_release`
           command,
         * the version number parsed from the "<version_id>" field of the first
@@ -919,7 +927,7 @@ class LinuxDistribution(object):
                     version = v
                     break
         if pretty and version and self.codename():
-            version = '{0} ({1})'.format(version, self.codename())
+            version = u'{0} ({1})'.format(version, self.codename())
         return version
 
     def version_parts(self, best=False):
