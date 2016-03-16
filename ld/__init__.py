@@ -742,6 +742,7 @@ class LinuxDistribution(object):
         "exherbo"       Exherbo Linux
         "gentoo"        GenToo Linux
         "ibm_powerkvm"  IBM PowerKVM
+        "ibmkvm"        KVM for IBM z Systems
         "linuxmint"     Linux Mint
         "mageia"        Mageia
         "mandriva"      Mandriva Linux
