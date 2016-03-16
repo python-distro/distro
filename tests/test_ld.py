@@ -117,6 +117,20 @@ class TestOSRelease(testtools.TestCase):
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'Twenty Three')
 
+    def test_kvmibm1_os_release(self):
+        os_release = os.path.join(DISTROS, 'kvmibm1', 'etc', 'os-release')
+
+        ldi = ld.LinuxDistribution(False, os_release, 'non')
+
+        self.assertEqual(ldi.id(), 'kvmibm')
+        self.assertEqual(ldi.name(), 'KVM for IBM z Systems')
+        self.assertEqual(ldi.name(pretty=True), 'KVM for IBM z Systems 1.1.1 (Z)')
+        self.assertEqual(ldi.version(), '1.1.1')
+        self.assertEqual(ldi.version(pretty=True), '1.1.1 (Z)')
+        self.assertEqual(ldi.version(best=True), '1.1.1')
+        self.assertEqual(ldi.like(), 'rhel fedora')
+        self.assertEqual(ldi.codename(), 'Z')
+
     def test_mageia5_os_release(self):
         os_release = os.path.join(DISTROS, 'mageia5', 'etc', 'os-release')
 
@@ -387,6 +401,21 @@ class TestDistRelease(testtools.TestCase):
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'Twenty Three')
 
+    def test_kvmibm1_dist_release(self):
+        distro_release = os.path.join(DISTROS, 'kvmibm1', 'etc',
+                                      'base-release')
+
+        ldi = ld.LinuxDistribution(False, 'non', distro_release)
+
+        self.assertEqual(ldi.id(), 'base')
+        self.assertEqual(ldi.name(), 'KVM for IBM z Systems')
+        self.assertEqual(ldi.name(pretty=True), 'KVM for IBM z Systems 1.1.1 (Z)')
+        self.assertEqual(ldi.version(), '1.1.1')
+        self.assertEqual(ldi.version(pretty=True), '1.1.1 (Z)')
+        self.assertEqual(ldi.version(best=True), '1.1.1')
+        self.assertEqual(ldi.like(), '')
+        self.assertEqual(ldi.codename(), 'Z')
+
     def test_mageia5_dist_release(self):
         distro_release = os.path.join(DISTROS, 'mageia5', 'etc',
                                       'mageia-release')
@@ -650,6 +679,29 @@ class TestOverall(DistroTestCase):
         self.assertEqual(distro_info['name'], 'Fedora')
         self.assertEqual(distro_info['version_id'], '23')
         self.assertEqual(distro_info['codename'], 'Twenty Three')
+
+    def test_kvmibm1_release(self):
+        self._setup_for_distro(os.path.join(DISTROS, 'kvmibm1'))
+
+        ldi = ld.LinuxDistribution()
+
+        self.assertEqual(ldi.id(), 'kvmibm')
+        self.assertEqual(ldi.name(), 'KVM for IBM z Systems')
+        self.assertEqual(ldi.name(pretty=True), 'KVM for IBM z Systems 1.1.1 (Z)')
+        self.assertEqual(ldi.version(), '1.1.1')
+        self.assertEqual(ldi.version(pretty=True), '1.1.1 (Z)')
+        self.assertEqual(ldi.version(best=True), '1.1.1')
+        self.assertEqual(ldi.like(), 'rhel fedora')
+        self.assertEqual(ldi.codename(), 'Z')
+
+        # Test the info from the searched distro release file
+        self.assertEqual(os.path.basename(ldi.distro_release_file),
+                         'base-release')
+        distro_info = ldi.distro_release_info()
+        self.assertEqual(distro_info['id'], 'base')
+        self.assertEqual(distro_info['name'], 'KVM for IBM z Systems')
+        self.assertEqual(distro_info['version_id'], '1.1.1')
+        self.assertEqual(distro_info['codename'], 'Z')
 
     def test_mageia5_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'mageia5'))

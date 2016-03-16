@@ -53,6 +53,7 @@ of supported distros as any distro adhering to the same standards should work):
 * Debian 8
 * Exherbo
 * Fedora 23
+* KVM for IBM z Systems 1
 * Mageia 5
 * openSUSE Leap 42
 * Oracle Linux Server 7
