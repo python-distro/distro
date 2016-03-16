@@ -49,6 +49,5 @@ NORMALIZED_LSB_ID = {
 #:
 #: * Value: Normalized value.
 NORMALIZED_DISTRO_ID = {
-    'suse': 'opensuse',  # openSUSE Linux 13
     'redhat': 'rhel',  # RHEL 6.x, 7.x
 }

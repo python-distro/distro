@@ -175,6 +175,21 @@ class TestOSRelease(testtools.TestCase):
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), '')
 
+    def test_sles12_os_release(self):
+        os_release = os.path.join(DISTROS, 'sles12', 'etc', 'os-release')
+
+        ldi = ld.LinuxDistribution(False, os_release, 'non')
+
+        self.assertEqual(ldi.id(), 'sles')
+        self.assertEqual(ldi.name(), 'SLES')
+        self.assertEqual(ldi.name(pretty=True),
+                         'SUSE Linux Enterprise Server 12 SP1')
+        self.assertEqual(ldi.version(), '12.1')
+        self.assertEqual(ldi.version(pretty=True), '12.1')
+        self.assertEqual(ldi.version(best=True), '12.1')
+        self.assertEqual(ldi.like(), '')
+        self.assertEqual(ldi.codename(), '')
+
     def test_ubuntu14_os_release(self):
         os_release = os.path.join(DISTROS, 'ubuntu14', 'etc', 'os-release')
 
@@ -408,7 +423,7 @@ class TestDistRelease(testtools.TestCase):
 
         ldi = ld.LinuxDistribution(False, 'non', distro_release)
 
-        self.assertEqual(ldi.id(), 'opensuse')
+        self.assertEqual(ldi.id(), 'suse')
         self.assertEqual(ldi.name(), 'openSUSE')
         self.assertEqual(ldi.name(pretty=True), 'openSUSE 42.1 (x86_64)')
         self.assertEqual(ldi.version(), '42.1')
@@ -486,6 +501,21 @@ class TestDistRelease(testtools.TestCase):
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), '')
 
+    def test_sles12_dist_release(self):
+        distro_release = os.path.join(DISTROS, 'sles12', 'etc', 'SuSE-release')
+
+        ldi = ld.LinuxDistribution(False, 'non', distro_release)
+
+        self.assertEqual(ldi.id(), 'suse')
+        self.assertEqual(ldi.name(), 'SUSE Linux Enterprise Server')
+        self.assertEqual(ldi.name(pretty=True),
+                         'SUSE Linux Enterprise Server 12 (s390x)')
+        self.assertEqual(ldi.version(), '12')
+        self.assertEqual(ldi.version(pretty=True), '12 (s390x)')
+        self.assertEqual(ldi.version(best=True), '12')
+        self.assertEqual(ldi.like(), '')
+        self.assertEqual(ldi.codename(), 's390x')
+
 
 class TestOverall(DistroTestCase):
     """Test a LinuxDistribution object created with default arguments.
@@ -502,7 +532,6 @@ class TestOverall(DistroTestCase):
     TODO: This class should have testcases for all distros that are claimed
     to be reliably maintained w.r.t. to their ID (see `id()`). Testcases for
     the following distros are still missing:
-      * `sles` - SUSE Linux Enterprise Server
       * `amazon` - Amazon Linux
       * `cloudlinux` - CloudLinux OS
       * `exherbo` - Exherbo Linux
@@ -800,6 +829,30 @@ class TestOverall(DistroTestCase):
         self.assertEqual(distro_info['name'], 'Slackware')
         self.assertEqual(distro_info['version_id'], '14.1')
         self.assertTrue('codename' not in distro_info)
+
+    def test_sles12_release(self):
+        self._setup_for_distro(os.path.join(DISTROS, 'sles12'))
+
+        ldi = ld.LinuxDistribution()
+
+        self.assertEqual(ldi.id(), 'sles')
+        self.assertEqual(ldi.name(), 'SLES')
+        self.assertEqual(ldi.name(pretty=True),
+                         'SUSE Linux Enterprise Server 12 SP1')
+        self.assertEqual(ldi.version(), '12.1')
+        self.assertEqual(ldi.version(pretty=True), '12.1 (n/a)')
+        self.assertEqual(ldi.version(best=True), '12.1')
+        self.assertEqual(ldi.like(), '')
+        self.assertEqual(ldi.codename(), 'n/a')
+
+        # Test the info from the searched distro release file
+        self.assertEqual(os.path.basename(ldi.distro_release_file),
+                         'SuSE-release')
+        distro_info = ldi.distro_release_info()
+        self.assertEqual(distro_info['id'], 'SuSE')
+        self.assertEqual(distro_info['name'], 'SUSE Linux Enterprise Server')
+        self.assertEqual(distro_info['version_id'], '12')
+        self.assertEqual(distro_info['codename'], 's390x')
 
     def test_ubuntu14_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'ubuntu14'))
