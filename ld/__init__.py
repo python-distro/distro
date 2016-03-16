@@ -1184,6 +1184,34 @@ def distro_release_info():
     return _ldi.distro_release_info()
 
 
+def get_os_release_attr(attribute):
+    """
+    Return an information item from the os-release file data source.
+
+    For details, see :func:`ld.LinuxDistribution.get_os_release_attr`.
+    """
+    return _ldi.get_os_release_attr(attribute)
+
+
+def get_lsb_release_attr(attribute):
+    """
+    Return an information item from the lsb_release command output
+    data source.
+
+    For details, see :func:`ld.LinuxDistribution.get_lsb_release_attr`.
+    """
+    return _ldi.get_lsb_release_attr(attribute)
+
+
+def get_distro_release_attr(attribute):
+    """
+    Return an information item from the distro release file data source.
+
+    For details, see :func:`ld.LinuxDistribution.get_distro_release_attr`.
+    """
+    return _ldi.get_distro_release_attr(attribute)
+
+
 def info():
     """
     Return certain machine-readable information about the current distribution.
