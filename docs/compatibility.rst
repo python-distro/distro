@@ -20,3 +20,5 @@ Linux distributions:
 * Slackware 14
 * SUSE Linux Enterprise Server 12
 * Ubuntu 14
+
+.. todo:: See [#todo5]_ on providing input on distros that do not yet have testcases.

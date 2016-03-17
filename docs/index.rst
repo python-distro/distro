@@ -457,7 +457,7 @@ If you want to participate, please comment on the referenced issues.
 
 .. [#todo1] Clarify what distro the normalized distro ID "nexus_centos" belongs
    to.
-   Please comment on `issue #96 <https://github.com/nir0s/ld/issues/96>`_
+   Please comment on `issue #96 <https://github.com/nir0s/ld/issues/96>`_.
 
 .. [#todo2] Review whether :func:`ld.version` should continue to utilize the
    version information from the name/description fields of the os-release file
@@ -473,7 +473,19 @@ If you want to participate, please comment on the referenced issues.
    for openSUSE), vs. just using it unchanged as the current code does.
    Please comment on `issue #62 <https://github.com/nir0s/ld/issues/62>`_.
 
-In addition, there are usually
-`open issues that need help
-<https://github.com/nir0s/ld/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22>`_.
-If you want to help, please check them out.
+.. [#todo5] Provide input on distros with a reliable ID that do not yet have
+   testcases:
+
+   * The content of the ``/etc/os-release`` file, if any.
+
+   * The file names and content of the ``/etc/*release`` and ``/etc/*version``
+     files, if any.
+
+   * The output of the command: ``lsb_release -a``, if available.
+
+   There are already some `open issues on missing testcases
+   <https://github.com/nir0s/ld/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22>`_.
+
+.. [#todo99] In addition, there are usually `open issues that need help
+   <https://github.com/nir0s/ld/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22>`_.
+   If you want to help, please check them out.
