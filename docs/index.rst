@@ -1,19 +1,105 @@
 
+.. _ld issue tracker: https://github.com/nir0s/ld/issues
+
+
 **ld** package (Linux Distribution) version |version|)
 ******************************************************
 
+
+Overview and motivation
+=======================
+
 .. automodule:: ld
+
+
+Compatibility
+=============
+
+.. include:: compatibility.rst
+
+
+Data sources
+============
+
+The ``ld`` package implements a robust and inclusive way of retrieving the
+information about a Linux distribution based on new standards and old methods,
+namely from these data sources:
+
+* The `os-release file`_, if present.
+
+* The `lsb_release command output`_, if the lsb_release command is available.
+
+* The `distro release file`_, if present.
+
+
+Access to the information
+=========================
+
+This package provides three ways to access the information about a Linux
+distribution:
+
+* `Consolidated accessor functions`_
+
+  These are module-global functions that take into account all data sources in
+  a priority order, and that return information about the current Linux
+  distribution.
+
+  These functions should be the normal way to access the information.
+
+  The precedence of data sources is applied for each information item
+  separately. Therefore, it is possible that not all information items returned
+  by these functions come from the same data source. For example, on a
+  distribution that has an lsb_release command that returns the
+  "Distributor ID" field but not the "Codename" field, and that has a distro
+  release file that specifies a codename inside, the distro ID will come from
+  the lsb_release command (because it has higher precedence), and the codename
+  will come from the distro release file (because it is not provided by the
+  lsb_release command).
+
+  Examples: :func:`ld.id` for retrieving
+  the distro ID, or :func:`ld.info` to get the machine-readable part of the
+  information in a more aggregated way, or :func:`ld.linux_distribution` with
+  an interface that is compatible to the original
+  :py:func:`platform.linux_distribution` function, supporting a subset of its
+  parameters.
+
+* `Single source accessor functions`_
+
+  These are module-global functions that take into account a single data
+  source, and that return information about the current Linux distribution.
+
+  They are useful for distributions that provide multiple inconsistent data
+  sources, or for retrieving information items that are not provided by the
+  consolidated accessor functions.
+
+  Examples: :func:`ld.get_os_release_attr` for retrieving a single information
+  item from the os-release data source, or :func:`ld.lsb_release_info` for
+  retrieving all information items from the lsb_release command output data
+  source.
+
+* `LinuxDistribution class`_
+
+  The :class:`ld.LinuxDistribution` class provides the main code of this
+  package.
+
+  This package contains a private module-global :class:`ld.LinuxDistribution`
+  instance with default initialization arguments, that is used by the
+  consolidated and single source accessor functions.
+
+  A user-defined instance of the :class:`ld.LinuxDistribution` class allows
+  specifying the path names of the os-release file and distro release file and
+  whether the lsb_release command should be used or not. That is useful for
+  example when the Linux distribution information from a chrooted environment
+  is to be retrieved, or when a distro has multiple distro release files and
+  the default algorithm uses the wrong one.
+
 
 Consolidated accessor functions
 ===============================
 
-The consolidated accessor functions provide information taking into acount
-all data sources in priority order. They should be the normal way to access
-the information about the current Linux distribution.
-
-In situations where control is needed over the exact data sources that are
-used, the `Single source accessor functions`_ or the
-`LinuxDistribution class`_ can be used.
+This section describes the consolidated accessor functions.
+See `access to the information`_ for a discussion of the different kinds of
+accessor functions.
 
 .. autofunction:: ld.linux_distribution
 .. autofunction:: ld.id
@@ -30,12 +116,9 @@ used, the `Single source accessor functions`_ or the
 Single source accessor functions
 ================================
 
-The single source accessor functions provide information from a single data
-source. They can be used in situations where control is needed over which
-single data source is used.
-
-In addition, they provide information items that are specific to the data
-sources, and that are not returned by the consolidated accessor functions.
+This section describes the single source accessor functions.
+See `access to the information`_ for a discussion of the different kinds of
+accessor functions.
 
 .. autofunction:: ld.os_release_info
 .. autofunction:: ld.lsb_release_info
@@ -47,10 +130,9 @@ sources, and that are not returned by the consolidated accessor functions.
 LinuxDistribution class
 =======================
 
-The :class:`ld.LinuxDistribution` class allows specifying the path names of the
-os-release file and distro release file and whether the lsb_release command
-should be used. It can be used in situations where control is needed about
-that.
+This section describes the access via the :class:`ld.LinuxDistribution` class.
+See `access to the information`_ for a discussion of the different kinds of
+accessor functions.
 
 .. autoclass:: ld.LinuxDistribution
    :members:
@@ -62,16 +144,26 @@ Normalization tables
 These translation tables are used to normalize the parsed distro ID values
 into reliable IDs. See :func:`ld.id` for details.
 
+They are documented in order to show for which distros a normalization is
+currently defined.
+
+As a quick fix, these tables can also be extended by the user by appending new
+entries, should the need arise. If you have a need to get these tables
+extended, please make an according request in the `ld issue tracker`_.
+
 .. autodata:: ld.constants.NORMALIZED_OS_ID
 .. autodata:: ld.constants.NORMALIZED_LSB_ID
 .. autodata:: ld.constants.NORMALIZED_DISTRO_ID
 
-Format of the os-release file
-=============================
+Os-release file
+===============
+
+The os-release file is looked up using the path name ``/etc/os-release``. Its
+optional additional location ``/usr/lib/os-release`` is ignored.
 
 The os-release file is expected to be encoded in UTF-8.
 
-It is parsed using the standard python :py:mod:`shlex` package, which treats it
+It is parsed using the standard Python :py:mod:`shlex` package, which treats it
 like a shell script.
 
 The attribute names found in the file are translated to lower case and then
@@ -92,40 +184,90 @@ See the `os-release man page
 <http://www.freedesktop.org/software/systemd/man/os-release.html>`_
 for a list of possible attributes in the file.
 
-**Example:**
+**Examples:**
 
-This os-release file content:
+1.  The following os-release file content:
 
-::
+    .. sourcecode:: shell
 
-    NAME='Ubuntu'
-    VERSION="14.04.3 LTS, Trusty Tahr"
-    ID=ubuntu
-    ID_LIKE=debian
-    PRETTY_NAME="Ubuntu 14.04.3 LTS"
-    VERSION_ID="14.04"
-    HOME_URL="http://www.ubuntu.com/"
-    SUPPORT_URL="http://help.ubuntu.com/"
-    BUG_REPORT_URL="http://bugs.launchpad.net/ubuntu/"
+        NAME='Ubuntu'
+        VERSION="14.04.3 LTS, Trusty Tahr"
+        ID=ubuntu
+        ID_LIKE=debian
+        PRETTY_NAME="Ubuntu 14.04.3 LTS"
+        VERSION_ID="14.04"
+        HOME_URL="http://www.ubuntu.com/"
+        SUPPORT_URL="http://help.ubuntu.com/"
+        BUG_REPORT_URL="http://bugs.launchpad.net/ubuntu/"
 
-results in the following information items:
+    results in these information items:
 
-=================  ======================
-Key                Value
-=================  ======================
-name               "Ubuntu"
-version            "14.04.3 LTS, Trusty Tahr"
-id                 "ubuntu"
-id_like            "debian"
-pretty_name        "Ubuntu 14.04.3 LTS"
-version_id         "14.04"
-home_url           "http://www.ubuntu.com/"
-support_url        "http://help.ubuntu.com/"
-bug_report_url     "http://bugs.launchpad.net/ubuntu/"
-=================  ======================
+    ===============================  ==========================================
+    Key                              Value
+    ===============================  ==========================================
+    name                             "Ubuntu"
+    version                          "14.04.3 LTS, Trusty Tahr"
+    id                               "ubuntu"
+    id_like                          "debian"
+    pretty_name                      "Ubuntu 14.04.3 LTS"
+    version_id                       "14.04"
+    home_url                         "http://www.ubuntu.com/"
+    support_url                      "http://help.ubuntu.com/"
+    bug_report_url                   "http://bugs.launchpad.net/ubuntu/"
+    codename                         "Trusty Tahr"
+    ===============================  ==========================================
 
-Format of the lsb_release command output
-========================================
+2.  The following os-release file content:
+
+    .. sourcecode:: shell
+
+        NAME="Red Hat Enterprise Linux Server"
+        VERSION="7.0 (Maipo)"
+        ID="rhel"
+        ID_LIKE="fedora"
+        VERSION_ID="7.0"
+        PRETTY_NAME="Red Hat Enterprise Linux Server 7.0 (Maipo)"
+        ANSI_COLOR="0;31"
+        CPE_NAME="cpe:/o:redhat:enterprise_linux:7.0:GA:server"
+        HOME_URL="https://www.redhat.com/"
+        BUG_REPORT_URL="https://bugzilla.redhat.com/"
+
+        REDHAT_BUGZILLA_PRODUCT="Red Hat Enterprise Linux 7"
+        REDHAT_BUGZILLA_PRODUCT_VERSION=7.0
+        REDHAT_SUPPORT_PRODUCT="Red Hat Enterprise Linux"
+        REDHAT_SUPPORT_PRODUCT_VERSION=7.0
+
+    results in these information items:
+
+    ===============================  ==========================================
+    Key                              Value
+    ===============================  ==========================================
+    name                             "Red Hat Enterprise Linux Server"
+    version                          "7.0 (Maipo)"
+    id                               "rhel"
+    id_like                          "fedora"
+    version_id                       "7.0"
+    pretty_name                      "Red Hat Enterprise Linux Server 7.0 (Maipo)"
+    ansi_color                       "0;31"
+    cpe_name                         "cpe:/o:redhat:enterprise_linux:7.0:GA:server"
+    home_url                         "https://www.redhat.com/"
+    bug_report_url                   "https://bugzilla.redhat.com/"
+    redhat_bugzilla_product          "Red Hat Enterprise Linux 7"
+    redhat_bugzilla_product_version  "7.0"
+    redhat_support_product           "Red Hat Enterprise Linux"
+    redhat_support_product_version   "7.0"
+    codename                         "Maipo"
+    ===============================  ==========================================
+
+Lsb_release command output
+==========================
+
+The lsb_release command is expected to be in the PATH, and is invoked as
+follows:
+
+.. sourcecode:: shell
+
+    lsb_release -a
 
 The command output is expected to be encoded in UTF-8.
 
@@ -152,31 +294,75 @@ See the `lsb_release man page
 LSB-Core-generic/lsbrelease.html>`_
 for a description of standard attributes returned by the lsb_release command.
 
-**Example:**
+**Examples:**
 
-This lsb_release command output:
+1.  The following lsb_release command output:
 
-::
+    .. sourcecode:: text
 
-    No LSB modules are available.
-    Distributor ID: Ubuntu
-    Description:    Ubuntu 14.04.3 LTS
-    Release:        14.04
-    Codename:       trusty
+        No LSB modules are available.
+        Distributor ID: Ubuntu
+        Description:    Ubuntu 14.04.3 LTS
+        Release:        14.04
+        Codename:       trusty
 
-results in the following information items:
+    results in these information items:
 
-=================  ======================
-Key                Value
-=================  ======================
-distributor_id     "Ubuntu"
-description        "Ubuntu 14.04.3 LTS"
-release            "14.04"
-codename           "trusty"
-=================  ======================
+    ===============================  ==========================================
+    Key                              Value
+    ===============================  ==========================================
+    distributor_id                   "Ubuntu"
+    description                      "Ubuntu 14.04.3 LTS"
+    release                          "14.04"
+    codename                         "trusty"
+    ===============================  ==========================================
 
-Format of the distro release file
-=================================
+2.  The following lsb_release command output:
+
+    .. sourcecode:: text
+
+        LSB Version:    n/a
+        Distributor ID: SUSE LINUX
+        Description:    SUSE Linux Enterprise Server 12 SP1
+        Release:        12.1
+        Codename:       n/a
+
+    results in these information items:
+
+    ===============================  ==========================================
+    Key                              Value
+    ===============================  ==========================================
+    lsb_version                      "n/a"
+    distributor_id                   "SUSE LINUX"
+    description                      "SUSE Linux Enterprise Server 12 SP1"
+    release                          "12.1"
+    codename                         "n/a"
+    ===============================  ==========================================
+
+Distro release file
+===================
+
+Unless specified with a particular path name when using the
+:class:`ld.LinuxDistribution` class, the distro release file is found by using
+the first match in the alphabetically sorted list of the files matching the
+following path name patterns:
+
+* ``/etc/*-release``
+* ``/etc/*_release``
+* ``/etc/*-version``
+* ``/etc/*_version``
+
+where the following special path names are excluded:
+
+* ``/etc/debian_version``
+* ``/etc/system-release``
+* ``/etc/os-release``
+
+and where the first line within the file has the expected format.
+
+The algorithm to sort the files alphabetically is far from perfect, but the
+distro release file has the least priority as a data source, and it is expected
+that Linux distributions provide one of the other data sources.
 
 The distro release file is expected to be encoded in UTF-8.
 
@@ -215,51 +401,79 @@ The following information items can be found in a distro release file
 
 1.  The following distro release file ``/etc/centos-release``:
 
-    ::
+    .. sourcecode:: text
 
         CentOS Linux release 7.1.1503 (Core)
 
-    results in the following information items:
+    results in these information items:
 
-    =================  ======================
-    Key                Value
-    =================  ======================
-    id                 "centos"
-    name               "CentOS Linux"
-    version_id         "7.1.1503"
-    codename           "Core"
-    =================  ======================
+    ===============================  ==========================================
+    Key                              Value
+    ===============================  ==========================================
+    id                               "centos"
+    name                             "CentOS Linux"
+    version_id                       "7.1.1503"
+    codename                         "Core"
+    ===============================  ==========================================
 
 2.  The following distro release file ``/etc/oracle-release``:
 
-    ::
+    .. sourcecode:: text
 
         Oracle Linux Server release 7.1
 
-    results in the following information items:
+    results in these information items:
 
-    =================  ======================
-    Key                Value
-    =================  ======================
-    id                 "oracle"
-    name               "Oracle Linux Server"
-    version_id         "7.1"
-    =================  ======================
+    ===============================  ==========================================
+    Key                              Value
+    ===============================  ==========================================
+    id                               "oracle"
+    name                             "Oracle Linux Server"
+    version_id                       "7.1"
+    ===============================  ==========================================
 
 3.  The following distro release file ``/etc/SuSE-release``:
 
-    ::
+    .. sourcecode:: text
 
         openSUSE 42.1 (x86_64)
 
-    results in the following information items:
+    results in these information items:
 
-    =================  ======================
-    Key                Value
-    =================  ======================
-    id                 "SuSE"
-    name               "openSUSE"
-    version_id         "42.1"
-    codename           "x86_64"
-    =================  ======================
+    ===============================  ==========================================
+    Key                              Value
+    ===============================  ==========================================
+    id                               "SuSE"
+    name                             "openSUSE"
+    version_id                       "42.1"
+    codename                         "x86_64"
+    ===============================  ==========================================
 
+Review topics
+=============
+
+These topics would benefit from review by the user community.
+If you want to participate, please comment on the referenced issues.
+
+.. [#todo1] Clarify what distro the normalized distro ID "nexus_centos" belongs
+   to.
+   Please comment on `issue #96 <https://github.com/nir0s/ld/issues/96>`_
+
+.. [#todo2] Review whether :func:`ld.version` should continue to utilize the
+   version information from the name/description fields of the os-release file
+   and distro release file, vs. dropping them.
+   Please comment on `issue #95 <https://github.com/nir0s/ld/issues/95>`_.
+
+.. [#todo3] Review whether :func:`ld.info` should use the first version or the
+   best version for its version related entries.
+   Please comment on `issue #94 <https://github.com/nir0s/ld/issues/94>`_.
+
+.. [#todo4] Provide your view as to whether something should be done about
+   non-codename strings in codename fields (e.g. "x86_64" in the codename field
+   for openSUSE), vs. just using it unchanged as the current code does.
+   Please comment on `issue #62 <https://github.com/nir0s/ld/issues/62>`_.
+
+In addition, there are usually
+`open issues that need help
+<https://github.com/nir0s/ld/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22>`_.
+If you want to help, please check them out.
