@@ -401,22 +401,6 @@ class TestDistroRelease(testtools.TestCase):
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), '')
 
-    def test_exherbo_dist_release(self):
-        distro_release = os.path.join(DISTROS, 'exherbo', 'etc',
-                                      'exherbo-release')
-        # TODO: This release file is currently empty and should be completed.
-
-        ldi = ld.LinuxDistribution(False, 'non', distro_release)
-
-        self.assertEqual(ldi.id(), 'exherbo')
-        self.assertEqual(ldi.name(), '')
-        self.assertEqual(ldi.name(pretty=True), '')
-        self.assertEqual(ldi.version(), '')
-        self.assertEqual(ldi.version(pretty=True), '')
-        self.assertEqual(ldi.version(best=True), '')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), '')
-
     def test_fedora19_dist_release(self):
         distro_release = os.path.join(DISTROS, 'fedora19', 'etc',
                                       'fedora-release')
@@ -594,7 +578,6 @@ class TestOverall(DistroTestCase):
     the following distros are still missing:
       * `amazon` - Amazon Linux
       * `cloudlinux` - CloudLinux OS
-      * `exherbo` - Exherbo Linux
       * `gentoo` - GenToo Linux
       * `ibm_powerkvm` - IBM PowerKVM
       * `linuxmint` - Linux Mint
@@ -704,18 +687,14 @@ class TestOverall(DistroTestCase):
 
         ldi = ld.LinuxDistribution()
 
-        # TODO: This release file is currently empty and should be completed.
-        self.assertEqual(ldi.id(), '')
-        self.assertEqual(ldi.name(), '')
-        self.assertEqual(ldi.name(pretty=True), '')
+        self.assertEqual(ldi.id(), 'exherbo')
+        self.assertEqual(ldi.name(), 'Exherbo')
+        self.assertEqual(ldi.name(pretty=True), 'Exherbo Linux')
         self.assertEqual(ldi.version(), '')
         self.assertEqual(ldi.version(pretty=True), '')
         self.assertEqual(ldi.version(best=True), '')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), '')
-
-        # Test the info from the searched distro release file
-        # TODO: Add tests for searched Exherbo distro release file
 
     def test_fedora19_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'fedora19'))
