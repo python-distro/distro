@@ -37,7 +37,7 @@ NORMALIZED_OS_ID = {
 #:
 #: * Value: Normalized value.
 NORMALIZED_LSB_ID = {
-    'enterpriseenterprise': 'oracle',  # Oracle Enterprise Linux TODO version?
+    'enterpriseenterprise': 'oracle',  # Oracle Enterprise Linux
     'redhatenterpriseworkstation': 'rhel',  # RHEL 6.7
 }
 
