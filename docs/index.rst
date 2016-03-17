@@ -11,6 +11,9 @@ Overview and motivation
 
 .. automodule:: ld
 
+If you want to jump into the API description right away, read about the
+`consolidated accessor functions`_.
+
 
 Compatibility
 =============
@@ -366,7 +369,7 @@ that Linux distributions provide one of the other data sources.
 
 The distro release file is expected to be encoded in UTF-8.
 
-Only its first line is used, and it must have the following format:
+Only its first line is used, and it is expected to have the following format:
 
     ``<name> [[[release] <version_id>] (<codename>)]``
 
@@ -395,7 +398,7 @@ The following information items can be found in a distro release file
   file. If not found, this information item will not exist.
 
   Note that the string in the codename field is not always really a
-  codename. For example, in openSUSE, it contains ``x86_64``.
+  codename. For example, openSUSE returns "x86_64".
 
 **Examples:**
 

@@ -204,8 +204,8 @@ def version(pretty=False, best=False):
     If *pretty* is false, the version is returned without codename (e.g.
     "7.0").
 
-    If *pretty* is true, the codename in parenthesis is appended (e.g.
-    "7.0 (Maipo)"), if the codename is non-empty.
+    If *pretty* is true, the codename in parenthesis is appended, if the
+    codename is non-empty (e.g. "7.0 (Maipo)").
 
     Some distributions provide version numbers with different precisions in
     the different sources of distribution information. Examining the different
@@ -226,17 +226,16 @@ def version(pretty=False, best=False):
     In all cases, the version number is obtained from the following sources.
     If *best* is false, this order represents the priority order:
 
-    * the value of the "VERSION_ID" attribute of the `os-release` file,
-    * the value of the "Release" attribute returned by the `lsb_release`
+    * the value of the "VERSION_ID" attribute of the os-release file,
+    * the value of the "Release" attribute returned by the lsb_release
       command,
     * the version number parsed from the "<version_id>" field of the first line
       of the distro release file,
     * the version number parsed from the "PRETTY_NAME" attribute of the
-      `os-release` file, if it follows the format of the distro release files.
+      os-release file, if it follows the format of the distro release files.
     * the version number parsed from the "Description" attribute returned by
-      the `lsb_release` command, if it follows the format of the distro release
+      the lsb_release command, if it follows the format of the distro release
       files.
-    * the empty string.
 
     .. todo:: See [#todo2]_ on using the last two sources in the list above.
     """
@@ -321,11 +320,10 @@ def codename():
     Return the codename for the release of the current Linux distribution,
     as a string.
 
-    Note that not all distributions have codenames, in which case an empty
-    string is returned.
+    If the distribution does not have a codename, an empty string is returned.
 
-    Note that the codename field if provided, does not always contain a
-    codename.
+    Note that the returned codename is not always really a codename. For
+    example, openSUSE returns "x86_64".
 
     .. todo:: See [#todo4]_ on whether something should be done about that.
 
