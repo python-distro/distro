@@ -16,6 +16,10 @@ from setuptools import setup
 import os
 import codecs
 
+# The following version is parsed by other parts of this package.
+# Don't change the format of the line, or the variable name.
+package_version = "0.5.0dev"
+
 here = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -26,7 +30,7 @@ def read(*parts):
 
 setup(
     name='ld',
-    version="0.5.0dev",
+    version=package_version,
     url='https://github.com/nir0s/ld',
     author='Nir Cohen',
     author_email='nir36g@gmail.com',
