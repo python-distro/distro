@@ -2,8 +2,8 @@ Linux Distribution - a Linux OS platform information API
 ========================================================
 
 [![Build Status](https://travis-ci.org/nir0s/ld.svg?branch=master)](https://travis-ci.org/nir0s/ld)
-[![PyPI](http://img.shields.io/pypi/dm/ld.svg)](http://img.shields.io/pypi/dm/ld.svg)
-[![PypI](http://img.shields.io/pypi/v/ld.svg)](http://img.shields.io/pypi/v/ld.svg)
+[![PyPI downloads](http://img.shields.io/pypi/dm/ld.svg)](https://pypi.python.org/pypi/ld)
+[![PyPI version](http://img.shields.io/pypi/v/ld.svg)](https://pypi.python.org/pypi/ld)
 
 
 The `ld` (for: Linux Distribution) package provides information about the
@@ -32,11 +32,21 @@ namely from these data sources (from high to low precedence):
 
 ## Installation
 
+At this point, the latest version on PyPI is v0.2.9:
+
 ```shell
 pip install ld
 ```
 
-For dev:
+The latest released version is v0.5.0
+([Release Page](https://github.com/nir0s/ld/releases/tag/v0.5.0)),
+which is not yet on PyPI but can be installed from GitHub as follows:
+
+```shell
+pip install https://github.com/nir0s/ld/archive/v0.5.0.tar.gz
+```
+
+Installation of the latest development version:
 
 ```shell
 pip install https://github.com/nir0s/ld/archive/master.tar.gz
