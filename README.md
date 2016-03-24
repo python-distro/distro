@@ -52,6 +52,11 @@ Installation of the latest development version:
 pip install https://github.com/nir0s/ld/archive/master.tar.gz
 ```
 
+## Documentation
+
+The API documentation for the `ld` package is on RTD:
+[latest API documentation](http://ld.readthedocs.org/en/latest/).
+
 ## Python and Distribution Support
 
 The `ld` package is supported on Python 2.6, 2.7, 3.4 and 3.5, and on
