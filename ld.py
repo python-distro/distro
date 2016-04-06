@@ -28,14 +28,51 @@ is needed. See `Python issue 1322 <https://bugs.python.org/issue1322>`_ for
 more information.
 """
 
-import sys
 import os
 import re
-import subprocess
+import sys
 import shlex
+import subprocess
+
 import six
 
-from . import constants as const
+
+_UNIXCONFDIR = '/etc'
+_OS_RELEASE_BASENAME = 'os-release'
+
+#: Translation table for normalizing the "ID" attribute defined in os-release
+#: files, for use by the :func:`ld.id` method.
+#:
+#: * Key: Value as defined in the os-release file, translated to lower case,
+#:   with blanks translated to underscores.
+#:
+#: * Value: Normalized value.
+NORMALIZED_OS_ID = {
+}
+
+#: Translation table for normalizing the "Distributor ID" attribute returned by
+#: the lsb_release command, for use by the :func:`ld.id` method.
+#:
+#: * Key: Value as returned by the lsb_release command, translated to lower
+#:   case, with blanks translated to underscores.
+#:
+#: * Value: Normalized value.
+NORMALIZED_LSB_ID = {
+    'enterpriseenterprise': 'oracle',  # Oracle Enterprise Linux
+    'redhatenterpriseworkstation': 'rhel',  # RHEL 6.7
+}
+
+#: Translation table for normalizing the distro ID derived from the file name
+#: of distro release files, for use by the :func:`ld.id` method.
+#:
+#: * Key: Value as derived from the file name of a distro release file,
+#:   translated to lower case, with blanks translated to underscores.
+#:
+#: * Value: Normalized value.
+NORMALIZED_DISTRO_ID = {
+    'redhat': 'rhel',  # RHEL 6.x, 7.x
+}
+
 
 # Pattern for content of distro release file (reversed)
 _DISTRO_RELEASE_CONTENT_REVERSED_PATTERN = re.compile(
@@ -49,7 +86,7 @@ _DISTRO_RELEASE_BASENAME_PATTERN = re.compile(
 _DISTRO_RELEASE_IGNORE_BASENAMES = [
     'debian_version',
     'system-release',
-    const._OS_RELEASE_BASENAME
+    _OS_RELEASE_BASENAME
 ]
 
 
@@ -549,7 +586,7 @@ class LinuxDistribution(object):
           uses an unexpected encoding.
         """
         self.os_release_file = os_release_file or \
-            os.path.join(const._UNIXCONFDIR, const._OS_RELEASE_BASENAME)
+            os.path.join(_UNIXCONFDIR, _OS_RELEASE_BASENAME)
         self.distro_release_file = distro_release_file or ''  # updated later
         self._os_release_info = self._get_os_release_info()
         self._lsb_release_info = self._get_lsb_release_info() \
@@ -593,17 +630,17 @@ class LinuxDistribution(object):
         distro_id = self.get_os_release_attr('id')
         if distro_id:
             distro_id = distro_id.lower().replace(' ', '_')
-            return const.NORMALIZED_OS_ID.get(distro_id, distro_id)
+            return NORMALIZED_OS_ID.get(distro_id, distro_id)
 
         distro_id = self.get_lsb_release_attr('distributor_id')
         if distro_id:
             distro_id = distro_id.lower().replace(' ', '_')
-            return const.NORMALIZED_LSB_ID.get(distro_id, distro_id)
+            return NORMALIZED_LSB_ID.get(distro_id, distro_id)
 
         distro_id = self.get_distro_release_attr('id')
         if distro_id:
             distro_id = distro_id.lower().replace(' ', '_')
-            return const.NORMALIZED_DISTRO_ID.get(distro_id, distro_id)
+            return NORMALIZED_DISTRO_ID.get(distro_id, distro_id)
 
         return ''
 
@@ -637,9 +674,9 @@ class LinuxDistribution(object):
             self.get_lsb_release_attr('release'),
             self.get_distro_release_attr('version_id'),
             self._parse_distro_release_content(
-              self.get_os_release_attr('pretty_name')).get('version_id', ''),
+                self.get_os_release_attr('pretty_name')).get('version_id', ''),
             self._parse_distro_release_content(
-              self.get_lsb_release_attr('description')).get('version_id', ''),
+                self.get_lsb_release_attr('description')).get('version_id', '')
         ]
         version = ''
         if best:
@@ -939,7 +976,7 @@ class LinuxDistribution(object):
                 distro_info['id'] = match.group(1)
             return distro_info
         else:
-            basenames = os.listdir(const._UNIXCONFDIR)
+            basenames = os.listdir(_UNIXCONFDIR)
             # We sort for repeatability in cases where there are multiple
             # distro specific files; e.g. CentOS, Oracle, Enterprise all
             # containing `redhat-release` on top of their own.
@@ -949,7 +986,7 @@ class LinuxDistribution(object):
                     continue
                 match = _DISTRO_RELEASE_BASENAME_PATTERN.match(basename)
                 if match:
-                    filepath = os.path.join(const._UNIXCONFDIR, basename)
+                    filepath = os.path.join(_UNIXCONFDIR, basename)
                     distro_info = self._parse_distro_release_file(filepath)
                     if 'name' in distro_info:
                         # The name is always present if the pattern matches

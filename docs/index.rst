@@ -154,9 +154,9 @@ As a quick fix, these tables can also be extended by the user by appending new
 entries, should the need arise. If you have a need to get these tables
 extended, please make an according request in the `ld issue tracker`_.
 
-.. autodata:: ld.constants.NORMALIZED_OS_ID
-.. autodata:: ld.constants.NORMALIZED_LSB_ID
-.. autodata:: ld.constants.NORMALIZED_DISTRO_ID
+.. autodata:: ld.NORMALIZED_OS_ID
+.. autodata:: ld.NORMALIZED_LSB_ID
+.. autodata:: ld.NORMALIZED_DISTRO_ID
 
 Os-release file
 ===============
