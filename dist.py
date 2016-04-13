@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """
-The ``ld`` package (``ld`` stands for Linux Distribution) provides
+The ``dist`` package (``dist`` stands for Linux Distribution) provides
 information about the Linux distribution it runs on, such as a reliable
 machine-readable distro ID, or version information.
 
@@ -28,14 +28,51 @@ is needed. See `Python issue 1322 <https://bugs.python.org/issue1322>`_ for
 more information.
 """
 
-import sys
 import os
 import re
-import subprocess
+import sys
 import shlex
+import subprocess
+
 import six
 
-from . import constants as const
+
+_UNIXCONFDIR = '/etc'
+_OS_RELEASE_BASENAME = 'os-release'
+
+#: Translation table for normalizing the "ID" attribute defined in os-release
+#: files, for use by the :func:`dist.id` method.
+#:
+#: * Key: Value as defined in the os-release file, translated to lower case,
+#:   with blanks translated to underscores.
+#:
+#: * Value: Normalized value.
+NORMALIZED_OS_ID = {
+}
+
+#: Translation table for normalizing the "Distributor ID" attribute returned by
+#: the lsb_release command, for use by the :func:`dist.id` method.
+#:
+#: * Key: Value as returned by the lsb_release command, translated to lower
+#:   case, with blanks translated to underscores.
+#:
+#: * Value: Normalized value.
+NORMALIZED_LSB_ID = {
+    'enterpriseenterprise': 'oracle',  # Oracle Enterprise Linux
+    'redhatenterpriseworkstation': 'rhel',  # RHEL 6.7
+}
+
+#: Translation table for normalizing the distro ID derived from the file name
+#: of distro release files, for use by the :func:`dist.id` method.
+#:
+#: * Key: Value as derived from the file name of a distro release file,
+#:   translated to lower case, with blanks translated to underscores.
+#:
+#: * Value: Normalized value.
+NORMALIZED_DISTRO_ID = {
+    'redhat': 'rhel',  # RHEL 6.x, 7.x
+}
+
 
 # Pattern for content of distro release file (reversed)
 _DISTRO_RELEASE_CONTENT_REVERSED_PATTERN = re.compile(
@@ -49,7 +86,7 @@ _DISTRO_RELEASE_BASENAME_PATTERN = re.compile(
 _DISTRO_RELEASE_IGNORE_BASENAMES = [
     'debian_version',
     'system-release',
-    const._OS_RELEASE_BASENAME
+    _OS_RELEASE_BASENAME
 ]
 
 
@@ -59,11 +96,11 @@ def linux_distribution(full_distribution_name=True):
     ``(id_name, version, codename)`` with items as follows:
 
     * ``id_name``:  If *full_distribution_name* is false, the result of
-      :func:`ld.id`. Otherwise, the result of :func:`ld.name`.
+      :func:`dist.id`. Otherwise, the result of :func:`dist.name`.
 
-    * ``version``:  The result of :func:`ld.version`.
+    * ``version``:  The result of :func:`dist.version`.
 
-    * ``codename``:  The result of :func:`ld.codename`.
+    * ``codename``:  The result of :func:`dist.codename`.
 
     The interface of this function is compatible with the original
     :py:func:`platform.linux_distribution` function, supporting a subset of
@@ -74,11 +111,11 @@ def linux_distribution(full_distribution_name=True):
     the Linux distribution is not consistent across multiple data sources it
     provides (there are indeed such distributions ...).
 
-    Another reason for differences is the fact that the :func:`ld.id` method
+    Another reason for differences is the fact that the :func:`dist.id` method
     normalizes the distro ID string to a reliable machine-readable value for
     a number of popular Linux distributions.
     """
-    return _ldi.linux_distribution(full_distribution_name)
+    return _disti.linux_distribution(full_distribution_name)
 
 
 def id():
@@ -123,9 +160,9 @@ def id():
     ==============  =========================================
 
     If you have a need to get distros for reliable IDs added into this set,
-    or if you find that the :func:`ld.id` function returns a different
+    or if you find that the :func:`dist.id` function returns a different
     distro ID for one of the listed distros, please create an issue in the
-    `ld issue tracker`_.
+    `dist issue tracker`_.
 
     **Lookup hierarchy and transformations:**
 
@@ -154,7 +191,7 @@ def id():
       command, with ID values that differ from what was previously determined
       from the distro release file name.
     """
-    return _ldi.id()
+    return _disti.id()
 
 
 def name(pretty=False):
@@ -193,7 +230,7 @@ def name(pretty=False):
         with the value of the pretty version ("<version_id>" and "<codename>"
         fields) of the distro release file, if available.
     """
-    return _ldi.name(pretty)
+    return _disti.name(pretty)
 
 
 def version(pretty=False, best=False):
@@ -239,7 +276,7 @@ def version(pretty=False, best=False):
 
     .. todo:: See [#todo2]_ on using the last two sources in the list above.
     """
-    return _ldi.version(pretty, best)
+    return _disti.version(pretty, best)
 
 
 def version_parts(best=False):
@@ -247,16 +284,16 @@ def version_parts(best=False):
     Return the version of the current Linux distribution as a tuple
     ``(major, minor, build_number)`` with items as follows:
 
-    * ``major``:  The result of :func:`ld.major_version`.
+    * ``major``:  The result of :func:`dist.major_version`.
 
-    * ``minor``:  The result of :func:`ld.minor_version`.
+    * ``minor``:  The result of :func:`dist.minor_version`.
 
-    * ``build_number``:  The result of :func:`ld.build_number`.
+    * ``build_number``:  The result of :func:`dist.build_number`.
 
-    For a description of the *best* parameter, see the :func:`ld.version`
+    For a description of the *best* parameter, see the :func:`dist.version`
     method.
     """
-    return _ldi.version_parts(best)
+    return _disti.version_parts(best)
 
 
 def major_version(best=False):
@@ -266,10 +303,10 @@ def major_version(best=False):
     Otherwise, the empty string is returned. The major version is the first
     part of the dot-separated version string.
 
-    For a description of the *best* parameter, see the :func:`ld.version`
+    For a description of the *best* parameter, see the :func:`dist.version`
     method.
     """
-    return _ldi.major_version(best)
+    return _disti.major_version(best)
 
 
 def minor_version(best=False):
@@ -279,10 +316,10 @@ def minor_version(best=False):
     Otherwise, the empty string is returned. The minor version is the second
     part of the dot-separated version string.
 
-    For a description of the *best* parameter, see the :func:`ld.version`
+    For a description of the *best* parameter, see the :func:`dist.version`
     method.
     """
-    return _ldi.minor_version(best)
+    return _disti.minor_version(best)
 
 
 def build_number(best=False):
@@ -292,10 +329,10 @@ def build_number(best=False):
     Otherwise, the empty string is returned. The build number is the third part
     of the dot-separated version string.
 
-    For a description of the *best* parameter, see the :func:`ld.version`
+    For a description of the *best* parameter, see the :func:`dist.version`
     method.
     """
-    return _ldi.build_number(best)
+    return _disti.build_number(best)
 
 
 def like():
@@ -312,7 +349,7 @@ def like():
     `os-release man page
     <http://www.freedesktop.org/software/systemd/man/os-release.html>`_.
     """
-    return _ldi.like()
+    return _disti.like()
 
 
 def codename():
@@ -337,7 +374,7 @@ def codename():
 
     * the value of the "<codename>" field of the distro release file.
     """
-    return _ldi.codename()
+    return _disti.codename()
 
 
 def info():
@@ -363,23 +400,23 @@ def info():
     information items are available in the underlying data sources. The values
     for the various keys are as follows:
 
-    * ``id``:  The result of :func:`ld.id`.
+    * ``id``:  The result of :func:`dist.id`.
 
-    * ``version``:  The result of :func:`ld.version`.
+    * ``version``:  The result of :func:`dist.version`.
 
-    * ``major``:  The result of :func:`ld.major_version`.
+    * ``major``:  The result of :func:`dist.major_version`.
 
-    * ``minor``:  The result of :func:`ld.minor_version`.
+    * ``minor``:  The result of :func:`dist.minor_version`.
 
-    * ``build_number``:  The result of :func:`ld.build_number`.
+    * ``build_number``:  The result of :func:`dist.build_number`.
 
-    * ``like``:  The result of :func:`ld.like`.
+    * ``like``:  The result of :func:`dist.like`.
 
-    * ``codename``:  The result of :func:`ld.codename`.
+    * ``codename``:  The result of :func:`dist.codename`.
 
     .. todo:: See [#todo3]_ on using the first or best version for this dict.
     """
-    return _ldi.info()
+    return _disti.info()
 
 
 def os_release_info():
@@ -389,7 +426,7 @@ def os_release_info():
 
     See `os-release file`_ for details about these information items.
     """
-    return _ldi.os_release_info()
+    return _disti.os_release_info()
 
 
 def lsb_release_info():
@@ -400,7 +437,7 @@ def lsb_release_info():
     See `lsb_release command output`_ for details about these information
     items.
     """
-    return _ldi.lsb_release_info()
+    return _disti.lsb_release_info()
 
 
 def distro_release_info():
@@ -410,7 +447,7 @@ def distro_release_info():
 
     See `distro release file`_ for details about these information items.
     """
-    return _ldi.distro_release_info()
+    return _disti.distro_release_info()
 
 
 def get_os_release_attr(attribute):
@@ -429,7 +466,7 @@ def get_os_release_attr(attribute):
 
     See `os-release file`_ for details about these information items.
     """
-    return _ldi.get_os_release_attr(attribute)
+    return _disti.get_os_release_attr(attribute)
 
 
 def get_lsb_release_attr(attribute):
@@ -449,7 +486,7 @@ def get_lsb_release_attr(attribute):
     See `lsb_release command output`_ for details about these information
     items.
     """
-    return _ldi.get_lsb_release_attr(attribute)
+    return _disti.get_lsb_release_attr(attribute)
 
 
 def get_distro_release_attr(attribute):
@@ -468,7 +505,7 @@ def get_distro_release_attr(attribute):
 
     See `distro release file`_ for details about these information items.
     """
-    return _ldi.get_distro_release_attr(attribute)
+    return _disti.get_distro_release_attr(attribute)
 
 
 class LinuxDistribution(object):
@@ -549,7 +586,7 @@ class LinuxDistribution(object):
           uses an unexpected encoding.
         """
         self.os_release_file = os_release_file or \
-            os.path.join(const._UNIXCONFDIR, const._OS_RELEASE_BASENAME)
+            os.path.join(_UNIXCONFDIR, _OS_RELEASE_BASENAME)
         self.distro_release_file = distro_release_file or ''  # updated later
         self._os_release_info = self._get_os_release_info()
         self._lsb_release_info = self._get_lsb_release_info() \
@@ -576,7 +613,7 @@ class LinuxDistribution(object):
         with Python's :func:`platform.linux_distribution`, supporting a subset
         of its parameters.
 
-        For details, see :func:`ld.linux_distribution`.
+        For details, see :func:`dist.linux_distribution`.
         """
         return (
             self.name() if full_distribution_name else self.id(),
@@ -588,22 +625,22 @@ class LinuxDistribution(object):
         """
         Return the distro ID of the Linux distribution, as a string.
 
-        For details, see :func:`ld.id`.
+        For details, see :func:`dist.id`.
         """
         distro_id = self.get_os_release_attr('id')
         if distro_id:
             distro_id = distro_id.lower().replace(' ', '_')
-            return const.NORMALIZED_OS_ID.get(distro_id, distro_id)
+            return NORMALIZED_OS_ID.get(distro_id, distro_id)
 
         distro_id = self.get_lsb_release_attr('distributor_id')
         if distro_id:
             distro_id = distro_id.lower().replace(' ', '_')
-            return const.NORMALIZED_LSB_ID.get(distro_id, distro_id)
+            return NORMALIZED_LSB_ID.get(distro_id, distro_id)
 
         distro_id = self.get_distro_release_attr('id')
         if distro_id:
             distro_id = distro_id.lower().replace(' ', '_')
-            return const.NORMALIZED_DISTRO_ID.get(distro_id, distro_id)
+            return NORMALIZED_DISTRO_ID.get(distro_id, distro_id)
 
         return ''
 
@@ -611,7 +648,7 @@ class LinuxDistribution(object):
         """
         Return the name of the Linux distribution, as a string.
 
-        For details, see :func:`ld.name`.
+        For details, see :func:`dist.name`.
         """
         name = self.get_os_release_attr('name') \
             or self.get_lsb_release_attr('distributor_id') \
@@ -630,16 +667,16 @@ class LinuxDistribution(object):
         """
         Return the version of the Linux distribution, as a string.
 
-        For details, see :func:`ld.version`.
+        For details, see :func:`dist.version`.
         """
         versions = [
             self.get_os_release_attr('version_id'),
             self.get_lsb_release_attr('release'),
             self.get_distro_release_attr('version_id'),
             self._parse_distro_release_content(
-              self.get_os_release_attr('pretty_name')).get('version_id', ''),
+                self.get_os_release_attr('pretty_name')).get('version_id', ''),
             self._parse_distro_release_content(
-              self.get_lsb_release_attr('description')).get('version_id', ''),
+                self.get_lsb_release_attr('description')).get('version_id', '')
         ]
         version = ''
         if best:
@@ -664,7 +701,7 @@ class LinuxDistribution(object):
         Return the version of the Linux distribution, as a tuple of version
         numbers.
 
-        For details, see :func:`ld.version_parts`.
+        For details, see :func:`dist.version_parts`.
         """
         version_str = self.version(best=best)
         if version_str:
@@ -679,7 +716,7 @@ class LinuxDistribution(object):
         """
         Return the major version number of the current distribution.
 
-        For details, see :func:`ld.major_version`.
+        For details, see :func:`dist.major_version`.
         """
         return self.version_parts(best=best)[0]
 
@@ -687,7 +724,7 @@ class LinuxDistribution(object):
         """
         Return the minor version number of the Linux distribution.
 
-        For details, see :func:`ld.minor_version`.
+        For details, see :func:`dist.minor_version`.
         """
         return self.version_parts(best=best)[1]
 
@@ -695,7 +732,7 @@ class LinuxDistribution(object):
         """
         Return the build number of the Linux distribution.
 
-        For details, see :func:`ld.build_number`.
+        For details, see :func:`dist.build_number`.
         """
         return self.version_parts(best=best)[2]
 
@@ -703,7 +740,7 @@ class LinuxDistribution(object):
         """
         Return the IDs of distributions that are like the Linux distribution.
 
-        For details, see :func:`ld.like`.
+        For details, see :func:`dist.like`.
         """
         return self.get_os_release_attr('id_like') or ''
 
@@ -711,7 +748,7 @@ class LinuxDistribution(object):
         """
         Return the codename of the Linux distribution.
 
-        For details, see :func:`ld.codename`.
+        For details, see :func:`dist.codename`.
         """
         return self.get_os_release_attr('codename') \
             or self.get_lsb_release_attr('codename') \
@@ -723,7 +760,7 @@ class LinuxDistribution(object):
         Return certain machine-readable information about the Linux
         distribution.
 
-        For details, see :func:`ld.info`.
+        For details, see :func:`dist.info`.
         """
         return dict(
             id=self.id(),
@@ -771,7 +808,7 @@ class LinuxDistribution(object):
         Return a single named information item from the os-release file data
         source of the Linux distribution.
 
-        For details, see :func:`ld.get_os_release_attr`.
+        For details, see :func:`dist.get_os_release_attr`.
         """
         return self._os_release_info.get(attribute, '')
 
@@ -780,7 +817,7 @@ class LinuxDistribution(object):
         Return a single named information item from the lsb_release command
         output data source of the Linux distribution.
 
-        For details, see :func:`ld.get_lsb_release_attr`.
+        For details, see :func:`dist.get_lsb_release_attr`.
         """
         return self._lsb_release_info.get(attribute, '')
 
@@ -789,7 +826,7 @@ class LinuxDistribution(object):
         Return a single named information item from the distro release file
         data source of the Linux distribution.
 
-        For details, see :func:`ld.get_distro_release_attr`.
+        For details, see :func:`dist.get_distro_release_attr`.
         """
         return self._distro_release_info.get(attribute, '')
 
@@ -939,7 +976,7 @@ class LinuxDistribution(object):
                 distro_info['id'] = match.group(1)
             return distro_info
         else:
-            basenames = os.listdir(const._UNIXCONFDIR)
+            basenames = os.listdir(_UNIXCONFDIR)
             # We sort for repeatability in cases where there are multiple
             # distro specific files; e.g. CentOS, Oracle, Enterprise all
             # containing `redhat-release` on top of their own.
@@ -949,7 +986,7 @@ class LinuxDistribution(object):
                     continue
                 match = _DISTRO_RELEASE_BASENAME_PATTERN.match(basename)
                 if match:
-                    filepath = os.path.join(const._UNIXCONFDIR, basename)
+                    filepath = os.path.join(_UNIXCONFDIR, basename)
                     distro_info = self._parse_distro_release_file(filepath)
                     if 'name' in distro_info:
                         # The name is always present if the pattern matches
@@ -1002,4 +1039,4 @@ class LinuxDistribution(object):
         return distro_info
 
 
-_ldi = LinuxDistribution()
+_disti = LinuxDistribution()
