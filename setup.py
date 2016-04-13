@@ -29,7 +29,7 @@ def read(*parts):
 
 
 setup(
-    name='ld',
+    name='dist',
     version=package_version,
     url='https://github.com/nir0s/ld',
     author='Nir Cohen',
@@ -38,7 +38,7 @@ setup(
     platforms='All',
     description='Linux Distribution - a Linux OS platform information API',
     long_description=read('README.rst'),
-    py_modules=['ld'],
+    py_modules=['dist'],
     install_requires=['six'],
     classifiers=[
         'Development Status :: 4 - Beta',
