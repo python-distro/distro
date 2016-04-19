@@ -458,10 +458,6 @@ Review topics
 These topics would benefit from review by the user community.
 If you want to participate, please comment on the referenced issues.
 
-.. [#todo1] Clarify what distro the normalized distro ID "nexus_centos" belongs
-   to.
-   Please comment on `issue #96 <https://github.com/nir0s/ld/issues/96>`_.
-
 .. [#todo2] Review whether :func:`ld.version` should continue to utilize the
    version information from the name/description fields of the os-release file
    and distro release file, vs. dropping them.

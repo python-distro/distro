@@ -76,7 +76,7 @@ NORMALIZED_DISTRO_ID = {
 
 # Pattern for content of distro release file (reversed)
 _DISTRO_RELEASE_CONTENT_REVERSED_PATTERN = re.compile(
-    r'(?:[^)]*\)(.*)\()? *([\d.+\-a-z]*\d) *(?:esaeler *)?(.+)')
+    r'(?:[^)]*\)(.*)\()? *(?:STL )?([\d.+\-a-z]*\d) *(?:esaeler *)?(.+)')
 
 # Pattern for base file name of distro release file
 _DISTRO_RELEASE_BASENAME_PATTERN = re.compile(
@@ -149,7 +149,6 @@ def id():
     "linuxmint"     Linux Mint
     "mageia"        Mageia
     "mandriva"      Mandriva Linux
-    "nexus_centos"  **Todo:** See [#todo1]_ on clarifying this distro.
     "parallels"     Parallels
     "pidora"        Pidora
     "raspbian"      Raspbian
