@@ -32,18 +32,10 @@ namely from these data sources (from high to low precedence):
 
 ## Installation
 
-At this point, the latest version on PyPI is v0.2.9:
+Installation of the latest released version from PyPI:
 
 ```shell
 pip install ld
-```
-
-The latest released version is v0.5.0
-([Release Page](https://github.com/nir0s/ld/releases/tag/v0.5.0)),
-which is not yet on PyPI but can be installed from GitHub as follows:
-
-```shell
-pip install https://github.com/nir0s/ld/archive/v0.5.0.tar.gz
 ```
 
 Installation of the latest development version:
