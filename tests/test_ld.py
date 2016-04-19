@@ -582,7 +582,6 @@ class TestOverall(DistroTestCase):
       * `ibm_powerkvm` - IBM PowerKVM
       * `linuxmint` - Linux Mint
       * `mandriva` - Mandriva Linux
-      * `nexus_centos` - TODO: Clarify
       * `parallels` - Parallels
       * `pidora` - Pidora (Fedora remix for Raspberry Pi)
       * `raspbian` - Raspbian
