@@ -112,7 +112,6 @@ def id():
     "linuxmint"     Linux Mint
     "mageia"        Mageia
     "mandriva"      Mandriva Linux
-    "nexus_centos"  **Todo:** See [#todo1]_ on clarifying this distro.
     "parallels"     Parallels
     "pidora"        Pidora
     "raspbian"      Raspbian
