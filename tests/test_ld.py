@@ -147,6 +147,23 @@ class TestOSRelease(testtools.TestCase):
         self.assertEqual(ldi.like(), 'rhel fedora')
         self.assertEqual(ldi.codename(), 'Z')
 
+    def test_linuxmint17_os_release(self):
+        os_release = os.path.join(DISTROS, 'linuxmint17', 'etc', 'os-release')
+
+        ldi = ld.LinuxDistribution(False, os_release, 'non')
+
+        # Note: LinuxMint 17 actually *does* have Ubuntu 14.04 data in its
+        #       os-release file. See discussion in GitHub issue #78.
+
+        self.assertEqual(ldi.id(), 'ubuntu')
+        self.assertEqual(ldi.name(), 'Ubuntu')
+        self.assertEqual(ldi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
+        self.assertEqual(ldi.version(), '14.04')
+        self.assertEqual(ldi.version(pretty=True), '14.04 (Trusty Tahr)')
+        self.assertEqual(ldi.version(best=True), '14.04.3')
+        self.assertEqual(ldi.like(), 'debian')
+        self.assertEqual(ldi.codename(), 'Trusty Tahr')
+
     def test_mageia5_os_release(self):
         os_release = os.path.join(DISTROS, 'mageia5', 'etc', 'os-release')
 
@@ -230,12 +247,26 @@ class TestOSRelease(testtools.TestCase):
         self.assertEqual(ldi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
         self.assertEqual(ldi.version(), '14.04')
         self.assertEqual(ldi.version(pretty=True), '14.04 (Trusty Tahr)')
-        self.assertEqual(ldi.version(best=True), '14.04')
+        self.assertEqual(ldi.version(best=True), '14.04.3')
         self.assertEqual(ldi.like(), 'debian')
         self.assertEqual(ldi.codename(), 'Trusty Tahr')
 
 
 class TestLSBRelease(DistroTestCase):
+
+    def test_linuxmint17_lsb_release(self):
+        self._setup_for_distro(os.path.join(DISTROS, 'linuxmint17'))
+
+        ldi = ld.LinuxDistribution(True, 'non', 'non')
+
+        self.assertEqual(ldi.id(), 'linuxmint')
+        self.assertEqual(ldi.name(), 'LinuxMint')
+        self.assertEqual(ldi.name(pretty=True), 'Linux Mint 17.3 Rosa')
+        self.assertEqual(ldi.version(), '17.3')
+        self.assertEqual(ldi.version(pretty=True), '17.3 (rosa)')
+        self.assertEqual(ldi.version(best=True), '17.3')
+        self.assertEqual(ldi.like(), '')
+        self.assertEqual(ldi.codename(), 'rosa')
 
     def test_lsb_release_normal(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb',
@@ -248,7 +279,7 @@ class TestLSBRelease(DistroTestCase):
         self.assertEqual(ldi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
         self.assertEqual(ldi.version(), '14.04')
         self.assertEqual(ldi.version(pretty=True), '14.04 (trusty)')
-        self.assertEqual(ldi.version(best=True), '14.04')
+        self.assertEqual(ldi.version(best=True), '14.04.3')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'trusty')
 
@@ -263,7 +294,7 @@ class TestLSBRelease(DistroTestCase):
         self.assertEqual(ldi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
         self.assertEqual(ldi.version(), '14.04')
         self.assertEqual(ldi.version(pretty=True), '14.04 (trusty)')
-        self.assertEqual(ldi.version(best=True), '14.04')
+        self.assertEqual(ldi.version(best=True), '14.04.3')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'trusty')
 
@@ -278,7 +309,7 @@ class TestLSBRelease(DistroTestCase):
         self.assertEqual(ldi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
         self.assertEqual(ldi.version(), '14.04')
         self.assertEqual(ldi.version(pretty=True), '14.04 (trusty)')
-        self.assertEqual(ldi.version(best=True), '14.04')
+        self.assertEqual(ldi.version(best=True), '14.04.3')
         self.assertEqual(ldi.like(), '')
         self.assertEqual(ldi.codename(), 'trusty')
 
@@ -580,7 +611,6 @@ class TestOverall(DistroTestCase):
       * `cloudlinux` - CloudLinux OS
       * `gentoo` - GenToo Linux
       * `ibm_powerkvm` - IBM PowerKVM
-      * `linuxmint` - Linux Mint
       * `mandriva` - Mandriva Linux
       * `parallels` - Parallels
       * `pidora` - Pidora (Fedora remix for Raspberry Pi)
@@ -763,6 +793,28 @@ class TestOverall(DistroTestCase):
         self.assertEqual(distro_info['name'], 'KVM for IBM z Systems')
         self.assertEqual(distro_info['version_id'], '1.1.1')
         self.assertEqual(distro_info['codename'], 'Z')
+
+    def test_linuxmint17_release(self):
+        self._setup_for_distro(os.path.join(DISTROS, 'linuxmint17'))
+
+        ldi = ld.LinuxDistribution()
+
+        # Note: LinuxMint 17 actually *does* have Ubuntu 14.04 data in its
+        #       os-release file. See discussion in GitHub issue #78.
+
+        self.assertEqual(ldi.id(), 'ubuntu')
+        self.assertEqual(ldi.name(), 'Ubuntu')
+        self.assertEqual(ldi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
+        self.assertEqual(ldi.version(), '14.04')
+        self.assertEqual(ldi.version(pretty=True), '14.04 (Trusty Tahr)')
+        self.assertEqual(ldi.version(best=True), '14.04.3')
+        self.assertEqual(ldi.like(), 'debian')
+        self.assertEqual(ldi.codename(), 'Trusty Tahr')
+
+        # Test the info from the searched distro release file
+        # Does not have one:
+        self.assertEqual(ldi.distro_release_file, '')
+        self.assertEqual(len(ldi.distro_release_info()), 0)
 
     def test_mageia5_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'mageia5'))
@@ -948,7 +1000,7 @@ class TestOverall(DistroTestCase):
         self.assertEqual(ldi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
         self.assertEqual(ldi.version(), '14.04')
         self.assertEqual(ldi.version(pretty=True), '14.04 (Trusty Tahr)')
-        self.assertEqual(ldi.version(best=True), '14.04')
+        self.assertEqual(ldi.version(best=True), '14.04.3')
         self.assertEqual(ldi.like(), 'debian')
         self.assertEqual(ldi.codename(), 'Trusty Tahr')
 

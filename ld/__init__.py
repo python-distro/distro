@@ -39,7 +39,7 @@ from . import constants as const
 
 # Pattern for content of distro release file (reversed)
 _DISTRO_RELEASE_CONTENT_REVERSED_PATTERN = re.compile(
-    r'(?:[^)]*\)(.*)\()? *([\d.+\-a-z]*\d) *(?:esaeler *)?(.+)')
+    r'(?:[^)]*\)(.*)\()? *(?:STL )?([\d.+\-a-z]*\d) *(?:esaeler *)?(.+)')
 
 # Pattern for base file name of distro release file
 _DISTRO_RELEASE_BASENAME_PATTERN = re.compile(
