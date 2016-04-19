@@ -73,6 +73,7 @@ Linux distributions:
 * Exherbo
 * Fedora 19/23
 * KVM for IBM z Systems 1
+* Linux Mint 17
 * Mageia 5
 * openSUSE Leap 42
 * Oracle Linux Server 7
