@@ -12,16 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# flake8: NOQA
+
 import os
+import testtools
+import subprocess
 try:
     from StringIO import StringIO  # Python 2.x
 except ImportError:
     from io import StringIO  # Python 3.x
-import subprocess
-import testtools
+
 
 import ld
-from ld import constants as const
 
 
 RESOURCES = os.path.join('tests', 'resources')
@@ -29,9 +31,10 @@ DISTROS = os.path.join(RESOURCES, 'distros')
 TESTDISTROS = os.path.join(RESOURCES, 'testdistros')
 SPECIAL = os.path.join(RESOURCES, 'special')
 
-RELATIVE_UNIXCONFDIR = const._UNIXCONFDIR.lstrip('/')
+RELATIVE_UNIXCONFDIR = ld._UNIXCONFDIR.lstrip('/')
 
 MODULE_LDI = ld._ldi
+
 
 class DistroTestCase(testtools.TestCase):
     """A base class for any testcase classes that test the distributions
@@ -43,19 +46,19 @@ class DistroTestCase(testtools.TestCase):
         # save and restore the PATH env var in each test case that
         # changes it:
         self._saved_path = os.environ["PATH"]
-        self._saved_UNIXCONFDIR = const._UNIXCONFDIR
+        self._saved_UNIXCONFDIR = ld._UNIXCONFDIR
 
     def tearDown(self):
         super(DistroTestCase, self).tearDown()
         os.environ["PATH"] = self._saved_path
-        const._UNIXCONFDIR = self._saved_UNIXCONFDIR
+        ld._UNIXCONFDIR = self._saved_UNIXCONFDIR
 
     def _setup_for_distro(self, distro_root):
         distro_bin = os.path.join(os.getcwd(), distro_root, 'bin')
         # We don't want to pick up a possibly present lsb_release in the
         # distro that runs this test, so we use a PATH with only one entry:
         os.environ["PATH"] = distro_bin
-        const._UNIXCONFDIR = os.path.join(distro_root, RELATIVE_UNIXCONFDIR)
+        ld._UNIXCONFDIR = os.path.join(distro_root, RELATIVE_UNIXCONFDIR)
 
 
 class TestOSRelease(testtools.TestCase):
