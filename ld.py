@@ -449,7 +449,7 @@ def distro_release_info():
     return _ldi.distro_release_info()
 
 
-def get_os_release_attr(attribute):
+def os_release_attr(attribute):
     """
     Return a single named information item from the os-release file data source
     of the current Linux distribution.
@@ -465,10 +465,10 @@ def get_os_release_attr(attribute):
 
     See `os-release file`_ for details about these information items.
     """
-    return _ldi.get_os_release_attr(attribute)
+    return _ldi.os_release_attr(attribute)
 
 
-def get_lsb_release_attr(attribute):
+def lsb_release_attr(attribute):
     """
     Return a single named information item from the lsb_release command output
     data source of the current Linux distribution.
@@ -485,10 +485,10 @@ def get_lsb_release_attr(attribute):
     See `lsb_release command output`_ for details about these information
     items.
     """
-    return _ldi.get_lsb_release_attr(attribute)
+    return _ldi.lsb_release_attr(attribute)
 
 
-def get_distro_release_attr(attribute):
+def distro_release_attr(attribute):
     """
     Return a single named information item from the distro release file
     data source of the current Linux distribution.
@@ -504,7 +504,7 @@ def get_distro_release_attr(attribute):
 
     See `distro release file`_ for details about these information items.
     """
-    return _ldi.get_distro_release_attr(attribute)
+    return _ldi.distro_release_attr(attribute)
 
 
 class LinuxDistribution(object):
@@ -587,10 +587,10 @@ class LinuxDistribution(object):
         self.os_release_file = os_release_file or \
             os.path.join(_UNIXCONFDIR, _OS_RELEASE_BASENAME)
         self.distro_release_file = distro_release_file or ''  # updated later
-        self._os_release_info = self._get_os_release_info()
-        self._lsb_release_info = self._get_lsb_release_info() \
+        self._os_release_info = self._os_release_info()
+        self._lsb_release_info = self._lsb_release_info() \
             if include_lsb else {}
-        self._distro_release_info = self._get_distro_release_info()
+        self._distro_release_info = self._distro_release_info()
 
     def __repr__(self):
         return \
@@ -626,17 +626,17 @@ class LinuxDistribution(object):
 
         For details, see :func:`ld.id`.
         """
-        distro_id = self.get_os_release_attr('id')
+        distro_id = self.os_release_attr('id')
         if distro_id:
             distro_id = distro_id.lower().replace(' ', '_')
             return NORMALIZED_OS_ID.get(distro_id, distro_id)
 
-        distro_id = self.get_lsb_release_attr('distributor_id')
+        distro_id = self.lsb_release_attr('distributor_id')
         if distro_id:
             distro_id = distro_id.lower().replace(' ', '_')
             return NORMALIZED_LSB_ID.get(distro_id, distro_id)
 
-        distro_id = self.get_distro_release_attr('id')
+        distro_id = self.distro_release_attr('id')
         if distro_id:
             distro_id = distro_id.lower().replace(' ', '_')
             return NORMALIZED_DISTRO_ID.get(distro_id, distro_id)
@@ -649,14 +649,14 @@ class LinuxDistribution(object):
 
         For details, see :func:`ld.name`.
         """
-        name = self.get_os_release_attr('name') \
-            or self.get_lsb_release_attr('distributor_id') \
-            or self.get_distro_release_attr('name')
+        name = self.os_release_attr('name') \
+            or self.lsb_release_attr('distributor_id') \
+            or self.distro_release_attr('name')
         if pretty:
-            name = self.get_os_release_attr('pretty_name') \
-                or self.get_lsb_release_attr('description')
+            name = self.os_release_attr('pretty_name') \
+                or self.lsb_release_attr('description')
             if not name:
-                name = self.get_distro_release_attr('name')
+                name = self.distro_release_attr('name')
                 version = self.version(pretty=True)
                 if version:
                     name = name + ' ' + version
@@ -669,13 +669,13 @@ class LinuxDistribution(object):
         For details, see :func:`ld.version`.
         """
         versions = [
-            self.get_os_release_attr('version_id'),
-            self.get_lsb_release_attr('release'),
-            self.get_distro_release_attr('version_id'),
+            self.os_release_attr('version_id'),
+            self.lsb_release_attr('release'),
+            self.distro_release_attr('version_id'),
             self._parse_distro_release_content(
-                self.get_os_release_attr('pretty_name')).get('version_id', ''),
+                self.os_release_attr('pretty_name')).get('version_id', ''),
             self._parse_distro_release_content(
-                self.get_lsb_release_attr('description')).get('version_id', '')
+                self.lsb_release_attr('description')).get('version_id', '')
         ]
         version = ''
         if best:
@@ -741,7 +741,7 @@ class LinuxDistribution(object):
 
         For details, see :func:`ld.like`.
         """
-        return self.get_os_release_attr('id_like') or ''
+        return self.os_release_attr('id_like') or ''
 
     def codename(self):
         """
@@ -749,9 +749,9 @@ class LinuxDistribution(object):
 
         For details, see :func:`ld.codename`.
         """
-        return self.get_os_release_attr('codename') \
-            or self.get_lsb_release_attr('codename') \
-            or self.get_distro_release_attr('codename') \
+        return self.os_release_attr('codename') \
+            or self.lsb_release_attr('codename') \
+            or self.distro_release_attr('codename') \
             or ''
 
     def info(self):
@@ -802,34 +802,34 @@ class LinuxDistribution(object):
         """
         return self._distro_release_info
 
-    def get_os_release_attr(self, attribute):
+    def os_release_attr(self, attribute):
         """
         Return a single named information item from the os-release file data
         source of the Linux distribution.
 
-        For details, see :func:`ld.get_os_release_attr`.
+        For details, see :func:`ld.os_release_attr`.
         """
         return self._os_release_info.get(attribute, '')
 
-    def get_lsb_release_attr(self, attribute):
+    def lsb_release_attr(self, attribute):
         """
         Return a single named information item from the lsb_release command
         output data source of the Linux distribution.
 
-        For details, see :func:`ld.get_lsb_release_attr`.
+        For details, see :func:`ld.lsb_release_attr`.
         """
         return self._lsb_release_info.get(attribute, '')
 
-    def get_distro_release_attr(self, attribute):
+    def distro_release_attr(self, attribute):
         """
         Return a single named information item from the distro release file
         data source of the Linux distribution.
 
-        For details, see :func:`ld.get_distro_release_attr`.
+        For details, see :func:`ld.distro_release_attr`.
         """
         return self._distro_release_info.get(attribute, '')
 
-    def _get_os_release_info(self):
+    def _os_release_info(self):
         """
         Get the information items from the specified os-release file.
 
@@ -901,7 +901,7 @@ class LinuxDistribution(object):
                 pass
         return props
 
-    def _get_lsb_release_info(self):
+    def _lsb_release_info(self):
         """
         Get the information items from the lsb_release command output.
 
@@ -953,7 +953,7 @@ class LinuxDistribution(object):
             props.update({k.replace(' ', '_').lower(): v.strip()})
         return props
 
-    def _get_distro_release_info(self):
+    def _distro_release_info(self):
         """
         Get the information items from the specified distro release file.
 
