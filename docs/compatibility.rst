@@ -1,5 +1,5 @@
 
-The ``ld`` package is supported on Python 2.6, 2.7, 3.4 and 3.5, and on
+The ``distro`` package is supported on Python 2.6, 2.7, 3.4 and 3.5, and on
 any Linux distribution that provides one or more of the `data sources`_
 used by this package.
 

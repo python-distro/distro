@@ -1,15 +1,15 @@
 
-.. _ld issue tracker: https://github.com/nir0s/ld/issues
+.. _distro issue tracker: https://github.com/nir0s/distro/issues
 
 
-**ld** package (Linux Distribution) version |version|)
+**distro** package (Linux Distribution) version |version|)
 ******************************************************
 
 
 Overview and motivation
 =======================
 
-.. automodule:: ld
+.. automodule:: distro
 
 If you want to jump into the API description right away, read about the
 `consolidated accessor functions`_.
@@ -24,7 +24,7 @@ Compatibility
 Data sources
 ============
 
-The ``ld`` package implements a robust and inclusive way of retrieving the
+The ``distro`` package implements a robust and inclusive way of retrieving the
 information about a Linux distribution based on new standards and old methods,
 namely from these data sources:
 
@@ -59,9 +59,9 @@ distribution:
   will come from the distro release file (because it is not provided by the
   lsb_release command).
 
-  Examples: :func:`ld.id` for retrieving
+  Examples: :func:`distro.id` for retrieving
   the distro ID, or :func:`ld.info` to get the machine-readable part of the
-  information in a more aggregated way, or :func:`ld.linux_distribution` with
+  information in a more aggregated way, or :func:`distro.linux_distribution` with
   an interface that is compatible to the original
   :py:func:`platform.linux_distribution` function, supporting a subset of its
   parameters.
@@ -75,21 +75,21 @@ distribution:
   sources, or for retrieving information items that are not provided by the
   consolidated accessor functions.
 
-  Examples: :func:`ld.os_release_attr` for retrieving a single information
-  item from the os-release data source, or :func:`ld.lsb_release_info` for
+  Examples: :func:`distro.os_release_attr` for retrieving a single information
+  item from the os-release data source, or :func:`distro.lsb_release_info` for
   retrieving all information items from the lsb_release command output data
   source.
 
 * `LinuxDistribution class`_
 
-  The :class:`ld.LinuxDistribution` class provides the main code of this
+  The :class:`distro.LinuxDistribution` class provides the main code of this
   package.
 
-  This package contains a private module-global :class:`ld.LinuxDistribution`
+  This package contains a private module-global :class:`distro.LinuxDistribution`
   instance with default initialization arguments, that is used by the
   consolidated and single source accessor functions.
 
-  A user-defined instance of the :class:`ld.LinuxDistribution` class allows
+  A user-defined instance of the :class:`distro.LinuxDistribution` class allows
   specifying the path names of the os-release file and distro release file and
   whether the lsb_release command should be used or not. That is useful for
   example when the Linux distribution information from a chrooted environment
@@ -104,17 +104,17 @@ This section describes the consolidated accessor functions.
 See `access to the information`_ for a discussion of the different kinds of
 accessor functions.
 
-.. autofunction:: ld.linux_distribution
-.. autofunction:: ld.id
-.. autofunction:: ld.name
-.. autofunction:: ld.version
-.. autofunction:: ld.version_parts
-.. autofunction:: ld.major_version
-.. autofunction:: ld.minor_version
-.. autofunction:: ld.build_number
-.. autofunction:: ld.like
-.. autofunction:: ld.codename
-.. autofunction:: ld.info
+.. autofunction:: distro.linux_distribution
+.. autofunction:: distro.id
+.. autofunction:: distro.name
+.. autofunction:: distro.version
+.. autofunction:: distro.version_parts
+.. autofunction:: distro.major_version
+.. autofunction:: distro.minor_version
+.. autofunction:: distro.build_number
+.. autofunction:: distro.like
+.. autofunction:: distro.codename
+.. autofunction:: distro.info
 
 Single source accessor functions
 ================================
@@ -123,21 +123,21 @@ This section describes the single source accessor functions.
 See `access to the information`_ for a discussion of the different kinds of
 accessor functions.
 
-.. autofunction:: ld.os_release_info
-.. autofunction:: ld.lsb_release_info
-.. autofunction:: ld.distro_release_info
-.. autofunction:: ld.os_release_attr
-.. autofunction:: ld.lsb_release_attr
-.. autofunction:: ld.distro_release_attr
+.. autofunction:: distro.os_release_info
+.. autofunction:: distro.lsb_release_info
+.. autofunction:: distro.distro_release_info
+.. autofunction:: distro.os_release_attr
+.. autofunction:: distro.lsb_release_attr
+.. autofunction:: distro.distro_release_attr
 
 LinuxDistribution class
 =======================
 
-This section describes the access via the :class:`ld.LinuxDistribution` class.
+This section describes the access via the :class:`distro.LinuxDistribution` class.
 See `access to the information`_ for a discussion of the different kinds of
 accessor functions.
 
-.. autoclass:: ld.LinuxDistribution
+.. autoclass:: distro.LinuxDistribution
    :members:
    :undoc-members:
 
@@ -145,18 +145,18 @@ Normalization tables
 ====================
 
 These translation tables are used to normalize the parsed distro ID values
-into reliable IDs. See :func:`ld.id` for details.
+into reliable IDs. See :func:`distro.id` for details.
 
 They are documented in order to show for which distros a normalization is
 currently defined.
 
 As a quick fix, these tables can also be extended by the user by appending new
 entries, should the need arise. If you have a need to get these tables
-extended, please make an according request in the `ld issue tracker`_.
+extended, please make an according request in the `distro issue tracker`_.
 
-.. autodata:: ld.NORMALIZED_OS_ID
-.. autodata:: ld.NORMALIZED_LSB_ID
-.. autodata:: ld.NORMALIZED_DISTRO_ID
+.. autodata:: distro.NORMALIZED_OS_ID
+.. autodata:: distro.NORMALIZED_LSB_ID
+.. autodata:: distro.NORMALIZED_DISTRO_ID
 
 Os-release file
 ===============
@@ -172,8 +172,8 @@ like a shell script.
 The attribute names found in the file are translated to lower case and then
 become the keys of the information items from the os-release file data source.
 These keys can be used to retrieve single items with the
-:func:`ld.os_release_attr` function, and they are also used as keys in the
-dictionary returned by :func:`ld.os_release_info`.
+:func:`distro.os_release_attr` function, and they are also used as keys in the
+dictionary returned by :func:`distro.os_release_info`.
 
 The attribute values found in the file are processed using shell rules (e.g.
 for whitespace, escaping, and quoting) before they become the values of the
@@ -346,7 +346,7 @@ Distro release file
 ===================
 
 Unless specified with a particular path name when using the
-:class:`ld.LinuxDistribution` class, the distro release file is found by using
+:class:`distro.LinuxDistribution` class, the distro release file is found by using
 the first match in the alphabetically sorted list of the files matching the
 following path name patterns:
 
@@ -387,7 +387,7 @@ The following information items can be found in a distro release file
   before the hyphen (``-``) or underscore (``_``).
 
   Note that the distro ID is not normalized or translated to lower case at this
-  point; this happens only for the result of the :func:`ld.id` function.
+  point; this happens only for the result of the :func:`distro.id` function.
 
 * ``name`` (string):  Distro name, as found in the first line of the file.
 
@@ -458,14 +458,14 @@ Review topics
 These topics would benefit from review by the user community.
 If you want to participate, please comment on the referenced issues.
 
-.. [#todo2] Review whether :func:`ld.version` should continue to utilize the
+.. [#todo2] Review whether :func:`distro.version` should continue to utilize the
    version information from the name/description fields of the os-release file
    and distro release file, vs. dropping them.
-   Please comment on `issue #95 <https://github.com/nir0s/ld/issues/95>`_.
+   Please comment on `issue #95 <https://github.com/nir0s/distro/issues/95>`_.
 
-.. [#todo3] Review whether :func:`ld.info` should use the first version or the
+.. [#todo3] Review whether :func:`distro.info` should use the first version or the
    best version for its version related entries.
-   Please comment on `issue #94 <https://github.com/nir0s/ld/issues/94>`_.
+   Please comment on `issue #94 <https://github.com/nir0s/distro/issues/94>`_.
 
 .. [#todo5] Provide input on distros with a reliable ID that do not yet have
    testcases:
@@ -478,8 +478,8 @@ If you want to participate, please comment on the referenced issues.
    * The output of the command: ``lsb_release -a``, if available.
 
    There are already some `open issues on missing testcases
-   <https://github.com/nir0s/ld/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22>`_.
+   <https://github.com/nir0s/distro/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22>`_.
 
 .. [#todo99] In addition, there are usually `open issues that need help
-   <https://github.com/nir0s/ld/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22>`_.
+   <https://github.com/nir0s/distro/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22>`_.
    If you want to help, please check them out.

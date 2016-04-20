@@ -1,4 +1,4 @@
-Linux Distribution - a Linux OS platform information API
+Distro - a Linux OS platform information API
 ========================================================
 
-See `Official Github Repo <https://github.com/nir0s/ld>`_.
+See `Official Github Repo <https://github.com/nir0s/distro>`_.

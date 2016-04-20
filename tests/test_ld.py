@@ -23,7 +23,7 @@ except ImportError:
     from io import StringIO  # Python 3.x
 
 
-import ld
+import distro
 
 
 RESOURCES = os.path.join('tests', 'resources')
@@ -31,9 +31,9 @@ DISTROS = os.path.join(RESOURCES, 'distros')
 TESTDISTROS = os.path.join(RESOURCES, 'testdistros')
 SPECIAL = os.path.join(RESOURCES, 'special')
 
-RELATIVE_UNIXCONFDIR = ld._UNIXCONFDIR.lstrip('/')
+RELATIVE_UNIXCONFDIR = distro._UNIXCONFDIR.lstrip('/')
 
-MODULE_LDI = ld._ldi
+MODULE_DISTROI = distro._distroi
 
 
 class DistroTestCase(testtools.TestCase):
@@ -46,19 +46,19 @@ class DistroTestCase(testtools.TestCase):
         # save and restore the PATH env var in each test case that
         # changes it:
         self._saved_path = os.environ["PATH"]
-        self._saved_UNIXCONFDIR = ld._UNIXCONFDIR
+        self._saved_UNIXCONFDIR = distro._UNIXCONFDIR
 
     def tearDown(self):
         super(DistroTestCase, self).tearDown()
         os.environ["PATH"] = self._saved_path
-        ld._UNIXCONFDIR = self._saved_UNIXCONFDIR
+        distro._UNIXCONFDIR = self._saved_UNIXCONFDIR
 
     def _setup_for_distro(self, distro_root):
         distro_bin = os.path.join(os.getcwd(), distro_root, 'bin')
         # We don't want to pick up a possibly present lsb_release in the
         # distro that runs this test, so we use a PATH with only one entry:
         os.environ["PATH"] = distro_bin
-        ld._UNIXCONFDIR = os.path.join(distro_root, RELATIVE_UNIXCONFDIR)
+        distro._UNIXCONFDIR = os.path.join(distro_root, RELATIVE_UNIXCONFDIR)
 
 
 class TestOSRelease(testtools.TestCase):
@@ -69,190 +69,190 @@ class TestOSRelease(testtools.TestCase):
     def test_arch_os_release(self):
         os_release = os.path.join(DISTROS, 'arch', 'etc', 'os-release')
 
-        ldi = ld.LinuxDistribution(False, os_release, 'non')
+        distroi = distro.LinuxDistribution(False, os_release, 'non')
 
-        self.assertEqual(ldi.id(), 'arch')
-        self.assertEqual(ldi.name(), 'Arch Linux')
-        self.assertEqual(ldi.name(pretty=True), 'Arch Linux')
-        self.assertEqual(ldi.version(), '')
-        self.assertEqual(ldi.version(pretty=True), '')
-        self.assertEqual(ldi.version(best=True), '')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), '')
+        self.assertEqual(distroi.id(), 'arch')
+        self.assertEqual(distroi.name(), 'Arch Linux')
+        self.assertEqual(distroi.name(pretty=True), 'Arch Linux')
+        self.assertEqual(distroi.version(), '')
+        self.assertEqual(distroi.version(pretty=True), '')
+        self.assertEqual(distroi.version(best=True), '')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), '')
 
     def test_centos7_os_release(self):
         os_release = os.path.join(DISTROS, 'centos7', 'etc', 'os-release')
 
-        ldi = ld.LinuxDistribution(False, os_release, 'non')
+        distroi = distro.LinuxDistribution(False, os_release, 'non')
 
-        self.assertEqual(ldi.id(), 'centos')
-        self.assertEqual(ldi.name(), 'CentOS Linux')
-        self.assertEqual(ldi.name(pretty=True), 'CentOS Linux 7 (Core)')
-        self.assertEqual(ldi.version(), '7')
-        self.assertEqual(ldi.version(pretty=True), '7 (Core)')
-        self.assertEqual(ldi.version(best=True), '7')
-        self.assertEqual(ldi.like(), 'rhel fedora')
-        self.assertEqual(ldi.codename(), 'Core')
+        self.assertEqual(distroi.id(), 'centos')
+        self.assertEqual(distroi.name(), 'CentOS Linux')
+        self.assertEqual(distroi.name(pretty=True), 'CentOS Linux 7 (Core)')
+        self.assertEqual(distroi.version(), '7')
+        self.assertEqual(distroi.version(pretty=True), '7 (Core)')
+        self.assertEqual(distroi.version(best=True), '7')
+        self.assertEqual(distroi.like(), 'rhel fedora')
+        self.assertEqual(distroi.codename(), 'Core')
 
     def test_debian8_os_release(self):
         os_release = os.path.join(DISTROS, 'debian8', 'etc', 'os-release')
 
-        ldi = ld.LinuxDistribution(False, os_release, 'non')
+        distroi = distro.LinuxDistribution(False, os_release, 'non')
 
-        self.assertEqual(ldi.id(), 'debian')
-        self.assertEqual(ldi.name(), 'Debian GNU/Linux')
-        self.assertEqual(ldi.name(pretty=True), 'Debian GNU/Linux 8 (jessie)')
-        self.assertEqual(ldi.version(), '8')
-        self.assertEqual(ldi.version(pretty=True), '8 (jessie)')
-        self.assertEqual(ldi.version(best=True), '8')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), 'jessie')
+        self.assertEqual(distroi.id(), 'debian')
+        self.assertEqual(distroi.name(), 'Debian GNU/Linux')
+        self.assertEqual(distroi.name(pretty=True), 'Debian GNU/Linux 8 (jessie)')
+        self.assertEqual(distroi.version(), '8')
+        self.assertEqual(distroi.version(pretty=True), '8 (jessie)')
+        self.assertEqual(distroi.version(best=True), '8')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), 'jessie')
 
     def test_fedora19_os_release(self):
         os_release = os.path.join(DISTROS, 'fedora19', 'etc', 'os-release')
 
-        ldi = ld.LinuxDistribution(False, os_release, 'non')
+        distroi = distro.LinuxDistribution(False, os_release, 'non')
 
-        self.assertEqual(ldi.id(), 'fedora')
-        self.assertEqual(ldi.name(), 'Fedora')
-        self.assertEqual(ldi.name(pretty=True), u'Fedora 19 (Schr\u00F6dinger\u2019s Cat)')
-        self.assertEqual(ldi.version(), '19')
-        self.assertEqual(ldi.version(pretty=True), u'19 (Schr\u00F6dinger\u2019s Cat)')
-        self.assertEqual(ldi.version(best=True), '19')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), u'Schr\u00F6dinger\u2019s Cat')
+        self.assertEqual(distroi.id(), 'fedora')
+        self.assertEqual(distroi.name(), 'Fedora')
+        self.assertEqual(distroi.name(pretty=True), u'Fedora 19 (Schr\u00F6dinger\u2019s Cat)')
+        self.assertEqual(distroi.version(), '19')
+        self.assertEqual(distroi.version(pretty=True), u'19 (Schr\u00F6dinger\u2019s Cat)')
+        self.assertEqual(distroi.version(best=True), '19')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), u'Schr\u00F6dinger\u2019s Cat')
 
     def test_fedora23_os_release(self):
         os_release = os.path.join(DISTROS, 'fedora23', 'etc', 'os-release')
 
-        ldi = ld.LinuxDistribution(False, os_release, 'non')
+        distroi = distro.LinuxDistribution(False, os_release, 'non')
 
-        self.assertEqual(ldi.id(), 'fedora')
-        self.assertEqual(ldi.name(), 'Fedora')
-        self.assertEqual(ldi.name(pretty=True), 'Fedora 23 (Twenty Three)')
-        self.assertEqual(ldi.version(), '23')
-        self.assertEqual(ldi.version(pretty=True), '23 (Twenty Three)')
-        self.assertEqual(ldi.version(best=True), '23')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), 'Twenty Three')
+        self.assertEqual(distroi.id(), 'fedora')
+        self.assertEqual(distroi.name(), 'Fedora')
+        self.assertEqual(distroi.name(pretty=True), 'Fedora 23 (Twenty Three)')
+        self.assertEqual(distroi.version(), '23')
+        self.assertEqual(distroi.version(pretty=True), '23 (Twenty Three)')
+        self.assertEqual(distroi.version(best=True), '23')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), 'Twenty Three')
 
     def test_kvmibm1_os_release(self):
         os_release = os.path.join(DISTROS, 'kvmibm1', 'etc', 'os-release')
 
-        ldi = ld.LinuxDistribution(False, os_release, 'non')
+        distroi = distro.LinuxDistribution(False, os_release, 'non')
 
-        self.assertEqual(ldi.id(), 'kvmibm')
-        self.assertEqual(ldi.name(), 'KVM for IBM z Systems')
-        self.assertEqual(ldi.name(pretty=True), 'KVM for IBM z Systems 1.1.1 (Z)')
-        self.assertEqual(ldi.version(), '1.1.1')
-        self.assertEqual(ldi.version(pretty=True), '1.1.1 (Z)')
-        self.assertEqual(ldi.version(best=True), '1.1.1')
-        self.assertEqual(ldi.like(), 'rhel fedora')
-        self.assertEqual(ldi.codename(), 'Z')
+        self.assertEqual(distroi.id(), 'kvmibm')
+        self.assertEqual(distroi.name(), 'KVM for IBM z Systems')
+        self.assertEqual(distroi.name(pretty=True), 'KVM for IBM z Systems 1.1.1 (Z)')
+        self.assertEqual(distroi.version(), '1.1.1')
+        self.assertEqual(distroi.version(pretty=True), '1.1.1 (Z)')
+        self.assertEqual(distroi.version(best=True), '1.1.1')
+        self.assertEqual(distroi.like(), 'rhel fedora')
+        self.assertEqual(distroi.codename(), 'Z')
 
     def test_linuxmint17_os_release(self):
         os_release = os.path.join(DISTROS, 'linuxmint17', 'etc', 'os-release')
 
-        ldi = ld.LinuxDistribution(False, os_release, 'non')
+        distroi = distro.LinuxDistribution(False, os_release, 'non')
 
         # Note: LinuxMint 17 actually *does* have Ubuntu 14.04 data in its
         #       os-release file. See discussion in GitHub issue #78.
 
-        self.assertEqual(ldi.id(), 'ubuntu')
-        self.assertEqual(ldi.name(), 'Ubuntu')
-        self.assertEqual(ldi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
-        self.assertEqual(ldi.version(), '14.04')
-        self.assertEqual(ldi.version(pretty=True), '14.04 (Trusty Tahr)')
-        self.assertEqual(ldi.version(best=True), '14.04.3')
-        self.assertEqual(ldi.like(), 'debian')
-        self.assertEqual(ldi.codename(), 'Trusty Tahr')
+        self.assertEqual(distroi.id(), 'ubuntu')
+        self.assertEqual(distroi.name(), 'Ubuntu')
+        self.assertEqual(distroi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
+        self.assertEqual(distroi.version(), '14.04')
+        self.assertEqual(distroi.version(pretty=True), '14.04 (Trusty Tahr)')
+        self.assertEqual(distroi.version(best=True), '14.04.3')
+        self.assertEqual(distroi.like(), 'debian')
+        self.assertEqual(distroi.codename(), 'Trusty Tahr')
 
     def test_mageia5_os_release(self):
         os_release = os.path.join(DISTROS, 'mageia5', 'etc', 'os-release')
 
-        ldi = ld.LinuxDistribution(False, os_release, 'non')
+        distroi = distro.LinuxDistribution(False, os_release, 'non')
 
-        self.assertEqual(ldi.id(), 'mageia')
-        self.assertEqual(ldi.name(), 'Mageia')
-        self.assertEqual(ldi.name(pretty=True), 'Mageia 5')
-        self.assertEqual(ldi.version(), '5')
-        self.assertEqual(ldi.version(pretty=True), '5')
-        self.assertEqual(ldi.version(best=True), '5')
-        self.assertEqual(ldi.like(), 'mandriva fedora')
-        self.assertEqual(ldi.codename(), '')
+        self.assertEqual(distroi.id(), 'mageia')
+        self.assertEqual(distroi.name(), 'Mageia')
+        self.assertEqual(distroi.name(pretty=True), 'Mageia 5')
+        self.assertEqual(distroi.version(), '5')
+        self.assertEqual(distroi.version(pretty=True), '5')
+        self.assertEqual(distroi.version(best=True), '5')
+        self.assertEqual(distroi.like(), 'mandriva fedora')
+        self.assertEqual(distroi.codename(), '')
 
     def test_opensuse42_os_release(self):
         os_release = os.path.join(DISTROS, 'opensuse42', 'etc', 'os-release')
 
-        ldi = ld.LinuxDistribution(False, os_release, 'non')
+        distroi = distro.LinuxDistribution(False, os_release, 'non')
 
-        self.assertEqual(ldi.id(), 'opensuse')
-        self.assertEqual(ldi.name(), 'openSUSE Leap')
-        self.assertEqual(ldi.name(pretty=True), 'openSUSE Leap 42.1 (x86_64)')
-        self.assertEqual(ldi.version(), '42.1')
-        self.assertEqual(ldi.version(pretty=True), '42.1')
-        self.assertEqual(ldi.version(best=True), '42.1')
-        self.assertEqual(ldi.like(), 'suse')
-        self.assertEqual(ldi.codename(), '')
+        self.assertEqual(distroi.id(), 'opensuse')
+        self.assertEqual(distroi.name(), 'openSUSE Leap')
+        self.assertEqual(distroi.name(pretty=True), 'openSUSE Leap 42.1 (x86_64)')
+        self.assertEqual(distroi.version(), '42.1')
+        self.assertEqual(distroi.version(pretty=True), '42.1')
+        self.assertEqual(distroi.version(best=True), '42.1')
+        self.assertEqual(distroi.like(), 'suse')
+        self.assertEqual(distroi.codename(), '')
 
     def test_rhel7_os_release(self):
         os_release = os.path.join(DISTROS, 'rhel7', 'etc', 'os-release')
 
-        ldi = ld.LinuxDistribution(False, os_release, 'non')
+        distroi = distro.LinuxDistribution(False, os_release, 'non')
 
-        self.assertEqual(ldi.id(), 'rhel')
-        self.assertEqual(ldi.name(), 'Red Hat Enterprise Linux Server')
+        self.assertEqual(distroi.id(), 'rhel')
+        self.assertEqual(distroi.name(), 'Red Hat Enterprise Linux Server')
         self.assertEqual(
-            ldi.name(pretty=True),
+            distroi.name(pretty=True),
             'Red Hat Enterprise Linux Server 7.0 (Maipo)')
-        self.assertEqual(ldi.version(), '7.0')
-        self.assertEqual(ldi.version(pretty=True), '7.0 (Maipo)')
-        self.assertEqual(ldi.version(best=True), '7.0')
-        self.assertEqual(ldi.like(), 'fedora')
-        self.assertEqual(ldi.codename(), 'Maipo')
+        self.assertEqual(distroi.version(), '7.0')
+        self.assertEqual(distroi.version(pretty=True), '7.0 (Maipo)')
+        self.assertEqual(distroi.version(best=True), '7.0')
+        self.assertEqual(distroi.like(), 'fedora')
+        self.assertEqual(distroi.codename(), 'Maipo')
 
     def test_slackware14_os_release(self):
         os_release = os.path.join(DISTROS, 'slackware14', 'etc', 'os-release')
 
-        ldi = ld.LinuxDistribution(False, os_release, 'non')
+        distroi = distro.LinuxDistribution(False, os_release, 'non')
 
-        self.assertEqual(ldi.id(), 'slackware')
-        self.assertEqual(ldi.name(), 'Slackware')
-        self.assertEqual(ldi.name(pretty=True), 'Slackware 14.1')
-        self.assertEqual(ldi.version(), '14.1')
-        self.assertEqual(ldi.version(pretty=True), '14.1')
-        self.assertEqual(ldi.version(best=True), '14.1')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), '')
+        self.assertEqual(distroi.id(), 'slackware')
+        self.assertEqual(distroi.name(), 'Slackware')
+        self.assertEqual(distroi.name(pretty=True), 'Slackware 14.1')
+        self.assertEqual(distroi.version(), '14.1')
+        self.assertEqual(distroi.version(pretty=True), '14.1')
+        self.assertEqual(distroi.version(best=True), '14.1')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), '')
 
     def test_sles12_os_release(self):
         os_release = os.path.join(DISTROS, 'sles12', 'etc', 'os-release')
 
-        ldi = ld.LinuxDistribution(False, os_release, 'non')
+        distroi = distro.LinuxDistribution(False, os_release, 'non')
 
-        self.assertEqual(ldi.id(), 'sles')
-        self.assertEqual(ldi.name(), 'SLES')
-        self.assertEqual(ldi.name(pretty=True),
+        self.assertEqual(distroi.id(), 'sles')
+        self.assertEqual(distroi.name(), 'SLES')
+        self.assertEqual(distroi.name(pretty=True),
                          'SUSE Linux Enterprise Server 12 SP1')
-        self.assertEqual(ldi.version(), '12.1')
-        self.assertEqual(ldi.version(pretty=True), '12.1')
-        self.assertEqual(ldi.version(best=True), '12.1')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), '')
+        self.assertEqual(distroi.version(), '12.1')
+        self.assertEqual(distroi.version(pretty=True), '12.1')
+        self.assertEqual(distroi.version(best=True), '12.1')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), '')
 
     def test_ubuntu14_os_release(self):
         os_release = os.path.join(DISTROS, 'ubuntu14', 'etc', 'os-release')
 
-        ldi = ld.LinuxDistribution(False, os_release, 'non')
+        distroi = distro.LinuxDistribution(False, os_release, 'non')
 
-        self.assertEqual(ldi.id(), 'ubuntu')
-        self.assertEqual(ldi.name(), 'Ubuntu')
-        self.assertEqual(ldi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
-        self.assertEqual(ldi.version(), '14.04')
-        self.assertEqual(ldi.version(pretty=True), '14.04 (Trusty Tahr)')
-        self.assertEqual(ldi.version(best=True), '14.04.3')
-        self.assertEqual(ldi.like(), 'debian')
-        self.assertEqual(ldi.codename(), 'Trusty Tahr')
+        self.assertEqual(distroi.id(), 'ubuntu')
+        self.assertEqual(distroi.name(), 'Ubuntu')
+        self.assertEqual(distroi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
+        self.assertEqual(distroi.version(), '14.04')
+        self.assertEqual(distroi.version(pretty=True), '14.04 (Trusty Tahr)')
+        self.assertEqual(distroi.version(best=True), '14.04.3')
+        self.assertEqual(distroi.like(), 'debian')
+        self.assertEqual(distroi.codename(), 'Trusty Tahr')
 
 
 class TestLSBRelease(DistroTestCase):
@@ -260,66 +260,66 @@ class TestLSBRelease(DistroTestCase):
     def test_linuxmint17_lsb_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'linuxmint17'))
 
-        ldi = ld.LinuxDistribution(True, 'non', 'non')
+        distroi = distro.LinuxDistribution(True, 'non', 'non')
 
-        self.assertEqual(ldi.id(), 'linuxmint')
-        self.assertEqual(ldi.name(), 'LinuxMint')
-        self.assertEqual(ldi.name(pretty=True), 'Linux Mint 17.3 Rosa')
-        self.assertEqual(ldi.version(), '17.3')
-        self.assertEqual(ldi.version(pretty=True), '17.3 (rosa)')
-        self.assertEqual(ldi.version(best=True), '17.3')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), 'rosa')
+        self.assertEqual(distroi.id(), 'linuxmint')
+        self.assertEqual(distroi.name(), 'LinuxMint')
+        self.assertEqual(distroi.name(pretty=True), 'Linux Mint 17.3 Rosa')
+        self.assertEqual(distroi.version(), '17.3')
+        self.assertEqual(distroi.version(pretty=True), '17.3 (rosa)')
+        self.assertEqual(distroi.version(best=True), '17.3')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), 'rosa')
 
     def test_lsb_release_normal(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb',
                                             'ubuntu14_normal'))
 
-        ldi = ld.LinuxDistribution(True, 'non', 'non')
+        distroi = distro.LinuxDistribution(True, 'non', 'non')
 
-        self.assertEqual(ldi.id(), 'ubuntu')
-        self.assertEqual(ldi.name(), 'Ubuntu')
-        self.assertEqual(ldi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
-        self.assertEqual(ldi.version(), '14.04')
-        self.assertEqual(ldi.version(pretty=True), '14.04 (trusty)')
-        self.assertEqual(ldi.version(best=True), '14.04.3')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), 'trusty')
+        self.assertEqual(distroi.id(), 'ubuntu')
+        self.assertEqual(distroi.name(), 'Ubuntu')
+        self.assertEqual(distroi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
+        self.assertEqual(distroi.version(), '14.04')
+        self.assertEqual(distroi.version(pretty=True), '14.04 (trusty)')
+        self.assertEqual(distroi.version(best=True), '14.04.3')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), 'trusty')
 
     def test_lsb_release_nomodules(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb',
                                             'ubuntu14_nomodules'))
 
-        ldi = ld.LinuxDistribution(True, 'non', 'non')
+        distroi = distro.LinuxDistribution(True, 'non', 'non')
 
-        self.assertEqual(ldi.id(), 'ubuntu')
-        self.assertEqual(ldi.name(), 'Ubuntu')
-        self.assertEqual(ldi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
-        self.assertEqual(ldi.version(), '14.04')
-        self.assertEqual(ldi.version(pretty=True), '14.04 (trusty)')
-        self.assertEqual(ldi.version(best=True), '14.04.3')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), 'trusty')
+        self.assertEqual(distroi.id(), 'ubuntu')
+        self.assertEqual(distroi.name(), 'Ubuntu')
+        self.assertEqual(distroi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
+        self.assertEqual(distroi.version(), '14.04')
+        self.assertEqual(distroi.version(pretty=True), '14.04 (trusty)')
+        self.assertEqual(distroi.version(best=True), '14.04.3')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), 'trusty')
 
     def test_lsb_release_trailingblanks(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb',
                                             'ubuntu14_trailingblanks'))
 
-        ldi = ld.LinuxDistribution(True, 'non', 'non')
+        distroi = distro.LinuxDistribution(True, 'non', 'non')
 
-        self.assertEqual(ldi.id(), 'ubuntu')
-        self.assertEqual(ldi.name(), 'Ubuntu')
-        self.assertEqual(ldi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
-        self.assertEqual(ldi.version(), '14.04')
-        self.assertEqual(ldi.version(pretty=True), '14.04 (trusty)')
-        self.assertEqual(ldi.version(best=True), '14.04.3')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), 'trusty')
+        self.assertEqual(distroi.id(), 'ubuntu')
+        self.assertEqual(distroi.name(), 'Ubuntu')
+        self.assertEqual(distroi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
+        self.assertEqual(distroi.version(), '14.04')
+        self.assertEqual(distroi.version(pretty=True), '14.04 (trusty)')
+        self.assertEqual(distroi.version(best=True), '14.04.3')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), 'trusty')
 
     def test_lsb_release_rc001(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb', 'lsb_rc001'))
         try:
-            ldi = ld.LinuxDistribution(True, 'non', 'non')
+            distroi = distro.LinuxDistribution(True, 'non', 'non')
             exc = None
         except Exception as _exc:
             exc = _exc
@@ -329,7 +329,7 @@ class TestLSBRelease(DistroTestCase):
     def test_lsb_release_rc002(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb', 'lsb_rc002'))
         try:
-            ldi = ld.LinuxDistribution(True, 'non', 'non')
+            distroi = distro.LinuxDistribution(True, 'non', 'non')
             exc = None
         except Exception as _exc:
             exc = _exc
@@ -339,7 +339,7 @@ class TestLSBRelease(DistroTestCase):
     def test_lsb_release_rc126(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb', 'lsb_rc126'))
         try:
-            ldi = ld.LinuxDistribution(True, 'non', 'non')
+            distroi = distro.LinuxDistribution(True, 'non', 'non')
             exc = None
         except Exception as _exc:
             exc = _exc
@@ -349,7 +349,7 @@ class TestLSBRelease(DistroTestCase):
     def test_lsb_release_rc130(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb', 'lsb_rc130'))
         try:
-            ldi = ld.LinuxDistribution(True, 'non', 'non')
+            distroi = distro.LinuxDistribution(True, 'non', 'non')
             exc = None
         except Exception as _exc:
             exc = _exc
@@ -359,7 +359,7 @@ class TestLSBRelease(DistroTestCase):
     def test_lsb_release_rc255(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb', 'lsb_rc255'))
         try:
-            ldi = ld.LinuxDistribution(True, 'non', 'non')
+            distroi = distro.LinuxDistribution(True, 'non', 'non')
             exc = None
         except Exception as _exc:
             exc = _exc
@@ -375,224 +375,224 @@ class TestDistroRelease(testtools.TestCase):
     def test_arch_dist_release(self):
         distro_release = os.path.join(DISTROS, 'arch', 'etc', 'arch-release')
 
-        ldi = ld.LinuxDistribution(False, 'non', distro_release)
+        distroi = distro.LinuxDistribution(False, 'non', distro_release)
 
-        self.assertEqual(ldi.id(), 'arch')
-        self.assertEqual(ldi.name(), '')
-        self.assertEqual(ldi.name(pretty=True), '')
-        self.assertEqual(ldi.version(), '')
-        self.assertEqual(ldi.version(pretty=True), '')
-        self.assertEqual(ldi.version(best=True), '')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), '')
+        self.assertEqual(distroi.id(), 'arch')
+        self.assertEqual(distroi.name(), '')
+        self.assertEqual(distroi.name(pretty=True), '')
+        self.assertEqual(distroi.version(), '')
+        self.assertEqual(distroi.version(pretty=True), '')
+        self.assertEqual(distroi.version(best=True), '')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), '')
 
     def test_centos5_dist_release(self):
         distro_release = os.path.join(DISTROS, 'centos5', 'etc',
                                       'centos-release')
-        ldi = ld.LinuxDistribution(False, 'non', distro_release)
+        distroi = distro.LinuxDistribution(False, 'non', distro_release)
 
-        self.assertEqual(ldi.id(), 'centos')
-        self.assertEqual(ldi.name(), 'CentOS')
-        self.assertEqual(ldi.name(pretty=True), 'CentOS 5.11 (Final)')
-        self.assertEqual(ldi.version(), '5.11')
-        self.assertEqual(ldi.version(pretty=True), '5.11 (Final)')
-        self.assertEqual(ldi.version(best=True), '5.11')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), 'Final')
-        self.assertEqual(ldi.major_version(), '5')
-        self.assertEqual(ldi.minor_version(), '11')
-        self.assertEqual(ldi.build_number(), '')
+        self.assertEqual(distroi.id(), 'centos')
+        self.assertEqual(distroi.name(), 'CentOS')
+        self.assertEqual(distroi.name(pretty=True), 'CentOS 5.11 (Final)')
+        self.assertEqual(distroi.version(), '5.11')
+        self.assertEqual(distroi.version(pretty=True), '5.11 (Final)')
+        self.assertEqual(distroi.version(best=True), '5.11')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), 'Final')
+        self.assertEqual(distroi.major_version(), '5')
+        self.assertEqual(distroi.minor_version(), '11')
+        self.assertEqual(distroi.build_number(), '')
 
     def test_centos7_dist_release(self):
         distro_release = os.path.join(DISTROS, 'centos7', 'etc',
                                       'centos-release')
 
-        ldi = ld.LinuxDistribution(False, 'non', distro_release)
+        distroi = distro.LinuxDistribution(False, 'non', distro_release)
 
-        self.assertEqual(ldi.id(), 'centos')
-        self.assertEqual(ldi.name(), 'CentOS Linux')
-        self.assertEqual(ldi.name(pretty=True), 'CentOS Linux 7.1.1503 (Core)')
-        self.assertEqual(ldi.version(), '7.1.1503')
-        self.assertEqual(ldi.version(pretty=True), '7.1.1503 (Core)')
-        self.assertEqual(ldi.version(best=True), '7.1.1503')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), 'Core')
-        self.assertEqual(ldi.major_version(), '7')
-        self.assertEqual(ldi.minor_version(), '1')
-        self.assertEqual(ldi.build_number(), '1503')
+        self.assertEqual(distroi.id(), 'centos')
+        self.assertEqual(distroi.name(), 'CentOS Linux')
+        self.assertEqual(distroi.name(pretty=True), 'CentOS Linux 7.1.1503 (Core)')
+        self.assertEqual(distroi.version(), '7.1.1503')
+        self.assertEqual(distroi.version(pretty=True), '7.1.1503 (Core)')
+        self.assertEqual(distroi.version(best=True), '7.1.1503')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), 'Core')
+        self.assertEqual(distroi.major_version(), '7')
+        self.assertEqual(distroi.minor_version(), '1')
+        self.assertEqual(distroi.build_number(), '1503')
 
     def test_empty_dist_release(self):
         distro_release = os.path.join(SPECIAL, 'empty-release')
 
-        ldi = ld.LinuxDistribution(False, 'non', distro_release)
+        distroi = distro.LinuxDistribution(False, 'non', distro_release)
 
-        self.assertEqual(ldi.id(), 'empty')
-        self.assertEqual(ldi.name(), '')
-        self.assertEqual(ldi.name(pretty=True), '')
-        self.assertEqual(ldi.version(), '')
-        self.assertEqual(ldi.version(pretty=True), '')
-        self.assertEqual(ldi.version(best=True), '')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), '')
+        self.assertEqual(distroi.id(), 'empty')
+        self.assertEqual(distroi.name(), '')
+        self.assertEqual(distroi.name(pretty=True), '')
+        self.assertEqual(distroi.version(), '')
+        self.assertEqual(distroi.version(pretty=True), '')
+        self.assertEqual(distroi.version(best=True), '')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), '')
 
     def test_fedora19_dist_release(self):
         distro_release = os.path.join(DISTROS, 'fedora19', 'etc',
                                       'fedora-release')
 
-        ldi = ld.LinuxDistribution(False, 'non', distro_release)
+        distroi = distro.LinuxDistribution(False, 'non', distro_release)
 
-        self.assertEqual(ldi.id(), 'fedora')
-        self.assertEqual(ldi.name(), 'Fedora')
-        self.assertEqual(ldi.name(pretty=True), u'Fedora 19 (Schr\u00F6dinger\u2019s Cat)')
-        self.assertEqual(ldi.version(), '19')
-        self.assertEqual(ldi.version(pretty=True), u'19 (Schr\u00F6dinger\u2019s Cat)')
-        self.assertEqual(ldi.version(best=True), '19')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), u'Schr\u00F6dinger\u2019s Cat')
+        self.assertEqual(distroi.id(), 'fedora')
+        self.assertEqual(distroi.name(), 'Fedora')
+        self.assertEqual(distroi.name(pretty=True), u'Fedora 19 (Schr\u00F6dinger\u2019s Cat)')
+        self.assertEqual(distroi.version(), '19')
+        self.assertEqual(distroi.version(pretty=True), u'19 (Schr\u00F6dinger\u2019s Cat)')
+        self.assertEqual(distroi.version(best=True), '19')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), u'Schr\u00F6dinger\u2019s Cat')
 
     def test_fedora23_dist_release(self):
         distro_release = os.path.join(DISTROS, 'fedora23', 'etc',
                                       'fedora-release')
 
-        ldi = ld.LinuxDistribution(False, 'non', distro_release)
+        distroi = distro.LinuxDistribution(False, 'non', distro_release)
 
-        self.assertEqual(ldi.id(), 'fedora')
-        self.assertEqual(ldi.name(), 'Fedora')
-        self.assertEqual(ldi.name(pretty=True), 'Fedora 23 (Twenty Three)')
-        self.assertEqual(ldi.version(), '23')
-        self.assertEqual(ldi.version(pretty=True), '23 (Twenty Three)')
-        self.assertEqual(ldi.version(best=True), '23')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), 'Twenty Three')
+        self.assertEqual(distroi.id(), 'fedora')
+        self.assertEqual(distroi.name(), 'Fedora')
+        self.assertEqual(distroi.name(pretty=True), 'Fedora 23 (Twenty Three)')
+        self.assertEqual(distroi.version(), '23')
+        self.assertEqual(distroi.version(pretty=True), '23 (Twenty Three)')
+        self.assertEqual(distroi.version(best=True), '23')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), 'Twenty Three')
 
     def test_kvmibm1_dist_release(self):
         distro_release = os.path.join(DISTROS, 'kvmibm1', 'etc',
                                       'base-release')
 
-        ldi = ld.LinuxDistribution(False, 'non', distro_release)
+        distroi = distro.LinuxDistribution(False, 'non', distro_release)
 
-        self.assertEqual(ldi.id(), 'base')
-        self.assertEqual(ldi.name(), 'KVM for IBM z Systems')
-        self.assertEqual(ldi.name(pretty=True), 'KVM for IBM z Systems 1.1.1 (Z)')
-        self.assertEqual(ldi.version(), '1.1.1')
-        self.assertEqual(ldi.version(pretty=True), '1.1.1 (Z)')
-        self.assertEqual(ldi.version(best=True), '1.1.1')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), 'Z')
+        self.assertEqual(distroi.id(), 'base')
+        self.assertEqual(distroi.name(), 'KVM for IBM z Systems')
+        self.assertEqual(distroi.name(pretty=True), 'KVM for IBM z Systems 1.1.1 (Z)')
+        self.assertEqual(distroi.version(), '1.1.1')
+        self.assertEqual(distroi.version(pretty=True), '1.1.1 (Z)')
+        self.assertEqual(distroi.version(best=True), '1.1.1')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), 'Z')
 
     def test_mageia5_dist_release(self):
         distro_release = os.path.join(DISTROS, 'mageia5', 'etc',
                                       'mageia-release')
 
-        ldi = ld.LinuxDistribution(False, 'non', distro_release)
+        distroi = distro.LinuxDistribution(False, 'non', distro_release)
 
-        self.assertEqual(ldi.id(), 'mageia')
-        self.assertEqual(ldi.name(), 'Mageia')
-        self.assertEqual(ldi.name(pretty=True), 'Mageia 5 (Official)')
-        self.assertEqual(ldi.version(), '5')
-        self.assertEqual(ldi.version(pretty=True), '5 (Official)')
-        self.assertEqual(ldi.version(best=True), '5')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), 'Official')
+        self.assertEqual(distroi.id(), 'mageia')
+        self.assertEqual(distroi.name(), 'Mageia')
+        self.assertEqual(distroi.name(pretty=True), 'Mageia 5 (Official)')
+        self.assertEqual(distroi.version(), '5')
+        self.assertEqual(distroi.version(pretty=True), '5 (Official)')
+        self.assertEqual(distroi.version(best=True), '5')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), 'Official')
 
     def test_opensuse42_dist_release(self):
         distro_release = os.path.join(DISTROS, 'opensuse42', 'etc',
                                       'SuSE-release')
 
-        ldi = ld.LinuxDistribution(False, 'non', distro_release)
+        distroi = distro.LinuxDistribution(False, 'non', distro_release)
 
-        self.assertEqual(ldi.id(), 'suse')
-        self.assertEqual(ldi.name(), 'openSUSE')
-        self.assertEqual(ldi.name(pretty=True), 'openSUSE 42.1 (x86_64)')
-        self.assertEqual(ldi.version(), '42.1')
-        self.assertEqual(ldi.version(pretty=True), '42.1 (x86_64)')
-        self.assertEqual(ldi.version(best=True), '42.1')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), 'x86_64')
-        self.assertEqual(ldi.major_version(), '42')
-        self.assertEqual(ldi.minor_version(), '1')
-        self.assertEqual(ldi.build_number(), '')
+        self.assertEqual(distroi.id(), 'suse')
+        self.assertEqual(distroi.name(), 'openSUSE')
+        self.assertEqual(distroi.name(pretty=True), 'openSUSE 42.1 (x86_64)')
+        self.assertEqual(distroi.version(), '42.1')
+        self.assertEqual(distroi.version(pretty=True), '42.1 (x86_64)')
+        self.assertEqual(distroi.version(best=True), '42.1')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), 'x86_64')
+        self.assertEqual(distroi.major_version(), '42')
+        self.assertEqual(distroi.minor_version(), '1')
+        self.assertEqual(distroi.build_number(), '')
 
     def test_oracle7_dist_release(self):
         distro_release = os.path.join(DISTROS, 'oracle7', 'etc',
                                       'oracle-release')
 
-        ldi = ld.LinuxDistribution(False, 'non', distro_release)
+        distroi = distro.LinuxDistribution(False, 'non', distro_release)
 
-        self.assertEqual(ldi.id(), 'oracle')
-        self.assertEqual(ldi.name(), 'Oracle Linux Server')
-        self.assertEqual(ldi.name(pretty=True), 'Oracle Linux Server 7.1')
-        self.assertEqual(ldi.version(), '7.1')
-        self.assertEqual(ldi.version(pretty=True), '7.1')
-        self.assertEqual(ldi.version(best=True), '7.1')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), '')
+        self.assertEqual(distroi.id(), 'oracle')
+        self.assertEqual(distroi.name(), 'Oracle Linux Server')
+        self.assertEqual(distroi.name(pretty=True), 'Oracle Linux Server 7.1')
+        self.assertEqual(distroi.version(), '7.1')
+        self.assertEqual(distroi.version(pretty=True), '7.1')
+        self.assertEqual(distroi.version(best=True), '7.1')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), '')
 
     def test_rhel6_dist_release(self):
         distro_release = os.path.join(DISTROS, 'rhel6', 'etc',
                                       'redhat-release')
 
-        ldi = ld.LinuxDistribution(False, 'non', distro_release)
+        distroi = distro.LinuxDistribution(False, 'non', distro_release)
 
-        self.assertEqual(ldi.id(), 'rhel')
-        self.assertEqual(ldi.name(), 'Red Hat Enterprise Linux Server')
+        self.assertEqual(distroi.id(), 'rhel')
+        self.assertEqual(distroi.name(), 'Red Hat Enterprise Linux Server')
         self.assertEqual(
-            ldi.name(pretty=True),
+            distroi.name(pretty=True),
             'Red Hat Enterprise Linux Server 6.5 (Santiago)')
-        self.assertEqual(ldi.version(), '6.5')
-        self.assertEqual(ldi.version(pretty=True), '6.5 (Santiago)')
-        self.assertEqual(ldi.version(best=True), '6.5')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), 'Santiago')
-        self.assertEqual(ldi.version_parts(), ('6', '5', ''))
+        self.assertEqual(distroi.version(), '6.5')
+        self.assertEqual(distroi.version(pretty=True), '6.5 (Santiago)')
+        self.assertEqual(distroi.version(best=True), '6.5')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), 'Santiago')
+        self.assertEqual(distroi.version_parts(), ('6', '5', ''))
 
     def test_rhel7_dist_release(self):
         distro_release = os.path.join(DISTROS, 'rhel7', 'etc',
                                       'redhat-release')
 
-        ldi = ld.LinuxDistribution(False, 'non', distro_release)
+        distroi = distro.LinuxDistribution(False, 'non', distro_release)
 
-        self.assertEqual(ldi.id(), 'rhel')
-        self.assertEqual(ldi.name(), 'Red Hat Enterprise Linux Server')
+        self.assertEqual(distroi.id(), 'rhel')
+        self.assertEqual(distroi.name(), 'Red Hat Enterprise Linux Server')
         self.assertEqual(
-            ldi.name(pretty=True),
+            distroi.name(pretty=True),
             'Red Hat Enterprise Linux Server 7.0 (Maipo)')
-        self.assertEqual(ldi.version(), '7.0')
-        self.assertEqual(ldi.version(pretty=True), '7.0 (Maipo)')
-        self.assertEqual(ldi.version(best=True), '7.0')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), 'Maipo')
-        self.assertEqual(ldi.version_parts(), ('7', '0', ''))
+        self.assertEqual(distroi.version(), '7.0')
+        self.assertEqual(distroi.version(pretty=True), '7.0 (Maipo)')
+        self.assertEqual(distroi.version(best=True), '7.0')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), 'Maipo')
+        self.assertEqual(distroi.version_parts(), ('7', '0', ''))
 
     def test_slackware14_dist_release(self):
         distro_release = os.path.join(DISTROS, 'slackware14', 'etc',
                                       'slackware-version')
 
-        ldi = ld.LinuxDistribution(False, 'non', distro_release)
+        distroi = distro.LinuxDistribution(False, 'non', distro_release)
 
-        self.assertEqual(ldi.id(), 'slackware')
-        self.assertEqual(ldi.name(), 'Slackware')
-        self.assertEqual(ldi.name(pretty=True), 'Slackware 14.1')
-        self.assertEqual(ldi.version(), '14.1')
-        self.assertEqual(ldi.version(pretty=True), '14.1')
-        self.assertEqual(ldi.version(best=True), '14.1')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), '')
+        self.assertEqual(distroi.id(), 'slackware')
+        self.assertEqual(distroi.name(), 'Slackware')
+        self.assertEqual(distroi.name(pretty=True), 'Slackware 14.1')
+        self.assertEqual(distroi.version(), '14.1')
+        self.assertEqual(distroi.version(pretty=True), '14.1')
+        self.assertEqual(distroi.version(best=True), '14.1')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), '')
 
     def test_sles12_dist_release(self):
         distro_release = os.path.join(DISTROS, 'sles12', 'etc', 'SuSE-release')
 
-        ldi = ld.LinuxDistribution(False, 'non', distro_release)
+        distroi = distro.LinuxDistribution(False, 'non', distro_release)
 
-        self.assertEqual(ldi.id(), 'suse')
-        self.assertEqual(ldi.name(), 'SUSE Linux Enterprise Server')
-        self.assertEqual(ldi.name(pretty=True),
+        self.assertEqual(distroi.id(), 'suse')
+        self.assertEqual(distroi.name(), 'SUSE Linux Enterprise Server')
+        self.assertEqual(distroi.name(pretty=True),
                          'SUSE Linux Enterprise Server 12 (s390x)')
-        self.assertEqual(ldi.version(), '12')
-        self.assertEqual(ldi.version(pretty=True), '12 (s390x)')
-        self.assertEqual(ldi.version(best=True), '12')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), 's390x')
+        self.assertEqual(distroi.version(), '12')
+        self.assertEqual(distroi.version(pretty=True), '12 (s390x)')
+        self.assertEqual(distroi.version(best=True), '12')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), 's390x')
 
 
 class TestOverall(DistroTestCase):
@@ -625,45 +625,45 @@ class TestOverall(DistroTestCase):
     def test_arch_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'arch'))
 
-        ldi = ld.LinuxDistribution()
+        distroi = distro.LinuxDistribution()
 
-        self.assertEqual(ldi.id(), 'arch')
-        self.assertEqual(ldi.name(), 'Arch Linux')
-        self.assertEqual(ldi.name(pretty=True), 'Arch Linux')
+        self.assertEqual(distroi.id(), 'arch')
+        self.assertEqual(distroi.name(), 'Arch Linux')
+        self.assertEqual(distroi.name(pretty=True), 'Arch Linux')
         # Arch Linux has a continuous release concept:
-        self.assertEqual(ldi.version(), '')
-        self.assertEqual(ldi.version(pretty=True), '')
-        self.assertEqual(ldi.version(best=True), '')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), '')
+        self.assertEqual(distroi.version(), '')
+        self.assertEqual(distroi.version(pretty=True), '')
+        self.assertEqual(distroi.version(best=True), '')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), '')
 
         # Test the info from the searched distro release file
         # Does not have one; The empty /etc/arch-release file is not
         # considered a valid distro release file:
-        self.assertEqual(ldi.distro_release_file, '')
-        self.assertEqual(len(ldi.distro_release_info()), 0)
+        self.assertEqual(distroi.distro_release_file, '')
+        self.assertEqual(len(distroi.distro_release_info()), 0)
 
     def test_centos5_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'centos5'))
 
-        ldi = ld.LinuxDistribution()
+        distroi = distro.LinuxDistribution()
 
-        self.assertEqual(ldi.id(), 'centos')
-        self.assertEqual(ldi.name(), 'CentOS')
-        self.assertEqual(ldi.name(pretty=True), 'CentOS 5.11 (Final)')
-        self.assertEqual(ldi.version(), '5.11')
-        self.assertEqual(ldi.version(pretty=True), '5.11 (Final)')
-        self.assertEqual(ldi.version(best=True), '5.11')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), 'Final')
-        self.assertEqual(ldi.major_version(), '5')
-        self.assertEqual(ldi.minor_version(), '11')
-        self.assertEqual(ldi.build_number(), '')
+        self.assertEqual(distroi.id(), 'centos')
+        self.assertEqual(distroi.name(), 'CentOS')
+        self.assertEqual(distroi.name(pretty=True), 'CentOS 5.11 (Final)')
+        self.assertEqual(distroi.version(), '5.11')
+        self.assertEqual(distroi.version(pretty=True), '5.11 (Final)')
+        self.assertEqual(distroi.version(best=True), '5.11')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), 'Final')
+        self.assertEqual(distroi.major_version(), '5')
+        self.assertEqual(distroi.minor_version(), '11')
+        self.assertEqual(distroi.build_number(), '')
 
         # Test the info from the searched distro release file
-        self.assertEqual(os.path.basename(ldi.distro_release_file),
+        self.assertEqual(os.path.basename(distroi.distro_release_file),
                          'centos-release')
-        distro_info = ldi.distro_release_info()
+        distro_info = distroi.distro_release_info()
         self.assertEqual(distro_info['id'], 'centos')
         self.assertEqual(distro_info['name'], 'CentOS')
         self.assertEqual(distro_info['version_id'], '5.11')
@@ -672,24 +672,24 @@ class TestOverall(DistroTestCase):
     def test_centos7_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'centos7'))
 
-        ldi = ld.LinuxDistribution()
+        distroi = distro.LinuxDistribution()
 
-        self.assertEqual(ldi.id(), 'centos')
-        self.assertEqual(ldi.name(), 'CentOS Linux')
-        self.assertEqual(ldi.name(pretty=True), 'CentOS Linux 7 (Core)')
-        self.assertEqual(ldi.version(), '7')
-        self.assertEqual(ldi.version(pretty=True), '7 (Core)')
-        self.assertEqual(ldi.version(best=True), '7.1.1503')
-        self.assertEqual(ldi.like(), 'rhel fedora')
-        self.assertEqual(ldi.codename(), 'Core')
-        self.assertEqual(ldi.major_version(), '7')
-        self.assertEqual(ldi.minor_version(), '')
-        self.assertEqual(ldi.build_number(), '')
+        self.assertEqual(distroi.id(), 'centos')
+        self.assertEqual(distroi.name(), 'CentOS Linux')
+        self.assertEqual(distroi.name(pretty=True), 'CentOS Linux 7 (Core)')
+        self.assertEqual(distroi.version(), '7')
+        self.assertEqual(distroi.version(pretty=True), '7 (Core)')
+        self.assertEqual(distroi.version(best=True), '7.1.1503')
+        self.assertEqual(distroi.like(), 'rhel fedora')
+        self.assertEqual(distroi.codename(), 'Core')
+        self.assertEqual(distroi.major_version(), '7')
+        self.assertEqual(distroi.minor_version(), '')
+        self.assertEqual(distroi.build_number(), '')
 
         # Test the info from the searched distro release file
-        self.assertEqual(os.path.basename(ldi.distro_release_file),
+        self.assertEqual(os.path.basename(distroi.distro_release_file),
                          'centos-release')
-        distro_info = ldi.distro_release_info()
+        distro_info = distroi.distro_release_info()
         self.assertEqual(distro_info['id'], 'centos')
         self.assertEqual(distro_info['name'], 'CentOS Linux')
         self.assertEqual(distro_info['version_id'], '7.1.1503')
@@ -698,54 +698,54 @@ class TestOverall(DistroTestCase):
     def test_debian8_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'debian8'))
 
-        ldi = ld.LinuxDistribution()
+        distroi = distro.LinuxDistribution()
 
-        self.assertEqual(ldi.id(), 'debian')
-        self.assertEqual(ldi.name(), 'Debian GNU/Linux')
-        self.assertEqual(ldi.name(pretty=True), 'Debian GNU/Linux 8 (jessie)')
-        self.assertEqual(ldi.version(), '8')
-        self.assertEqual(ldi.version(pretty=True), '8 (jessie)')
-        self.assertEqual(ldi.version(best=True), '8.2')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), 'jessie')
+        self.assertEqual(distroi.id(), 'debian')
+        self.assertEqual(distroi.name(), 'Debian GNU/Linux')
+        self.assertEqual(distroi.name(pretty=True), 'Debian GNU/Linux 8 (jessie)')
+        self.assertEqual(distroi.version(), '8')
+        self.assertEqual(distroi.version(pretty=True), '8 (jessie)')
+        self.assertEqual(distroi.version(best=True), '8.2')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), 'jessie')
 
         # Test the info from the searched distro release file
         # Does not have one:
-        self.assertEqual(ldi.distro_release_file, '')
-        self.assertEqual(len(ldi.distro_release_info()), 0)
+        self.assertEqual(distroi.distro_release_file, '')
+        self.assertEqual(len(distroi.distro_release_info()), 0)
 
     def test_exherbo_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'exherbo'))
 
-        ldi = ld.LinuxDistribution()
+        distroi = distro.LinuxDistribution()
 
-        self.assertEqual(ldi.id(), 'exherbo')
-        self.assertEqual(ldi.name(), 'Exherbo')
-        self.assertEqual(ldi.name(pretty=True), 'Exherbo Linux')
-        self.assertEqual(ldi.version(), '')
-        self.assertEqual(ldi.version(pretty=True), '')
-        self.assertEqual(ldi.version(best=True), '')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), '')
+        self.assertEqual(distroi.id(), 'exherbo')
+        self.assertEqual(distroi.name(), 'Exherbo')
+        self.assertEqual(distroi.name(pretty=True), 'Exherbo Linux')
+        self.assertEqual(distroi.version(), '')
+        self.assertEqual(distroi.version(pretty=True), '')
+        self.assertEqual(distroi.version(best=True), '')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), '')
 
     def test_fedora19_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'fedora19'))
 
-        ldi = ld.LinuxDistribution()
+        distroi = distro.LinuxDistribution()
 
-        self.assertEqual(ldi.id(), 'fedora')
-        self.assertEqual(ldi.name(), 'Fedora')
-        self.assertEqual(ldi.name(pretty=True), u'Fedora 19 (Schr\u00F6dinger\u2019s Cat)')
-        self.assertEqual(ldi.version(), '19')
-        self.assertEqual(ldi.version(pretty=True), u'19 (Schr\u00F6dinger\u2019s Cat)')
-        self.assertEqual(ldi.version(best=True), '19')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), u'Schr\u00F6dinger\u2019s Cat')
+        self.assertEqual(distroi.id(), 'fedora')
+        self.assertEqual(distroi.name(), 'Fedora')
+        self.assertEqual(distroi.name(pretty=True), u'Fedora 19 (Schr\u00F6dinger\u2019s Cat)')
+        self.assertEqual(distroi.version(), '19')
+        self.assertEqual(distroi.version(pretty=True), u'19 (Schr\u00F6dinger\u2019s Cat)')
+        self.assertEqual(distroi.version(best=True), '19')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), u'Schr\u00F6dinger\u2019s Cat')
 
         # Test the info from the searched distro release file
-        self.assertEqual(os.path.basename(ldi.distro_release_file),
+        self.assertEqual(os.path.basename(distroi.distro_release_file),
                          'fedora-release')
-        distro_info = ldi.distro_release_info()
+        distro_info = distroi.distro_release_info()
         self.assertEqual(distro_info['id'], 'fedora')
         self.assertEqual(distro_info['name'], 'Fedora')
         self.assertEqual(distro_info['version_id'], '19')
@@ -754,21 +754,21 @@ class TestOverall(DistroTestCase):
     def test_fedora23_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'fedora23'))
 
-        ldi = ld.LinuxDistribution()
+        distroi = distro.LinuxDistribution()
 
-        self.assertEqual(ldi.id(), 'fedora')
-        self.assertEqual(ldi.name(), 'Fedora')
-        self.assertEqual(ldi.name(pretty=True), 'Fedora 23 (Twenty Three)')
-        self.assertEqual(ldi.version(), '23')
-        self.assertEqual(ldi.version(pretty=True), '23 (Twenty Three)')
-        self.assertEqual(ldi.version(best=True), '23')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), 'Twenty Three')
+        self.assertEqual(distroi.id(), 'fedora')
+        self.assertEqual(distroi.name(), 'Fedora')
+        self.assertEqual(distroi.name(pretty=True), 'Fedora 23 (Twenty Three)')
+        self.assertEqual(distroi.version(), '23')
+        self.assertEqual(distroi.version(pretty=True), '23 (Twenty Three)')
+        self.assertEqual(distroi.version(best=True), '23')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), 'Twenty Three')
 
         # Test the info from the searched distro release file
-        self.assertEqual(os.path.basename(ldi.distro_release_file),
+        self.assertEqual(os.path.basename(distroi.distro_release_file),
                          'fedora-release')
-        distro_info = ldi.distro_release_info()
+        distro_info = distroi.distro_release_info()
         self.assertEqual(distro_info['id'], 'fedora')
         self.assertEqual(distro_info['name'], 'Fedora')
         self.assertEqual(distro_info['version_id'], '23')
@@ -777,21 +777,21 @@ class TestOverall(DistroTestCase):
     def test_kvmibm1_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'kvmibm1'))
 
-        ldi = ld.LinuxDistribution()
+        distroi = distro.LinuxDistribution()
 
-        self.assertEqual(ldi.id(), 'kvmibm')
-        self.assertEqual(ldi.name(), 'KVM for IBM z Systems')
-        self.assertEqual(ldi.name(pretty=True), 'KVM for IBM z Systems 1.1.1 (Z)')
-        self.assertEqual(ldi.version(), '1.1.1')
-        self.assertEqual(ldi.version(pretty=True), '1.1.1 (Z)')
-        self.assertEqual(ldi.version(best=True), '1.1.1')
-        self.assertEqual(ldi.like(), 'rhel fedora')
-        self.assertEqual(ldi.codename(), 'Z')
+        self.assertEqual(distroi.id(), 'kvmibm')
+        self.assertEqual(distroi.name(), 'KVM for IBM z Systems')
+        self.assertEqual(distroi.name(pretty=True), 'KVM for IBM z Systems 1.1.1 (Z)')
+        self.assertEqual(distroi.version(), '1.1.1')
+        self.assertEqual(distroi.version(pretty=True), '1.1.1 (Z)')
+        self.assertEqual(distroi.version(best=True), '1.1.1')
+        self.assertEqual(distroi.like(), 'rhel fedora')
+        self.assertEqual(distroi.codename(), 'Z')
 
         # Test the info from the searched distro release file
-        self.assertEqual(os.path.basename(ldi.distro_release_file),
+        self.assertEqual(os.path.basename(distroi.distro_release_file),
                          'base-release')
-        distro_info = ldi.distro_release_info()
+        distro_info = distroi.distro_release_info()
         self.assertEqual(distro_info['id'], 'base')
         self.assertEqual(distro_info['name'], 'KVM for IBM z Systems')
         self.assertEqual(distro_info['version_id'], '1.1.1')
@@ -800,44 +800,44 @@ class TestOverall(DistroTestCase):
     def test_linuxmint17_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'linuxmint17'))
 
-        ldi = ld.LinuxDistribution()
+        distroi = distro.LinuxDistribution()
 
         # Note: LinuxMint 17 actually *does* have Ubuntu 14.04 data in its
         #       os-release file. See discussion in GitHub issue #78.
 
-        self.assertEqual(ldi.id(), 'ubuntu')
-        self.assertEqual(ldi.name(), 'Ubuntu')
-        self.assertEqual(ldi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
-        self.assertEqual(ldi.version(), '14.04')
-        self.assertEqual(ldi.version(pretty=True), '14.04 (Trusty Tahr)')
-        self.assertEqual(ldi.version(best=True), '14.04.3')
-        self.assertEqual(ldi.like(), 'debian')
-        self.assertEqual(ldi.codename(), 'Trusty Tahr')
+        self.assertEqual(distroi.id(), 'ubuntu')
+        self.assertEqual(distroi.name(), 'Ubuntu')
+        self.assertEqual(distroi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
+        self.assertEqual(distroi.version(), '14.04')
+        self.assertEqual(distroi.version(pretty=True), '14.04 (Trusty Tahr)')
+        self.assertEqual(distroi.version(best=True), '14.04.3')
+        self.assertEqual(distroi.like(), 'debian')
+        self.assertEqual(distroi.codename(), 'Trusty Tahr')
 
         # Test the info from the searched distro release file
         # Does not have one:
-        self.assertEqual(ldi.distro_release_file, '')
-        self.assertEqual(len(ldi.distro_release_info()), 0)
+        self.assertEqual(distroi.distro_release_file, '')
+        self.assertEqual(len(distroi.distro_release_info()), 0)
 
     def test_mageia5_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'mageia5'))
 
-        ldi = ld.LinuxDistribution()
+        distroi = distro.LinuxDistribution()
 
-        self.assertEqual(ldi.id(), 'mageia')
-        self.assertEqual(ldi.name(), 'Mageia')
-        self.assertEqual(ldi.name(pretty=True), 'Mageia 5')
-        self.assertEqual(ldi.version(), '5')
-        self.assertEqual(ldi.version(pretty=True), '5 (thornicroft)')
-        self.assertEqual(ldi.version(best=True), '5')
-        self.assertEqual(ldi.like(), 'mandriva fedora')
+        self.assertEqual(distroi.id(), 'mageia')
+        self.assertEqual(distroi.name(), 'Mageia')
+        self.assertEqual(distroi.name(pretty=True), 'Mageia 5')
+        self.assertEqual(distroi.version(), '5')
+        self.assertEqual(distroi.version(pretty=True), '5 (thornicroft)')
+        self.assertEqual(distroi.version(best=True), '5')
+        self.assertEqual(distroi.like(), 'mandriva fedora')
         # TODO: Codename differs between distro release file and lsb_release.
-        self.assertEqual(ldi.codename(), 'thornicroft')
+        self.assertEqual(distroi.codename(), 'thornicroft')
 
         # Test the info from the searched distro release file
-        self.assertEqual(os.path.basename(ldi.distro_release_file),
+        self.assertEqual(os.path.basename(distroi.distro_release_file),
                          'mageia-release')
-        distro_info = ldi.distro_release_info()
+        distro_info = distroi.distro_release_info()
         self.assertEqual(distro_info['id'], 'mageia')
         self.assertEqual(distro_info['name'], 'Mageia')
         self.assertEqual(distro_info['version_id'], '5')
@@ -846,24 +846,24 @@ class TestOverall(DistroTestCase):
     def test_opensuse42_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'opensuse42'))
 
-        ldi = ld.LinuxDistribution()
+        distroi = distro.LinuxDistribution()
 
-        self.assertEqual(ldi.id(), 'opensuse')
-        self.assertEqual(ldi.name(), 'openSUSE Leap')
-        self.assertEqual(ldi.name(pretty=True), 'openSUSE Leap 42.1 (x86_64)')
-        self.assertEqual(ldi.version(), '42.1')
-        self.assertEqual(ldi.version(pretty=True), '42.1 (x86_64)')
-        self.assertEqual(ldi.version(best=True), '42.1')
-        self.assertEqual(ldi.like(), 'suse')
-        self.assertEqual(ldi.codename(), 'x86_64')
-        self.assertEqual(ldi.major_version(), '42')
-        self.assertEqual(ldi.minor_version(), '1')
-        self.assertEqual(ldi.build_number(), '')
+        self.assertEqual(distroi.id(), 'opensuse')
+        self.assertEqual(distroi.name(), 'openSUSE Leap')
+        self.assertEqual(distroi.name(pretty=True), 'openSUSE Leap 42.1 (x86_64)')
+        self.assertEqual(distroi.version(), '42.1')
+        self.assertEqual(distroi.version(pretty=True), '42.1 (x86_64)')
+        self.assertEqual(distroi.version(best=True), '42.1')
+        self.assertEqual(distroi.like(), 'suse')
+        self.assertEqual(distroi.codename(), 'x86_64')
+        self.assertEqual(distroi.major_version(), '42')
+        self.assertEqual(distroi.minor_version(), '1')
+        self.assertEqual(distroi.build_number(), '')
 
         # Test the info from the searched distro release file
-        self.assertEqual(os.path.basename(ldi.distro_release_file),
+        self.assertEqual(os.path.basename(distroi.distro_release_file),
                          'SuSE-release')
-        distro_info = ldi.distro_release_info()
+        distro_info = distroi.distro_release_info()
         self.assertEqual(distro_info['id'], 'SuSE')
         self.assertEqual(distro_info['name'], 'openSUSE')
         self.assertEqual(distro_info['version_id'], '42.1')
@@ -872,21 +872,21 @@ class TestOverall(DistroTestCase):
     def test_oracle7_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'oracle7'))
 
-        ldi = ld.LinuxDistribution()
+        distroi = distro.LinuxDistribution()
 
-        self.assertEqual(ldi.id(), 'oracle')
-        self.assertEqual(ldi.name(), 'Oracle Linux Server')
-        self.assertEqual(ldi.name(pretty=True), 'Oracle Linux Server 7.1')
-        self.assertEqual(ldi.version(), '7.1')
-        self.assertEqual(ldi.version(pretty=True), '7.1')
-        self.assertEqual(ldi.version(best=True), '7.1')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), '')
+        self.assertEqual(distroi.id(), 'oracle')
+        self.assertEqual(distroi.name(), 'Oracle Linux Server')
+        self.assertEqual(distroi.name(pretty=True), 'Oracle Linux Server 7.1')
+        self.assertEqual(distroi.version(), '7.1')
+        self.assertEqual(distroi.version(pretty=True), '7.1')
+        self.assertEqual(distroi.version(best=True), '7.1')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), '')
 
         # Test the info from the searched distro release file
-        self.assertEqual(os.path.basename(ldi.distro_release_file),
+        self.assertEqual(os.path.basename(distroi.distro_release_file),
                          'oracle-release')
-        distro_info = ldi.distro_release_info()
+        distro_info = distroi.distro_release_info()
         self.assertEqual(distro_info['id'], 'oracle')
         self.assertEqual(distro_info['name'], 'Oracle Linux Server')
         self.assertEqual(distro_info['version_id'], '7.1')
@@ -895,24 +895,24 @@ class TestOverall(DistroTestCase):
     def test_rhel6_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'rhel6'))
 
-        ldi = ld.LinuxDistribution()
+        distroi = distro.LinuxDistribution()
 
-        self.assertEqual(ldi.id(), 'rhel')
-        self.assertEqual(ldi.name(), 'Red Hat Enterprise Linux Server')
+        self.assertEqual(distroi.id(), 'rhel')
+        self.assertEqual(distroi.name(), 'Red Hat Enterprise Linux Server')
         self.assertEqual(
-            ldi.name(pretty=True),
+            distroi.name(pretty=True),
             'Red Hat Enterprise Linux Server 6.5 (Santiago)')
-        self.assertEqual(ldi.version(), '6.5')
-        self.assertEqual(ldi.version(pretty=True), '6.5 (Santiago)')
-        self.assertEqual(ldi.version(best=True), '6.5')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), 'Santiago')
-        self.assertEqual(ldi.version_parts(), ('6', '5', ''))
+        self.assertEqual(distroi.version(), '6.5')
+        self.assertEqual(distroi.version(pretty=True), '6.5 (Santiago)')
+        self.assertEqual(distroi.version(best=True), '6.5')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), 'Santiago')
+        self.assertEqual(distroi.version_parts(), ('6', '5', ''))
 
         # Test the info from the searched distro release file
-        self.assertEqual(os.path.basename(ldi.distro_release_file),
+        self.assertEqual(os.path.basename(distroi.distro_release_file),
                          'redhat-release')
-        distro_info = ldi.distro_release_info()
+        distro_info = distroi.distro_release_info()
         self.assertEqual(distro_info['id'], 'redhat')
         self.assertEqual(distro_info['name'],
                          'Red Hat Enterprise Linux Server')
@@ -922,24 +922,24 @@ class TestOverall(DistroTestCase):
     def test_rhel7_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'rhel7'))
 
-        ldi = ld.LinuxDistribution()
+        distroi = distro.LinuxDistribution()
 
-        self.assertEqual(ldi.id(), 'rhel')
-        self.assertEqual(ldi.name(), 'Red Hat Enterprise Linux Server')
+        self.assertEqual(distroi.id(), 'rhel')
+        self.assertEqual(distroi.name(), 'Red Hat Enterprise Linux Server')
         self.assertEqual(
-            ldi.name(pretty=True),
+            distroi.name(pretty=True),
             'Red Hat Enterprise Linux Server 7.0 (Maipo)')
-        self.assertEqual(ldi.version(), '7.0')
-        self.assertEqual(ldi.version(pretty=True), '7.0 (Maipo)')
-        self.assertEqual(ldi.version(best=True), '7.0')
-        self.assertEqual(ldi.like(), 'fedora')
-        self.assertEqual(ldi.codename(), 'Maipo')
-        self.assertEqual(ldi.version_parts(), ('7', '0', ''))
+        self.assertEqual(distroi.version(), '7.0')
+        self.assertEqual(distroi.version(pretty=True), '7.0 (Maipo)')
+        self.assertEqual(distroi.version(best=True), '7.0')
+        self.assertEqual(distroi.like(), 'fedora')
+        self.assertEqual(distroi.codename(), 'Maipo')
+        self.assertEqual(distroi.version_parts(), ('7', '0', ''))
 
         # Test the info from the searched distro release file
-        self.assertEqual(os.path.basename(ldi.distro_release_file),
+        self.assertEqual(os.path.basename(distroi.distro_release_file),
                          'redhat-release')
-        distro_info = ldi.distro_release_info()
+        distro_info = distroi.distro_release_info()
         self.assertEqual(distro_info['id'], 'redhat')
         self.assertEqual(distro_info['name'],
                          'Red Hat Enterprise Linux Server')
@@ -949,21 +949,21 @@ class TestOverall(DistroTestCase):
     def test_slackware14_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'slackware14'))
 
-        ldi = ld.LinuxDistribution()
+        distroi = distro.LinuxDistribution()
 
-        self.assertEqual(ldi.id(), 'slackware')
-        self.assertEqual(ldi.name(), 'Slackware')
-        self.assertEqual(ldi.name(pretty=True), 'Slackware 14.1')
-        self.assertEqual(ldi.version(), '14.1')
-        self.assertEqual(ldi.version(pretty=True), '14.1')
-        self.assertEqual(ldi.version(best=True), '14.1')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), '')
+        self.assertEqual(distroi.id(), 'slackware')
+        self.assertEqual(distroi.name(), 'Slackware')
+        self.assertEqual(distroi.name(pretty=True), 'Slackware 14.1')
+        self.assertEqual(distroi.version(), '14.1')
+        self.assertEqual(distroi.version(pretty=True), '14.1')
+        self.assertEqual(distroi.version(best=True), '14.1')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), '')
 
         # Test the info from the searched distro release file
-        self.assertEqual(os.path.basename(ldi.distro_release_file),
+        self.assertEqual(os.path.basename(distroi.distro_release_file),
                          'slackware-version')
-        distro_info = ldi.distro_release_info()
+        distro_info = distroi.distro_release_info()
         self.assertEqual(distro_info['id'], 'slackware')
         self.assertEqual(distro_info['name'], 'Slackware')
         self.assertEqual(distro_info['version_id'], '14.1')
@@ -972,22 +972,22 @@ class TestOverall(DistroTestCase):
     def test_sles12_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'sles12'))
 
-        ldi = ld.LinuxDistribution()
+        distroi = distro.LinuxDistribution()
 
-        self.assertEqual(ldi.id(), 'sles')
-        self.assertEqual(ldi.name(), 'SLES')
-        self.assertEqual(ldi.name(pretty=True),
+        self.assertEqual(distroi.id(), 'sles')
+        self.assertEqual(distroi.name(), 'SLES')
+        self.assertEqual(distroi.name(pretty=True),
                          'SUSE Linux Enterprise Server 12 SP1')
-        self.assertEqual(ldi.version(), '12.1')
-        self.assertEqual(ldi.version(pretty=True), '12.1 (n/a)')
-        self.assertEqual(ldi.version(best=True), '12.1')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), 'n/a')
+        self.assertEqual(distroi.version(), '12.1')
+        self.assertEqual(distroi.version(pretty=True), '12.1 (n/a)')
+        self.assertEqual(distroi.version(best=True), '12.1')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), 'n/a')
 
         # Test the info from the searched distro release file
-        self.assertEqual(os.path.basename(ldi.distro_release_file),
+        self.assertEqual(os.path.basename(distroi.distro_release_file),
                          'SuSE-release')
-        distro_info = ldi.distro_release_info()
+        distro_info = distroi.distro_release_info()
         self.assertEqual(distro_info['id'], 'SuSE')
         self.assertEqual(distro_info['name'], 'SUSE Linux Enterprise Server')
         self.assertEqual(distro_info['version_id'], '12')
@@ -996,38 +996,38 @@ class TestOverall(DistroTestCase):
     def test_ubuntu14_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'ubuntu14'))
 
-        ldi = ld.LinuxDistribution()
+        distroi = distro.LinuxDistribution()
 
-        self.assertEqual(ldi.id(), 'ubuntu')
-        self.assertEqual(ldi.name(), 'Ubuntu')
-        self.assertEqual(ldi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
-        self.assertEqual(ldi.version(), '14.04')
-        self.assertEqual(ldi.version(pretty=True), '14.04 (Trusty Tahr)')
-        self.assertEqual(ldi.version(best=True), '14.04.3')
-        self.assertEqual(ldi.like(), 'debian')
-        self.assertEqual(ldi.codename(), 'Trusty Tahr')
+        self.assertEqual(distroi.id(), 'ubuntu')
+        self.assertEqual(distroi.name(), 'Ubuntu')
+        self.assertEqual(distroi.name(pretty=True), 'Ubuntu 14.04.3 LTS')
+        self.assertEqual(distroi.version(), '14.04')
+        self.assertEqual(distroi.version(pretty=True), '14.04 (Trusty Tahr)')
+        self.assertEqual(distroi.version(best=True), '14.04.3')
+        self.assertEqual(distroi.like(), 'debian')
+        self.assertEqual(distroi.codename(), 'Trusty Tahr')
 
         # Test the info from the searched distro release file
         # Does not have one; /etc/debian_version is not considered a distro
         # release file:
-        self.assertEqual(ldi.distro_release_file, '')
-        self.assertEqual(len(ldi.distro_release_info()), 0)
+        self.assertEqual(distroi.distro_release_file, '')
+        self.assertEqual(len(distroi.distro_release_info()), 0)
 
     def test_unknowndistro_release(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'distro',
                                             'unknowndistro'))
 
-        ldi = ld.LinuxDistribution()
+        distroi = distro.LinuxDistribution()
 
-        self.assertEqual(ldi.id(), 'unknowndistro')
-        self.assertEqual(ldi.name(), 'Unknown Distro')
-        self.assertEqual(ldi.name(pretty=True),
+        self.assertEqual(distroi.id(), 'unknowndistro')
+        self.assertEqual(distroi.name(), 'Unknown Distro')
+        self.assertEqual(distroi.name(pretty=True),
                          'Unknown Distro 1.0 (Unknown Codename)')
-        self.assertEqual(ldi.version(), '1.0')
-        self.assertEqual(ldi.version(pretty=True), '1.0 (Unknown Codename)')
-        self.assertEqual(ldi.version(best=True), '1.0')
-        self.assertEqual(ldi.like(), '')
-        self.assertEqual(ldi.codename(), 'Unknown Codename')
+        self.assertEqual(distroi.version(), '1.0')
+        self.assertEqual(distroi.version(pretty=True), '1.0 (Unknown Codename)')
+        self.assertEqual(distroi.version(best=True), '1.0')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), 'Unknown Codename')
 
 
 class TestGetAttr(DistroTestCase):
@@ -1037,41 +1037,41 @@ class TestGetAttr(DistroTestCase):
 
     def test_os_release_attr(self):
         distros = os.listdir(DISTROS)
-        for distro in distros:
-            self._setup_for_distro(os.path.join(DISTROS, distro))
+        for dist in distros:
+            self._setup_for_distro(os.path.join(DISTROS, dist))
 
-            ldi = ld.LinuxDistribution()
+            distroi = distro.LinuxDistribution()
 
-            info = ldi.os_release_info()
+            info = distroi.os_release_info()
             for key in info.keys():
                 self.assertEqual(info[key],
-                                 ldi.os_release_attr(key),
-                                 "distro: %s, key: %s" % (distro, key))
+                                 distroi.os_release_attr(key),
+                                 "distro: %s, key: %s" % (dist, key))
 
     def test_lsb_release_attr(self):
         distros = os.listdir(DISTROS)
-        for distro in distros:
-            self._setup_for_distro(os.path.join(DISTROS, distro))
+        for dist in distros:
+            self._setup_for_distro(os.path.join(DISTROS, dist))
 
-            ldi = ld.LinuxDistribution()
+            distroi = distro.LinuxDistribution()
 
-            info = ldi.lsb_release_info()
+            info = distroi.lsb_release_info()
             for key in info.keys():
                 self.assertEqual(info[key],
-                                 ldi.lsb_release_attr(key),
+                                 distroi.lsb_release_attr(key),
                                  "distro: %s, key: %s" % (distro, key))
 
     def test_distro_release_attr(self):
         distros = os.listdir(DISTROS)
-        for distro in distros:
-            self._setup_for_distro(os.path.join(DISTROS, distro))
+        for dist in distros:
+            self._setup_for_distro(os.path.join(DISTROS, dist))
 
-            ldi = ld.LinuxDistribution()
+            distroi = distro.LinuxDistribution()
 
-            info = ldi.distro_release_info()
+            info = distroi.distro_release_info()
             for key in info.keys():
                 self.assertEqual(info[key],
-                                 ldi.distro_release_attr(key),
+                                 distroi.distro_release_attr(key),
                                  "distro: %s, key: %s" % (distro, key))
 
 
@@ -1083,9 +1083,9 @@ class TestInfo(testtools.TestCase):
                                              'os-release')
 
     def test_info(self):
-        ldi = ld.LinuxDistribution(False, self.rhel7_os_release, 'non')
+        distroi = distro.LinuxDistribution(False, self.rhel7_os_release, 'non')
 
-        info = ldi.info()
+        info = distroi.info()
         self.assertEqual(info['id'], 'rhel')
         self.assertEqual(info['version'], '7.0')
         self.assertEqual(info['like'], 'fedora')
@@ -1094,9 +1094,9 @@ class TestInfo(testtools.TestCase):
         self.assertEqual(info['version_parts']['build_number'], '')
 
     def test_none(self):
-        ldi = ld.LinuxDistribution(False, 'non', 'non')
+        distroi = distro.LinuxDistribution(False, 'non', 'non')
 
-        info = ldi.info()
+        info = distroi.info()
         self.assertEqual(info['id'], '')
         self.assertEqual(info['version'], '')
         self.assertEqual(info['like'], '')
@@ -1105,14 +1105,14 @@ class TestInfo(testtools.TestCase):
         self.assertEqual(info['version_parts']['build_number'], '')
 
     def test_linux_disribution(self):
-        ldi = ld.LinuxDistribution(False, self.rhel7_os_release)
-        i = ldi.linux_distribution()
+        distroi = distro.LinuxDistribution(False, self.rhel7_os_release)
+        i = distroi.linux_distribution()
         self.assertEqual(
             i, ('Red Hat Enterprise Linux Server', '7.0', 'Maipo'))
 
     def test_linux_disribution_full_false(self):
-        ldi = ld.LinuxDistribution(False, self.rhel7_os_release)
-        i = ldi.linux_distribution(full_distribution_name=False)
+        distroi = distro.LinuxDistribution(False, self.rhel7_os_release)
+        i = distroi.linux_distribution(full_distribution_name=False)
         self.assertEqual(i, ('rhel', '7.0', 'Maipo'))
 
 
@@ -1120,91 +1120,91 @@ class TestOSReleaseParsing(testtools.TestCase):
     """Test the parsing of os-release files."""
 
     def setUp(self):
-        self.ldi = ld.LinuxDistribution(False, None, None)
-        self.ldi.debug = True
+        self.distroi = distro.LinuxDistribution(False, None, None)
+        self.distroi.debug = True
         super(TestOSReleaseParsing, self).setUp()
 
     def test_kv_01_empty_file(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             '',
         ))
         self.assertEqual(len(props), 0)
 
     def test_kv_02_empty_line(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             '\n',
         ))
         self.assertEqual(len(props), 0)
 
     def test_kv_03_empty_line_with_crlf(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             '\r\n',
         ))
         self.assertEqual(len(props), 0)
 
     def test_kv_04_empty_line_with_just_cr(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             '\r',
         ))
         self.assertEqual(len(props), 0)
 
     def test_kv_05_comment(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             '# KEY=value\n'
         ))
         self.assertEqual(len(props), 0)
 
     def test_kv_06_empty_value(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY=\n'
         ))
         self.assertEqual(props.get('key', None),
             '')
 
     def test_kv_07_empty_value_single_quoted(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY=\'\'\n'
         ))
         self.assertEqual(props.get('key', None),
             '')
 
     def test_kv_08_empty_value_double_quoted(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY=""\n'
         ))
         self.assertEqual(props.get('key', None),
             '')
 
     def test_kv_09_word(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY=value\n'
         ))
         self.assertEqual(props.get('key', None),
             'value')
 
     def test_kv_10_word_no_newline(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY=value'
         ))
         self.assertEqual(props.get('key', None),
             'value')
 
     def test_kv_11_word_with_crlf(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY=value\r\n'
         ))
         self.assertEqual(props.get('key', None),
             'value')
 
     def test_kv_12_word_with_just_cr(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY=value\r'
         ))
         self.assertEqual(props.get('key', None),
             'value')
 
     def test_kv_13_word_with_multi_blanks(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY=  cmd   \n'
         ))
         self.assertEqual(props.get('key', None),
@@ -1214,56 +1214,56 @@ class TestOSReleaseParsing(testtools.TestCase):
         # in the shell).
 
     def test_kv_14_unquoted_words(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY=value cmd\n'
         ))
         self.assertEqual(props.get('key', None),
             'value')
 
     def test_kv_15_double_quoted_words(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY="a simple value" cmd\n'
         ))
         self.assertEqual(props.get('key', None),
             'a simple value')
 
     def test_kv_16_double_quoted_words_with_multi_blanks(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY=" a  simple   value "\n'
         ))
         self.assertEqual(props.get('key', None),
             ' a  simple   value ')
 
     def test_kv_17_double_quoted_word_with_single_quote(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY="it\'s value"\n'
         ))
         self.assertEqual(props.get('key', None),
             'it\'s value')
 
     def test_kv_18_double_quoted_word_with_double_quote(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY="a \\"bold\\" move"\n'
         ))
         self.assertEqual(props.get('key', None),
             'a "bold" move')
 
     def test_kv_19_single_quoted_words(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY=\'a simple value\'\n'
         ))
         self.assertEqual(props.get('key', None),
             'a simple value')
 
     def test_kv_20_single_quoted_words_with_multi_blanks(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY=\' a  simple   value \'\n'
         ))
         self.assertEqual(props.get('key', None),
             ' a  simple   value ')
 
     def test_kv_21_single_quoted_word_with_double_quote(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY=\'a "bold" move\'\n'
         ))
         self.assertEqual(props.get('key', None),
@@ -1271,7 +1271,7 @@ class TestOSReleaseParsing(testtools.TestCase):
 
     def test_kv_22_quoted_unicode_wordchar(self):
         # "wordchar" means it is in the shlex.wordchars variable.
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             u'KEY="wordchar: \u00CA (E accent grave)"\n'
         ))
         self.assertEqual(props.get('key', None),
@@ -1279,28 +1279,28 @@ class TestOSReleaseParsing(testtools.TestCase):
 
     def test_kv_23_quoted_unicode_non_wordchar(self):
         # "non-wordchar" means it is not in the shlex.wordchars variable.
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             u'KEY="non-wordchar: \u00A1 (inverted exclamation mark)"\n'
         ))
         self.assertEqual(props.get('key', None),
             u'non-wordchar: \u00A1 (inverted exclamation mark)')
 
     def test_kv_24_double_quoted_entire_single_quoted_word(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY="\'value\'"\n'
         ))
         self.assertEqual(props.get('key', None),
             "'value'")
 
     def test_kv_25_single_quoted_entire_double_quoted_word(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY=\'"value"\'\n'
         ))
         self.assertEqual(props.get('key', None),
             '"value"')
 
     def test_kv_26_double_quoted_multiline(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY="a multi\n'
             'line value"\n'
         ))
@@ -1309,7 +1309,7 @@ class TestOSReleaseParsing(testtools.TestCase):
         # TODO: Find out why the result is not 'a multi line value'
 
     def test_kv_27_double_quoted_multiline_2(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY="a multi\n'
             'line=value"\n'
         ))
@@ -1318,21 +1318,21 @@ class TestOSReleaseParsing(testtools.TestCase):
         # TODO: Find out why the result is not 'a multi line=value'
 
     def test_kv_28_double_quoted_word_with_equal(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY="var=value"\n'
         ))
         self.assertEqual(props.get('key', None),
             'var=value')
 
     def test_kv_29_single_quoted_word_with_equal(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY=\'var=value\'\n'
         ))
         self.assertEqual(props.get('key', None),
             'var=value')
 
     def test_kx_01(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             'KEY1=value1\n'
             'KEY2="value  2"\n'
         ))
@@ -1342,7 +1342,7 @@ class TestOSReleaseParsing(testtools.TestCase):
             'value  2')
 
     def test_kx_02(self):
-        props = self.ldi._parse_os_release_content(StringIO(
+        props = self.distroi._parse_os_release_content(StringIO(
             '# KEY1=value1\n'
             'KEY2="value  2"\n'
         ))
@@ -1365,81 +1365,81 @@ class TestGlobal(testtools.TestCase):
         # compare the result of the global functions with the result
         # of the methods on the global LinuxDistribution object.
 
-        self.assertEqual(ld.linux_distribution(),
-            MODULE_LDI.linux_distribution(full_distribution_name=True))
-        self.assertEqual(ld.linux_distribution(full_distribution_name=True),
-            MODULE_LDI.linux_distribution())
-        self.assertEqual(ld.linux_distribution(full_distribution_name=False),
-            MODULE_LDI.linux_distribution(full_distribution_name=False))
+        self.assertEqual(distro.linux_distribution(),
+            MODULE_DISTROI.linux_distribution(full_distribution_name=True))
+        self.assertEqual(distro.linux_distribution(full_distribution_name=True),
+            MODULE_DISTROI.linux_distribution())
+        self.assertEqual(distro.linux_distribution(full_distribution_name=False),
+            MODULE_DISTROI.linux_distribution(full_distribution_name=False))
 
-        self.assertEqual(ld.id(),
-            MODULE_LDI.id())
+        self.assertEqual(distro.id(),
+            MODULE_DISTROI.id())
 
-        self.assertEqual(ld.name(),
-            MODULE_LDI.name(pretty=False))
-        self.assertEqual(ld.name(pretty=False),
-            MODULE_LDI.name())
-        self.assertEqual(ld.name(pretty=True),
-            MODULE_LDI.name(pretty=True))
+        self.assertEqual(distro.name(),
+            MODULE_DISTROI.name(pretty=False))
+        self.assertEqual(distro.name(pretty=False),
+            MODULE_DISTROI.name())
+        self.assertEqual(distro.name(pretty=True),
+            MODULE_DISTROI.name(pretty=True))
 
-        self.assertEqual(ld.version(),
-            MODULE_LDI.version(pretty=False))
-        self.assertEqual(ld.version(pretty=False),
-            MODULE_LDI.version())
-        self.assertEqual(ld.version(pretty=True),
-            MODULE_LDI.version(pretty=True))
-        self.assertEqual(ld.version(),
-            MODULE_LDI.version(best=False))
-        self.assertEqual(ld.version(best=False),
-            MODULE_LDI.version())
-        self.assertEqual(ld.version(best=True),
-            MODULE_LDI.version(best=True))
+        self.assertEqual(distro.version(),
+            MODULE_DISTROI.version(pretty=False))
+        self.assertEqual(distro.version(pretty=False),
+            MODULE_DISTROI.version())
+        self.assertEqual(distro.version(pretty=True),
+            MODULE_DISTROI.version(pretty=True))
+        self.assertEqual(distro.version(),
+            MODULE_DISTROI.version(best=False))
+        self.assertEqual(distro.version(best=False),
+            MODULE_DISTROI.version())
+        self.assertEqual(distro.version(best=True),
+            MODULE_DISTROI.version(best=True))
 
-        self.assertEqual(ld.version_parts(),
-            MODULE_LDI.version_parts(best=False))
-        self.assertEqual(ld.version_parts(best=False),
-            MODULE_LDI.version_parts())
-        self.assertEqual(ld.version_parts(best=True),
-            MODULE_LDI.version_parts(best=True))
+        self.assertEqual(distro.version_parts(),
+            MODULE_DISTROI.version_parts(best=False))
+        self.assertEqual(distro.version_parts(best=False),
+            MODULE_DISTROI.version_parts())
+        self.assertEqual(distro.version_parts(best=True),
+            MODULE_DISTROI.version_parts(best=True))
 
-        self.assertEqual(ld.major_version(),
-            MODULE_LDI.major_version(best=False))
-        self.assertEqual(ld.major_version(best=False),
-            MODULE_LDI.major_version())
-        self.assertEqual(ld.major_version(best=True),
-            MODULE_LDI.major_version(best=True))
+        self.assertEqual(distro.major_version(),
+            MODULE_DISTROI.major_version(best=False))
+        self.assertEqual(distro.major_version(best=False),
+            MODULE_DISTROI.major_version())
+        self.assertEqual(distro.major_version(best=True),
+            MODULE_DISTROI.major_version(best=True))
 
-        self.assertEqual(ld.minor_version(),
-            MODULE_LDI.minor_version(best=False))
-        self.assertEqual(ld.minor_version(best=False),
-            MODULE_LDI.minor_version())
-        self.assertEqual(ld.minor_version(best=True),
-            MODULE_LDI.minor_version(best=True))
+        self.assertEqual(distro.minor_version(),
+            MODULE_DISTROI.minor_version(best=False))
+        self.assertEqual(distro.minor_version(best=False),
+            MODULE_DISTROI.minor_version())
+        self.assertEqual(distro.minor_version(best=True),
+            MODULE_DISTROI.minor_version(best=True))
 
-        self.assertEqual(ld.build_number(),
-            MODULE_LDI.build_number(best=False))
-        self.assertEqual(ld.build_number(best=False),
-            MODULE_LDI.build_number())
-        self.assertEqual(ld.build_number(best=True),
-            MODULE_LDI.build_number(best=True))
+        self.assertEqual(distro.build_number(),
+            MODULE_DISTROI.build_number(best=False))
+        self.assertEqual(distro.build_number(best=False),
+            MODULE_DISTROI.build_number())
+        self.assertEqual(distro.build_number(best=True),
+            MODULE_DISTROI.build_number(best=True))
 
-        self.assertEqual(ld.like(),
-            MODULE_LDI.like())
+        self.assertEqual(distro.like(),
+            MODULE_DISTROI.like())
 
-        self.assertEqual(ld.codename(),
-            MODULE_LDI.codename())
+        self.assertEqual(distro.codename(),
+            MODULE_DISTROI.codename())
 
-        self.assertEqual(ld.info(),
-            MODULE_LDI.info())
+        self.assertEqual(distro.info(),
+            MODULE_DISTROI.info())
 
-        self.assertEqual(ld.os_release_info(),
-            MODULE_LDI.os_release_info())
+        self.assertEqual(distro.os_release_info(),
+            MODULE_DISTROI.os_release_info())
 
-        self.assertEqual(ld.lsb_release_info(),
-            MODULE_LDI.lsb_release_info())
+        self.assertEqual(distro.lsb_release_info(),
+            MODULE_DISTROI.lsb_release_info())
 
-        self.assertEqual(ld.distro_release_info(),
-            MODULE_LDI.distro_release_info())
+        self.assertEqual(distro.distro_release_info(),
+            MODULE_DISTROI.distro_release_info())
 
         os_release_keys = [
             'name',
@@ -1451,8 +1451,8 @@ class TestGlobal(testtools.TestCase):
             'codename',
         ]
         for key in os_release_keys:
-            self.assertEqual(ld.os_release_attr(key),
-                MODULE_LDI.os_release_attr(key))
+            self.assertEqual(distro.os_release_attr(key),
+                MODULE_DISTROI.os_release_attr(key))
 
         lsb_release_keys = [
             'distributor_id',
@@ -1461,8 +1461,8 @@ class TestGlobal(testtools.TestCase):
             'codename',
         ]
         for key in lsb_release_keys:
-            self.assertEqual(ld.lsb_release_attr(key),
-                MODULE_LDI.lsb_release_attr(key))
+            self.assertEqual(distro.lsb_release_attr(key),
+                MODULE_DISTROI.lsb_release_attr(key))
 
         distro_release_keys = [
             'id',
@@ -1471,8 +1471,8 @@ class TestGlobal(testtools.TestCase):
             'codename',
         ]
         for key in distro_release_keys:
-            self.assertEqual(ld.distro_release_attr(key),
-                MODULE_LDI.distro_release_attr(key))
+            self.assertEqual(distro.distro_release_attr(key),
+                MODULE_DISTROI.distro_release_attr(key))
 
 
 class TestRepr(testtools.TestCase):
@@ -1481,8 +1481,8 @@ class TestRepr(testtools.TestCase):
     def test_repr(self):
         # We test that the class name and the names of all instance attributes
         # show up in the repr() string.
-        repr_str = repr(ld._ldi)
+        repr_str = repr(distro._distroi)
         self.assertIn("LinuxDistribution", repr_str)
-        for attr in MODULE_LDI.__dict__.keys():
+        for attr in MODULE_DISTROI.__dict__.keys():
             self.assertIn(attr+'=', repr_str)
 

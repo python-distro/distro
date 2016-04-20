@@ -29,16 +29,16 @@ def read(*parts):
 
 
 setup(
-    name='ld',
+    name='distro',
     version=package_version,
-    url='https://github.com/nir0s/ld',
+    url='https://github.com/nir0s/distro',
     author='Nir Cohen',
     author_email='nir36g@gmail.com',
     license='Apache License, Version 2.0',
     platforms='All',
     description='Linux Distribution - a Linux OS platform information API',
     long_description=read('README.rst'),
-    py_modules=['ld'],
+    py_modules=['distro'],
     install_requires=['six'],
     classifiers=[
         'Development Status :: 4 - Beta',

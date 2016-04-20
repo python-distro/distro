@@ -56,7 +56,7 @@ else:
     master_doc = 'docs/index'
 
 # General information about the project.
-project = u'ld'
+project = u'distro'
 copyright = u'2015,2016, Nir Cohen, Andreas Maier'
 author = u'Nir Cohen, Andreas Maier'
 
@@ -152,7 +152,7 @@ html_theme_options = {
 #html_title = None
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
-#html_short_title = 'ld'
+#html_short_title = 'distro'
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
@@ -229,7 +229,7 @@ html_extra_path = ['html_extra']
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'ld_doc'
+htmlhelp_basename = 'distro_doc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
