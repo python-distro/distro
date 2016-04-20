@@ -375,7 +375,7 @@ def codename():
     return _distroi.codename()
 
 
-def info():
+def info(pretty=False, best=False):
     """
     Return certain machine-readable information items about the current Linux
     distribution in a dictionary, as shown in the following example:
@@ -402,19 +402,29 @@ def info():
 
     * ``version``:  The result of :func:`distro.version`.
 
+<<<<<<< HEAD:distro.py
     * ``major``:  The result of :func:`distro.major_version`.
 
     * ``minor``:  The result of :func:`distro.minor_version`.
 
     * ``build_number``:  The result of :func:`distro.build_number`.
+=======
+    * ``version_parts -> major``:  The result of :func:`ld.major_version`.
+
+    * ``version_parts -> minor``:  The result of :func:`ld.minor_version`.
+
+    * ``version_parts -> build_number``:  The result of
+      :func:`ld.build_number`.
+>>>>>>> master:ld.py
 
     * ``like``:  The result of :func:`distro.like`.
 
     * ``codename``:  The result of :func:`distro.codename`.
 
-    .. todo:: See [#todo3]_ on using the first or best version for this dict.
+    For a description of the *pretty* and *best* parameters, see the
+    :func:`ld.version` method.
     """
-    return _distroi.info()
+    return _distroi.info(pretty, best)
 
 
 def os_release_info():
@@ -594,16 +604,16 @@ class LinuxDistribution(object):
     def __repr__(self):
         return \
             "LinuxDistribution(" \
-            "os_release_file=%r, " \
-            "distro_release_file=%r, " \
-            "_os_release_info=%r, " \
-            "_lsb_release_info=%r, " \
-            "_distro_release_info=%r)" % \
-            (self.os_release_file,
-             self.distro_release_file,
-             self._os_release_info,
-             self._lsb_release_info,
-             self._distro_release_info)
+            "os_release_file={0!r}, " \
+            "distro_release_file={1!r}, " \
+            "_os_release_info={2!r}, " \
+            "_lsb_release_info={3!r}, " \
+            "_distro_release_info={4!r})".format(
+                self.os_release_file,
+                self.distro_release_file,
+                self._os_release_info,
+                self._lsb_release_info,
+                self._distro_release_info)
 
     def linux_distribution(self, full_distribution_name=True):
         """
@@ -716,7 +726,7 @@ class LinuxDistribution(object):
 
         For details, see :func:`distro.major_version`.
         """
-        return self.version_parts(best=best)[0]
+        return self.version_parts(best)[0]
 
     def minor_version(self, best=False):
         """
@@ -724,7 +734,7 @@ class LinuxDistribution(object):
 
         For details, see :func:`distro.minor_version`.
         """
-        return self.version_parts(best=best)[1]
+        return self.version_parts(best)[1]
 
     def build_number(self, best=False):
         """
@@ -732,7 +742,7 @@ class LinuxDistribution(object):
 
         For details, see :func:`distro.build_number`.
         """
-        return self.version_parts(best=best)[2]
+        return self.version_parts(best)[2]
 
     def like(self):
         """
@@ -753,7 +763,7 @@ class LinuxDistribution(object):
             or self.distro_release_attr('codename') \
             or ''
 
-    def info(self):
+    def info(self, pretty=False, best=False):
         """
         Return certain machine-readable information about the Linux
         distribution.
@@ -762,13 +772,14 @@ class LinuxDistribution(object):
         """
         return dict(
             id=self.id(),
-            version=self.version(),
+            version=self.version(pretty, best),
             version_parts=dict(
-                major=self.major_version(),
-                minor=self.minor_version(),
-                build_number=self.build_number()
+                major=self.major_version(best),
+                minor=self.minor_version(best),
+                build_number=self.build_number(best)
             ),
             like=self.like(),
+            codename=self.codename(),
         )
 
     def os_release_info(self):

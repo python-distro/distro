@@ -463,10 +463,6 @@ If you want to participate, please comment on the referenced issues.
    and distro release file, vs. dropping them.
    Please comment on `issue #95 <https://github.com/nir0s/distro/issues/95>`_.
 
-.. [#todo3] Review whether :func:`distro.info` should use the first version or the
-   best version for its version related entries.
-   Please comment on `issue #94 <https://github.com/nir0s/distro/issues/94>`_.
-
 .. [#todo5] Provide input on distros with a reliable ID that do not yet have
    testcases:
 
