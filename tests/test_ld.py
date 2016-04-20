@@ -1046,7 +1046,7 @@ class TestGetAttr(DistroTestCase):
             for key in info.keys():
                 self.assertEqual(info[key],
                                  ldi.os_release_attr(key),
-                                 "distro: %s, key: %s" % (distro, key))
+                                 "distro: {0}, key: {1}".format(distro, key))
 
     def test_lsb_release_attr(self):
         distros = os.listdir(DISTROS)
@@ -1059,7 +1059,7 @@ class TestGetAttr(DistroTestCase):
             for key in info.keys():
                 self.assertEqual(info[key],
                                  ldi.lsb_release_attr(key),
-                                 "distro: %s, key: %s" % (distro, key))
+                                 "distro: {0}, key: {1}".format(distro, key))
 
     def test_distro_release_attr(self):
         distros = os.listdir(DISTROS)
@@ -1072,10 +1072,10 @@ class TestGetAttr(DistroTestCase):
             for key in info.keys():
                 self.assertEqual(info[key],
                                  ldi.distro_release_attr(key),
-                                 "distro: %s, key: %s" % (distro, key))
+                                 "distro: {0}, key: {1}".format(distro, key))
 
 
-class TestInfo(testtools.TestCase):
+class TestInfo(DistroTestCase):
 
     def setUp(self):
         super(TestInfo, self).setUp()
@@ -1092,6 +1092,34 @@ class TestInfo(testtools.TestCase):
         self.assertEqual(info['version_parts']['major'], '7')
         self.assertEqual(info['version_parts']['minor'], '0')
         self.assertEqual(info['version_parts']['build_number'], '')
+        self.assertEqual(info['codename'], 'Maipo')
+
+        info = ldi.info(best=True)
+        self.assertEqual(info['id'], 'rhel')
+        self.assertEqual(info['version'], '7.0')
+        self.assertEqual(info['like'], 'fedora')
+        self.assertEqual(info['version_parts']['major'], '7')
+        self.assertEqual(info['version_parts']['minor'], '0')
+        self.assertEqual(info['version_parts']['build_number'], '')
+        self.assertEqual(info['codename'], 'Maipo')
+
+        info = ldi.info(pretty=True)
+        self.assertEqual(info['id'], 'rhel')
+        self.assertEqual(info['version'], '7.0 (Maipo)')
+        self.assertEqual(info['like'], 'fedora')
+        self.assertEqual(info['version_parts']['major'], '7')
+        self.assertEqual(info['version_parts']['minor'], '0')
+        self.assertEqual(info['version_parts']['build_number'], '')
+        self.assertEqual(info['codename'], 'Maipo')
+
+        info = ldi.info(pretty=True, best=True)
+        self.assertEqual(info['id'], 'rhel')
+        self.assertEqual(info['version'], '7.0 (Maipo)')
+        self.assertEqual(info['like'], 'fedora')
+        self.assertEqual(info['version_parts']['major'], '7')
+        self.assertEqual(info['version_parts']['minor'], '0')
+        self.assertEqual(info['version_parts']['build_number'], '')
+        self.assertEqual(info['codename'], 'Maipo')
 
     def test_none(self):
         ldi = ld.LinuxDistribution(False, 'non', 'non')
@@ -1103,6 +1131,34 @@ class TestInfo(testtools.TestCase):
         self.assertEqual(info['version_parts']['major'], '')
         self.assertEqual(info['version_parts']['minor'], '')
         self.assertEqual(info['version_parts']['build_number'], '')
+        self.assertEqual(info['codename'], '')
+
+        info = ldi.info(best=True)
+        self.assertEqual(info['id'], '')
+        self.assertEqual(info['version'], '')
+        self.assertEqual(info['like'], '')
+        self.assertEqual(info['version_parts']['major'], '')
+        self.assertEqual(info['version_parts']['minor'], '')
+        self.assertEqual(info['version_parts']['build_number'], '')
+        self.assertEqual(info['codename'], '')
+
+        info = ldi.info(pretty=True)
+        self.assertEqual(info['id'], '')
+        self.assertEqual(info['version'], '')
+        self.assertEqual(info['like'], '')
+        self.assertEqual(info['version_parts']['major'], '')
+        self.assertEqual(info['version_parts']['minor'], '')
+        self.assertEqual(info['version_parts']['build_number'], '')
+        self.assertEqual(info['codename'], '')
+
+        info = ldi.info(pretty=True, best=True)
+        self.assertEqual(info['id'], '')
+        self.assertEqual(info['version'], '')
+        self.assertEqual(info['like'], '')
+        self.assertEqual(info['version_parts']['major'], '')
+        self.assertEqual(info['version_parts']['minor'], '')
+        self.assertEqual(info['version_parts']['build_number'], '')
+        self.assertEqual(info['codename'], '')
 
     def test_linux_disribution(self):
         ldi = ld.LinuxDistribution(False, self.rhel7_os_release)
@@ -1114,6 +1170,127 @@ class TestInfo(testtools.TestCase):
         ldi = ld.LinuxDistribution(False, self.rhel7_os_release)
         i = ldi.linux_distribution(full_distribution_name=False)
         self.assertEqual(i, ('rhel', '7.0', 'Maipo'))
+
+    def test_all(self):
+        """Test info() by comparing its results with the results of specific
+        consolidated accessor functions."""
+        distros = os.listdir(DISTROS)
+        for distro in distros:
+            self._setup_for_distro(os.path.join(DISTROS, distro))
+
+            ldi = ld.LinuxDistribution()
+
+            info = ldi.info()
+
+            self.assertEqual(info['id'],
+                             ldi.id(),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['version'],
+                             ldi.version(),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['version_parts']['major'],
+                             ldi.major_version(),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['version_parts']['minor'],
+                             ldi.minor_version(),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['version_parts']['build_number'],
+                             ldi.build_number(),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['like'],
+                             ldi.like(),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['codename'],
+                             ldi.codename(),
+                             "distro: {0}".format(distro))
+            self.assertEqual(len(info['version_parts']), 3,
+                             "distro: {0}".format(distro))
+            self.assertEqual(len(info), 5,
+                             "distro: {0}".format(distro))
+
+            info = ldi.info(best=True)
+
+            self.assertEqual(info['id'],
+                             ldi.id(),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['version'],
+                             ldi.version(best=True),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['version_parts']['major'],
+                             ldi.major_version(best=True),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['version_parts']['minor'],
+                             ldi.minor_version(best=True),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['version_parts']['build_number'],
+                             ldi.build_number(best=True),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['like'],
+                             ldi.like(),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['codename'],
+                             ldi.codename(),
+                             "distro: {0}".format(distro))
+            self.assertEqual(len(info['version_parts']), 3,
+                             "distro: {0}".format(distro))
+            self.assertEqual(len(info), 5,
+                             "distro: {0}".format(distro))
+
+            info = ldi.info(pretty=True)
+
+            self.assertEqual(info['id'],
+                             ldi.id(),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['version'],
+                             ldi.version(pretty=True),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['version_parts']['major'],
+                             ldi.major_version(),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['version_parts']['minor'],
+                             ldi.minor_version(),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['version_parts']['build_number'],
+                             ldi.build_number(),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['like'],
+                             ldi.like(),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['codename'],
+                             ldi.codename(),
+                             "distro: {0}".format(distro))
+            self.assertEqual(len(info['version_parts']), 3,
+                             "distro: {0}".format(distro))
+            self.assertEqual(len(info), 5,
+                             "distro: {0}".format(distro))
+
+            info = ldi.info(pretty=True, best=True)
+
+            self.assertEqual(info['id'],
+                             ldi.id(),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['version'],
+                             ldi.version(pretty=True, best=True),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['version_parts']['major'],
+                             ldi.major_version(best=True),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['version_parts']['minor'],
+                             ldi.minor_version(best=True),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['version_parts']['build_number'],
+                             ldi.build_number(best=True),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['like'],
+                             ldi.like(),
+                             "distro: {0}".format(distro))
+            self.assertEqual(info['codename'],
+                             ldi.codename(),
+                             "distro: {0}".format(distro))
+            self.assertEqual(len(info['version_parts']), 3,
+                             "distro: {0}".format(distro))
+            self.assertEqual(len(info), 5,
+                             "distro: {0}".format(distro))
 
 
 class TestOSReleaseParsing(testtools.TestCase):
@@ -1430,7 +1607,17 @@ class TestGlobal(testtools.TestCase):
             MODULE_LDI.codename())
 
         self.assertEqual(ld.info(),
+            MODULE_LDI.info(best=False))
+        self.assertEqual(ld.info(best=False),
             MODULE_LDI.info())
+        self.assertEqual(ld.info(best=True),
+            MODULE_LDI.info(best=True))
+        self.assertEqual(ld.info(),
+            MODULE_LDI.info(pretty=False))
+        self.assertEqual(ld.info(pretty=False),
+            MODULE_LDI.info())
+        self.assertEqual(ld.info(pretty=True),
+            MODULE_LDI.info(pretty=True))
 
         self.assertEqual(ld.os_release_info(),
             MODULE_LDI.os_release_info())
