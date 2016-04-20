@@ -7,6 +7,7 @@ matrix:
     - python: 3.5
       env:
       - TOX_ENV=py35
+      - TOX_ENV=py34
 env:
     - TOX_ENV=flake8
     - TOX_ENV=py27
