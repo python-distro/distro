@@ -375,7 +375,7 @@ def codename():
     return _ldi.codename()
 
 
-def info(best=False):
+def info(pretty=False, best=False):
     """
     Return certain machine-readable information items about the current Linux
     distribution in a dictionary, as shown in the following example:
@@ -413,10 +413,10 @@ def info(best=False):
 
     * ``codename``:  The result of :func:`ld.codename`.
 
-    For a description of the *best* parameter, see the :func:`ld.version`
-    method.
+    For a description of the *pretty* and *best* parameters, see the
+    :func:`ld.version` method.
     """
-    return _ldi.info(best)
+    return _ldi.info(pretty, best)
 
 
 def os_release_info():
@@ -596,16 +596,16 @@ class LinuxDistribution(object):
     def __repr__(self):
         return \
             "LinuxDistribution(" \
-            "os_release_file=%r, " \
-            "distro_release_file=%r, " \
-            "_os_release_info=%r, " \
-            "_lsb_release_info=%r, " \
-            "_distro_release_info=%r)" % \
-            (self.os_release_file,
-             self.distro_release_file,
-             self._os_release_info,
-             self._lsb_release_info,
-             self._distro_release_info)
+            "os_release_file={!r}, " \
+            "distro_release_file={!r}, " \
+            "_os_release_info={!r}, " \
+            "_lsb_release_info={!r}, " \
+            "_distro_release_info={!r})".format(
+                self.os_release_file,
+                self.distro_release_file,
+                self._os_release_info,
+                self._lsb_release_info,
+                self._distro_release_info)
 
     def linux_distribution(self, full_distribution_name=True):
         """
@@ -755,7 +755,7 @@ class LinuxDistribution(object):
             or self.distro_release_attr('codename') \
             or ''
 
-    def info(self, best=False):
+    def info(self, pretty=False, best=False):
         """
         Return certain machine-readable information about the Linux
         distribution.
@@ -764,7 +764,7 @@ class LinuxDistribution(object):
         """
         return dict(
             id=self.id(),
-            version=self.version(best=best),
+            version=self.version(pretty, best),
             version_parts=dict(
                 major=self.major_version(best),
                 minor=self.minor_version(best),
