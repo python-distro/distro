@@ -272,8 +272,6 @@ def version(pretty=False, best=False):
     * the version number parsed from the "Description" attribute returned by
       the lsb_release command, if it follows the format of the distro release
       files.
-
-    .. todo:: See [#todo2]_ on using the last two sources in the list above.
     """
     return _ldi.version(pretty, best)
 
