@@ -2,8 +2,8 @@
 .. _distro issue tracker: https://github.com/nir0s/distro/issues
 
 
-**distro** package (Linux Distribution) version |version|)
-******************************************************
+**distro** package (Linux Distribution) version |version|
+*****************************************************
 
 
 Overview and motivation
@@ -457,11 +457,6 @@ Review topics
 
 These topics would benefit from review by the user community.
 If you want to participate, please comment on the referenced issues.
-
-.. [#todo2] Review whether :func:`distro.version` should continue to utilize the
-   version information from the name/description fields of the os-release file
-   and distro release file, vs. dropping them.
-   Please comment on `issue #95 <https://github.com/nir0s/distro/issues/95>`_.
 
 .. [#todo5] Provide input on distros with a reliable ID that do not yet have
    testcases:
