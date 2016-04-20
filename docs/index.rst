@@ -75,7 +75,7 @@ distribution:
   sources, or for retrieving information items that are not provided by the
   consolidated accessor functions.
 
-  Examples: :func:`ld.get_os_release_attr` for retrieving a single information
+  Examples: :func:`ld.os_release_attr` for retrieving a single information
   item from the os-release data source, or :func:`ld.lsb_release_info` for
   retrieving all information items from the lsb_release command output data
   source.
@@ -126,9 +126,9 @@ accessor functions.
 .. autofunction:: ld.os_release_info
 .. autofunction:: ld.lsb_release_info
 .. autofunction:: ld.distro_release_info
-.. autofunction:: ld.get_os_release_attr
-.. autofunction:: ld.get_lsb_release_attr
-.. autofunction:: ld.get_distro_release_attr
+.. autofunction:: ld.os_release_attr
+.. autofunction:: ld.lsb_release_attr
+.. autofunction:: ld.distro_release_attr
 
 LinuxDistribution class
 =======================
@@ -172,7 +172,7 @@ like a shell script.
 The attribute names found in the file are translated to lower case and then
 become the keys of the information items from the os-release file data source.
 These keys can be used to retrieve single items with the
-:func:`ld.get_os_release_attr` function, and they are also used as keys in the
+:func:`ld.os_release_attr` function, and they are also used as keys in the
 dictionary returned by :func:`ld.os_release_info`.
 
 The attribute values found in the file are processed using shell rules (e.g.

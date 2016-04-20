@@ -1032,7 +1032,7 @@ class TestOverall(DistroTestCase):
 
 class TestGetAttr(DistroTestCase):
     """Test the consistency between the results of
-    `get_{source}_release_attr()` and `{source}_release_info()` for all
+    `{source}_release_attr()` and `{source}_release_info()` for all
     distros in `DISTROS`."""
 
     def test_os_release_attr(self):
@@ -1045,7 +1045,7 @@ class TestGetAttr(DistroTestCase):
             info = ldi.os_release_info()
             for key in info.keys():
                 self.assertEqual(info[key],
-                                 ldi.get_os_release_attr(key),
+                                 ldi.os_release_attr(key),
                                  "distro: %s, key: %s" % (distro, key))
 
     def test_lsb_release_attr(self):
@@ -1058,7 +1058,7 @@ class TestGetAttr(DistroTestCase):
             info = ldi.lsb_release_info()
             for key in info.keys():
                 self.assertEqual(info[key],
-                                 ldi.get_lsb_release_attr(key),
+                                 ldi.lsb_release_attr(key),
                                  "distro: %s, key: %s" % (distro, key))
 
     def test_distro_release_attr(self):
@@ -1071,7 +1071,7 @@ class TestGetAttr(DistroTestCase):
             info = ldi.distro_release_info()
             for key in info.keys():
                 self.assertEqual(info[key],
-                                 ldi.get_distro_release_attr(key),
+                                 ldi.distro_release_attr(key),
                                  "distro: %s, key: %s" % (distro, key))
 
 
@@ -1451,8 +1451,8 @@ class TestGlobal(testtools.TestCase):
             'codename',
         ]
         for key in os_release_keys:
-            self.assertEqual(ld.get_os_release_attr(key),
-                MODULE_LDI.get_os_release_attr(key))
+            self.assertEqual(ld.os_release_attr(key),
+                MODULE_LDI.os_release_attr(key))
 
         lsb_release_keys = [
             'distributor_id',
@@ -1461,8 +1461,8 @@ class TestGlobal(testtools.TestCase):
             'codename',
         ]
         for key in lsb_release_keys:
-            self.assertEqual(ld.get_lsb_release_attr(key),
-                MODULE_LDI.get_lsb_release_attr(key))
+            self.assertEqual(ld.lsb_release_attr(key),
+                MODULE_LDI.lsb_release_attr(key))
 
         distro_release_keys = [
             'id',
@@ -1471,8 +1471,8 @@ class TestGlobal(testtools.TestCase):
             'codename',
         ]
         for key in distro_release_keys:
-            self.assertEqual(ld.get_distro_release_attr(key),
-                MODULE_LDI.get_distro_release_attr(key))
+            self.assertEqual(ld.distro_release_attr(key),
+                MODULE_LDI.distro_release_attr(key))
 
 
 class TestRepr(testtools.TestCase):
