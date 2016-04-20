@@ -467,11 +467,6 @@ If you want to participate, please comment on the referenced issues.
    best version for its version related entries.
    Please comment on `issue #94 <https://github.com/nir0s/ld/issues/94>`_.
 
-.. [#todo4] Provide your view as to whether something should be done about
-   non-codename strings in codename fields (e.g. "x86_64" in the codename field
-   for openSUSE), vs. just using it unchanged as the current code does.
-   Please comment on `issue #62 <https://github.com/nir0s/ld/issues/62>`_.
-
 .. [#todo5] Provide input on distros with a reliable ID that do not yet have
    testcases:
 
