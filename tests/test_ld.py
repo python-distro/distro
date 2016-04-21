@@ -122,6 +122,20 @@ class TestOSRelease(testtools.TestCase):
         self.assertEqual(distroi.like(), 'debian')
         self.assertEqual(distroi.codename(), 'jessie')
 
+    def test_raspbian7_os_release(self):
+        os_release = os.path.join(DISTROS, 'raspbian7', 'etc', 'os-release')
+
+        distroi = distro.LinuxDistribution(False, os_release, 'non')
+
+        self.assertEqual(distroi.id(), 'raspbian')
+        self.assertEqual(distroi.name(), 'Raspbian GNU/Linux')
+        self.assertEqual(distroi.name(pretty=True), 'Raspbian GNU/Linux 7 (wheezy)')
+        self.assertEqual(distroi.version(), '7')
+        self.assertEqual(distroi.version(pretty=True), '7 (wheezy)')
+        self.assertEqual(distroi.version(best=True), '7')
+        self.assertEqual(distroi.like(), 'debian')
+        self.assertEqual(distroi.codename(), 'wheezy')
+
     def test_fedora19_os_release(self):
         os_release = os.path.join(DISTROS, 'fedora19', 'etc', 'os-release')
 
@@ -741,6 +755,25 @@ class TestOverall(DistroTestCase):
         self.assertEqual(distroi.version(best=True), '8')
         self.assertEqual(distroi.like(), 'debian')
         self.assertEqual(distroi.codename(), 'jessie')
+
+        # Test the info from the searched distro release file
+        # Does not have one:
+        self.assertEqual(distroi.distro_release_file, '')
+        self.assertEqual(len(distroi.distro_release_info()), 0)
+
+    def test_raspbian7_release(self):
+        self._setup_for_distro(os.path.join(DISTROS, 'raspbian7'))
+
+        distroi = distro.LinuxDistribution()
+
+        self.assertEqual(distroi.id(), 'raspbian')
+        self.assertEqual(distroi.name(), 'Raspbian GNU/Linux')
+        self.assertEqual(distroi.name(pretty=True), 'Raspbian GNU/Linux 7 (wheezy)')
+        self.assertEqual(distroi.version(), '7')
+        self.assertEqual(distroi.version(pretty=True), '7 (wheezy)')
+        self.assertEqual(distroi.version(best=True), '7')
+        self.assertEqual(distroi.like(), 'debian')
+        self.assertEqual(distroi.codename(), 'wheezy')
 
         # Test the info from the searched distro release file
         # Does not have one:
