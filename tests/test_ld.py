@@ -108,6 +108,20 @@ class TestOSRelease(testtools.TestCase):
         self.assertEqual(distroi.like(), '')
         self.assertEqual(distroi.codename(), 'jessie')
 
+    def test_raspbian8_os_release(self):
+        os_release = os.path.join(DISTROS, 'raspbian8', 'etc', 'os-release')
+
+        distroi = distro.LinuxDistribution(False, os_release, 'non')
+
+        self.assertEqual(distroi.id(), 'raspbian')
+        self.assertEqual(distroi.name(), 'Raspbian GNU/Linux')
+        self.assertEqual(distroi.name(pretty=True), 'Raspbian GNU/Linux 8 (jessie)')
+        self.assertEqual(distroi.version(), '8')
+        self.assertEqual(distroi.version(pretty=True), '8 (jessie)')
+        self.assertEqual(distroi.version(best=True), '8')
+        self.assertEqual(distroi.like(), 'debian')
+        self.assertEqual(distroi.codename(), 'jessie')
+
     def test_fedora19_os_release(self):
         os_release = os.path.join(DISTROS, 'fedora19', 'etc', 'os-release')
 
@@ -707,6 +721,25 @@ class TestOverall(DistroTestCase):
         self.assertEqual(distroi.version(pretty=True), '8 (jessie)')
         self.assertEqual(distroi.version(best=True), '8.2')
         self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), 'jessie')
+
+        # Test the info from the searched distro release file
+        # Does not have one:
+        self.assertEqual(distroi.distro_release_file, '')
+        self.assertEqual(len(distroi.distro_release_info()), 0)
+
+    def test_raspbian8_release(self):
+        self._setup_for_distro(os.path.join(DISTROS, 'raspbian8'))
+
+        distroi = distro.LinuxDistribution()
+
+        self.assertEqual(distroi.id(), 'raspbian')
+        self.assertEqual(distroi.name(), 'Raspbian GNU/Linux')
+        self.assertEqual(distroi.name(pretty=True), 'Raspbian GNU/Linux 8 (jessie)')
+        self.assertEqual(distroi.version(), '8')
+        self.assertEqual(distroi.version(pretty=True), '8 (jessie)')
+        self.assertEqual(distroi.version(best=True), '8')
+        self.assertEqual(distroi.like(), 'debian')
         self.assertEqual(distroi.codename(), 'jessie')
 
         # Test the info from the searched distro release file
