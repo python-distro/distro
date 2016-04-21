@@ -80,7 +80,7 @@ _DISTRO_RELEASE_CONTENT_REVERSED_PATTERN = re.compile(
 
 # Pattern for base file name of distro release file
 _DISTRO_RELEASE_BASENAME_PATTERN = re.compile(
-    r'(\w+)[-_](release|version)')
+    r'(\w+)[-_](release|version)$')
 
 # Base file names to be ignored when searching for distro release file
 _DISTRO_RELEASE_IGNORE_BASENAMES = [
