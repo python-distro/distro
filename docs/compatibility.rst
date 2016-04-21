@@ -10,6 +10,7 @@ Linux distributions:
 * Arch Linux
 * CentOS 5/7
 * Debian 8
+* Raspbian 7/8
 * Exherbo
 * Fedora 19/23
 * KVM for IBM z Systems 1
