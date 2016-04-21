@@ -1,4 +1,4 @@
 Distro - a Linux OS platform information API
-========================================================
+============================================
 
-See `Official Github Repo <https://github.com/nir0s/distro>`_.
+See `Official GitHub repo <https://github.com/nir0s/distro#distro---a-linux-os-platform-information-api>`_.
