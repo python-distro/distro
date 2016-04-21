@@ -18,7 +18,7 @@ import codecs
 
 # The following version is parsed by other parts of this package.
 # Don't change the format of the line, or the variable name.
-package_version = "0.5.0"
+package_version = "0.6.0"
 
 here = os.path.abspath(os.path.dirname(__file__))
 
