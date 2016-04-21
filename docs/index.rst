@@ -1,9 +1,10 @@
 
 .. _distro issue tracker: https://github.com/nir0s/distro/issues
+.. _open issues on missing test data: https://github.com/nir0s/distro/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22>
 
 
 **distro** package (Linux Distribution) version |version|
-*****************************************************
+*********************************************************
 
 
 Overview and motivation
@@ -18,7 +19,25 @@ If you want to jump into the API description right away, read about the
 Compatibility
 =============
 
-.. include:: compatibility.rst
+The ``distro`` package is supported on Python 2.6, 2.7, 3.4 and 3.5, and on
+any Linux distribution that provides one or more of the `data sources`_
+used by this package.
+
+This package is tested on Python 2.6, 2.7, 3.4 and 3.5, with test data that
+mimics the exact behavior of the data sources of
+`a number of Linux distributions <https://github.com/nir0s/distro/tree/master/tests/resources/distros>`_.
+
+If you want to add test data for more distributions, please
+create an issue in the `distro issue tracker`_
+and provide the following information in the issue:
+
+* The content of the `/etc/os-release` file, if any.
+* The file names and content of the `/etc/*release` and `/etc/*version` files, if any.
+* The output of the command: `lsb_release -a`, if available.
+* The file names and content of any other files you are aware of that provide
+  useful information about the distro.
+
+There are already some `open issues on missing test data`_.
 
 
 Data sources
@@ -452,25 +471,3 @@ The following information items can be found in a distro release file
     codename                         "x86_64"
     ===============================  ==========================================
 
-Review topics
-=============
-
-These topics would benefit from review by the user community.
-If you want to participate, please comment on the referenced issues.
-
-.. [#todo5] Provide input on distros with a reliable ID that do not yet have
-   testcases:
-
-   * The content of the ``/etc/os-release`` file, if any.
-
-   * The file names and content of the ``/etc/*release`` and ``/etc/*version``
-     files, if any.
-
-   * The output of the command: ``lsb_release -a``, if available.
-
-   There are already some `open issues on missing testcases
-   <https://github.com/nir0s/distro/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22>`_.
-
-.. [#todo99] In addition, there are usually `open issues that need help
-   <https://github.com/nir0s/distro/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22>`_.
-   If you want to help, please check them out.
