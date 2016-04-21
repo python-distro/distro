@@ -400,27 +400,19 @@ def info(pretty=False, best=False):
 
     * ``version``:  The result of :func:`distro.version`.
 
-<<<<<<< HEAD:distro.py
-    * ``major``:  The result of :func:`distro.major_version`.
+    * ``version_parts -> major``:  The result of :func:`distro.major_version`.
 
-    * ``minor``:  The result of :func:`distro.minor_version`.
-
-    * ``build_number``:  The result of :func:`distro.build_number`.
-=======
-    * ``version_parts -> major``:  The result of :func:`ld.major_version`.
-
-    * ``version_parts -> minor``:  The result of :func:`ld.minor_version`.
+    * ``version_parts -> minor``:  The result of :func:`distro.minor_version`.
 
     * ``version_parts -> build_number``:  The result of
-      :func:`ld.build_number`.
->>>>>>> master:ld.py
+      :func:`distro.build_number`.
 
     * ``like``:  The result of :func:`distro.like`.
 
     * ``codename``:  The result of :func:`distro.codename`.
 
     For a description of the *pretty* and *best* parameters, see the
-    :func:`ld.version` method.
+    :func:`distro.version` method.
     """
     return _distroi.info(pretty, best)
 
@@ -785,7 +777,7 @@ class LinuxDistribution(object):
         Return a dictionary containing key-value pairs for the information
         items from the os-release file data source of the Linux distribution.
 
-        For details, see :func:`ld.os_release_info`.
+        For details, see :func:`distro.os_release_info`.
         """
         return self._os_release_info
 
@@ -795,7 +787,7 @@ class LinuxDistribution(object):
         items from the lsb_release command data source of the Linux
         distribution.
 
-        For details, see :func:`ld.lsb_release_info`.
+        For details, see :func:`distro.lsb_release_info`.
         """
         return self._lsb_release_info
 
@@ -805,7 +797,7 @@ class LinuxDistribution(object):
         items from the distro release file data source of the Linux
         distribution.
 
-        For details, see :func:`ld.distro_release_info`.
+        For details, see :func:`distro.distro_release_info`.
         """
         return self._distro_release_info
 
