@@ -94,6 +94,20 @@ class TestOSRelease(testtools.TestCase):
         self.assertEqual(distroi.like(), 'rhel fedora')
         self.assertEqual(distroi.codename(), 'Core')
 
+    def test_coreos_os_release(self):
+        os_release = os.path.join(DISTROS, 'coreos', 'etc', 'os-release')
+
+        distroi = distro.LinuxDistribution(False, os_release, 'non')
+
+        self.assertEqual(distroi.id(), 'coreos')
+        self.assertEqual(distroi.name(), 'CoreOS')
+        self.assertEqual(distroi.name(pretty=True), 'CoreOS 899.15.0')
+        self.assertEqual(distroi.version(), '899.15.0')
+        self.assertEqual(distroi.version(pretty=True), '899.15.0')
+        self.assertEqual(distroi.version(best=True), '899.15.0')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), '')
+
     def test_debian8_os_release(self):
         os_release = os.path.join(DISTROS, 'debian8', 'etc', 'os-release')
 
@@ -696,6 +710,29 @@ class TestOverall(DistroTestCase):
         self.assertEqual(distro_info['name'], 'CentOS')
         self.assertEqual(distro_info['version_id'], '5.11')
         self.assertEqual(distro_info['codename'], 'Final')
+
+    def test_coreos_release(self):
+        self._setup_for_distro(os.path.join(DISTROS, 'coreos'))
+
+        distroi = distro.LinuxDistribution()
+
+        self.assertEqual(distroi.id(), 'coreos')
+        self.assertEqual(distroi.name(), 'CoreOS')
+        self.assertEqual(distroi.name(pretty=True), 'CoreOS 899.15.0')
+        self.assertEqual(distroi.version(), '899.15.0')
+        self.assertEqual(distroi.version(pretty=True), '899.15.0')
+        self.assertEqual(distroi.version(best=True), '899.15.0')
+        self.assertEqual(distroi.like(), '')
+        self.assertEqual(distroi.codename(), '')
+        self.assertEqual(distroi.major_version(), '899')
+        self.assertEqual(distroi.minor_version(), '15')
+        self.assertEqual(distroi.build_number(), '0')
+
+        # Test the info from the searched distro release file
+        # Does not have one:
+        self.assertEqual(os.path.basename(distroi.distro_release_file),
+                         '')
+        self.assertEqual(len(distroi.distro_release_info()), 0)
 
     def test_centos7_release(self):
         self._setup_for_distro(os.path.join(DISTROS, 'centos7'))
