@@ -268,6 +268,17 @@ class TestOSRelease(testtools.TestCase):
         }
         self._test_outcome(desired_outcome)
 
+    def test_coreos_os_release(self):
+        desired_outcome = {
+            'id': 'coreos',
+            'name': 'CoreOS',
+            'pretty_name': 'CoreOS 899.15.0',
+            'version': '899.15.0',
+            'pretty_version': '899.15.0',
+            'best_version': '899.15.0'
+        }
+        self._test_outcome(desired_outcome)
+
 
 class TestLSBRelease(DistroTestCase):
 
@@ -1103,6 +1114,21 @@ class TestOverall(DistroTestCase):
         # Test the info from the searched distro release file
         # Does not have one; /etc/debian_version is not considered a distro
         # release file:
+        self._test_non_existing_release_file()
+
+    def test_coreos_release(self):
+        desired_outcome = {
+            'id': 'coreos',
+            'name': 'CoreOS',
+            'pretty_name': 'CoreOS 899.15.0',
+            'version': '899.15.0',
+            'pretty_version': '899.15.0',
+            'best_version': '899.15.0',
+            'major_version': '899',
+            'minor_version': '15',
+            'build_number': '0'
+        }
+        self._test_outcome(desired_outcome)
         self._test_non_existing_release_file()
 
 
