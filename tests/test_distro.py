@@ -66,7 +66,6 @@ class TestOSRelease(testtools.TestCase):
         super(TestOSRelease, self).setUp()
         dist = self._testMethodName.split('_')[1]
         os_release = os.path.join(DISTROS, dist, 'etc', 'os-release')
-        # self.lookup_path = params[2:].replace('_', '-')
         self.distroi = distro.LinuxDistribution(False, os_release, 'non')
 
     def _test_outcome(self, outcome):
