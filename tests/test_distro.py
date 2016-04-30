@@ -278,6 +278,18 @@ class TestOSRelease(testtools.TestCase):
         }
         self._test_outcome(desired_outcome)
 
+    def test_amazon2016_os_release(self):
+        desired_outcome = {
+            'id': 'amzn',
+            'name': 'Amazon Linux AMI',
+            'pretty_name': 'Amazon Linux AMI 2016.03',
+            'version': '2016.03',
+            'pretty_version': '2016.03',
+            'best_version': '2016.03',
+            'like': 'rhel fedora'
+        }
+        self._test_outcome(desired_outcome)
+
 
 class TestLSBRelease(DistroTestCase):
 
@@ -1129,6 +1141,26 @@ class TestOverall(DistroTestCase):
         }
         self._test_outcome(desired_outcome)
         self._test_non_existing_release_file()
+
+    def test_amazon2016_release(self):
+        desired_outcome = {
+            'id': 'amzn',
+            'name': 'Amazon Linux AMI',
+            'pretty_name': 'Amazon Linux AMI 2016.03',
+            'version': '2016.03',
+            'pretty_version': '2016.03',
+            'best_version': '2016.03',
+            'like': 'rhel fedora',
+            'major_version': '2016',
+            'minor_version': '03'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_amazon2014_release(self):
+        # Amazon Linux 2014 only contains a system-release file.
+        # distro doesn't currently handle it.
+        desired_outcome = {}
+        self._test_outcome(desired_outcome)
 
 
 class TestGetAttr(DistroTestCase):
