@@ -711,8 +711,8 @@ class LinuxDistribution(object):
             m = g.match(version_str)
             if m:
                 major, minor, build_number = m.groups()
-                return (major, minor or '', build_number or '')
-        return ('', '', '')
+                return major, minor or '', build_number or ''
+        return '', '', ''
 
     def major_version(self, best=False):
         """
