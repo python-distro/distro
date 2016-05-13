@@ -34,7 +34,11 @@ import sys
 import shlex
 import subprocess
 
-import six
+
+if sys.version_info[0] < 3:
+    binary_type = str
+else:
+    binary_type = bytes
 
 
 if not sys.platform.startswith('linux'):
@@ -51,8 +55,7 @@ _OS_RELEASE_BASENAME = 'os-release'
 #:   with blanks translated to underscores.
 #:
 #: * Value: Normalized value.
-NORMALIZED_OS_ID = {
-}
+NORMALIZED_OS_ID = {}
 
 #: Translation table for normalizing the "Distributor ID" attribute returned by
 #: the lsb_release command, for use by the :func:`distro.id` method.
@@ -882,7 +885,7 @@ class LinuxDistribution(object):
             # * commands or their arguments (not allowed in os-release)
             if '=' in token:
                 k, v = token.split('=', 1)
-                if isinstance(v, six.binary_type):
+                if isinstance(v, binary_type):
                     v = v.decode('utf-8')
                 props[k.lower()] = v
                 if k == 'VERSION':
@@ -946,7 +949,7 @@ class LinuxDistribution(object):
         """
         props = {}
         for line in lines:
-            if isinstance(line, six.binary_type):
+            if isinstance(line, binary_type):
                 line = line.decode('utf-8')
             kv = line.strip('\n').split(':', 1)
             if len(kv) != 2:
@@ -1027,7 +1030,7 @@ class LinuxDistribution(object):
         Returns:
             A dictionary containing all information items.
         """
-        if isinstance(line, six.binary_type):
+        if isinstance(line, binary_type):
             line = line.decode('utf-8')
         m = _DISTRO_RELEASE_CONTENT_REVERSED_PATTERN.match(
             line.strip()[::-1])
