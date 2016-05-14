@@ -33,6 +33,7 @@ import re
 import sys
 import shlex
 import subprocess
+from warnings import warn
 
 
 if sys.version_info[0] < 3:
@@ -928,7 +929,8 @@ class LinuxDistribution(object):
         elif rc == 127:  # Command not found
             return {}
         else:
-            if sys.version_info[0:2] >= (2, 7):
+            warn(err.decode('ascii'))
+            if sys.version_info[:2] >= (2, 7):
                 raise subprocess.CalledProcessError(rc, cmd, err)
             else:
                 raise subprocess.CalledProcessError(rc, cmd)
