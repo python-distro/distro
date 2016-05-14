@@ -33,7 +33,6 @@ import re
 import sys
 import shlex
 import subprocess
-from warnings import warn
 
 
 if sys.version_info[0] < 3:
@@ -91,11 +90,13 @@ _DISTRO_RELEASE_BASENAME_PATTERN = re.compile(
     r'(\w+)[-_](release|version)$')
 
 # Base file names to be ignored when searching for distro release file
-_DISTRO_RELEASE_IGNORE_BASENAMES = [
+_DISTRO_RELEASE_IGNORE_BASENAMES = (
     'debian_version',
-    'system-release',
-    _OS_RELEASE_BASENAME
-]
+    'lsb-release',
+    'oem-release',
+    _OS_RELEASE_BASENAME,
+    'system-release'
+)
 
 
 def linux_distribution(full_distribution_name=True):
@@ -922,17 +923,19 @@ class LinuxDistribution(object):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
         out, err = p.communicate()
+        out, err = out.decode('ascii'), err.decode('ascii')
         rc = p.returncode
         if rc == 0:
-            content = out.decode('ascii').splitlines()
+            content = out.splitlines()
             return self._parse_lsb_release_content(content)
         elif rc == 127:  # Command not found
             return {}
         else:
-            warn(err.decode('ascii'))
-            if sys.version_info[:2] >= (2, 7):
-                raise subprocess.CalledProcessError(rc, cmd, err)
-            else:
+            if sys.version_info[:2] >= (3, 5):
+                raise subprocess.CalledProcessError(rc, cmd, out, err)
+            elif sys.version_info[:2] >= (2, 7):
+                raise subprocess.CalledProcessError(rc, cmd, out)
+            elif sys.version_info[:2] == (2, 6):
                 raise subprocess.CalledProcessError(rc, cmd)
 
     @staticmethod
@@ -1043,6 +1046,8 @@ class LinuxDistribution(object):
                 distro_info['version_id'] = m.group(2)[::-1]
             if m.group(1):
                 distro_info['codename'] = m.group(1)[::-1]
+        elif line:
+            distro_info['name'] = line.strip()
         return distro_info
 
 

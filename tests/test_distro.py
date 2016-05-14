@@ -13,26 +13,28 @@
 # limitations under the License.
 
 import os
+import subprocess
 import sys
 import testtools
-import subprocess
 try:
     from StringIO import StringIO  # Python 2.x
 except ImportError:
     from io import StringIO  # Python 3.x
 
 
+BASE = os.path.abspath(os.path.dirname(__file__))
+RESOURCES = os.path.join(BASE, 'resources')
+DISTROS_DIR = os.path.join(RESOURCES, 'distros')
+TESTDISTROS = os.path.join(RESOURCES, 'testdistros')
+SPECIAL = os.path.join(RESOURCES, 'special')
+DISTROS = [x for x in os.listdir(DISTROS_DIR) if x != '__shared__']
+
+
 IS_LINUX = sys.platform.startswith('linux')
 if IS_LINUX:
     import distro
 
-    RESOURCES = os.path.join('tests', 'resources')
-    DISTROS = os.path.join(RESOURCES, 'distros')
-    TESTDISTROS = os.path.join(RESOURCES, 'testdistros')
-    SPECIAL = os.path.join(RESOURCES, 'special')
-
-    RELATIVE_UNIXCONFDIR = distro._UNIXCONFDIR.lstrip('/')
-
+    RELATIVE_UNIXCONFDIR = distro._UNIXCONFDIR[1:]
     MODULE_DISTROI = distro._distroi
 
 
@@ -70,7 +72,7 @@ class DistroTestCase(testtools.TestCase):
         distro._UNIXCONFDIR = self._saved_UNIXCONFDIR
 
     def _setup_for_distro(self, distro_root):
-        distro_bin = os.path.join(os.getcwd(), distro_root, 'bin')
+        distro_bin = os.path.join(distro_root, 'bin')
         # We don't want to pick up a possibly present lsb_release in the
         # distro that runs this test, so we use a PATH with only one entry:
         os.environ["PATH"] = distro_bin
@@ -84,7 +86,7 @@ class TestOSRelease(testtools.TestCase):
         if not IS_LINUX:
             self.skipTest('Irrelevant on non-linux platforms')
         dist = self._testMethodName.split('_')[1]
-        os_release = os.path.join(DISTROS, dist, 'etc', 'os-release')
+        os_release = os.path.join(DISTROS_DIR, dist, 'etc', 'os-release')
         self.distroi = distro.LinuxDistribution(False, os_release, 'non')
 
     def _test_outcome(self, outcome):
@@ -124,6 +126,17 @@ class TestOSRelease(testtools.TestCase):
         }
         self._test_outcome(desired_outcome)
 
+    def test_coreos_os_release(self):
+        desired_outcome = {
+            'id': 'coreos',
+            'name': 'CoreOS',
+            'pretty_name': 'CoreOS 899.15.0',
+            'version': '899.15.0',
+            'pretty_version': '899.15.0',
+            'best_version': '899.15.0'
+        }
+        self._test_outcome(desired_outcome)
+
     def test_debian8_os_release(self):
         desired_outcome = {
             'id': 'debian',
@@ -133,32 +146,6 @@ class TestOSRelease(testtools.TestCase):
             'pretty_version': '8 (jessie)',
             'best_version': '8',
             'codename': 'jessie'
-        }
-        self._test_outcome(desired_outcome)
-
-    def test_raspbian8_os_release(self):
-        desired_outcome = {
-            'id': 'raspbian',
-            'name': 'Raspbian GNU/Linux',
-            'pretty_name': 'Raspbian GNU/Linux 8 (jessie)',
-            'version': '8',
-            'pretty_version': '8 (jessie)',
-            'best_version': '8',
-            'like': 'debian',
-            'codename': 'jessie'
-        }
-        self._test_outcome(desired_outcome)
-
-    def test_raspbian7_os_release(self):
-        desired_outcome = {
-            'id': 'raspbian',
-            'name': 'Raspbian GNU/Linux',
-            'pretty_name': 'Raspbian GNU/Linux 7 (wheezy)',
-            'version': '7',
-            'pretty_version': '7 (wheezy)',
-            'best_version': '7',
-            'like': 'debian',
-            'codename': 'wheezy'
         }
         self._test_outcome(desired_outcome)
 
@@ -226,6 +213,13 @@ class TestOSRelease(testtools.TestCase):
         }
         self._test_outcome(desired_outcome)
 
+    def test_manjaro1512_os_release(self):
+        self._test_outcome({
+            'id': 'manjaro',
+            'name': 'Manjaro Linux',
+            'pretty_name': 'Manjaro Linux',
+        })
+
     def test_opensuse42_os_release(self):
         desired_outcome = {
             'id': 'opensuse',
@@ -235,6 +229,32 @@ class TestOSRelease(testtools.TestCase):
             'pretty_version': '42.1',
             'best_version': '42.1',
             'like': 'suse',
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_raspbian7_os_release(self):
+        desired_outcome = {
+            'id': 'raspbian',
+            'name': 'Raspbian GNU/Linux',
+            'pretty_name': 'Raspbian GNU/Linux 7 (wheezy)',
+            'version': '7',
+            'pretty_version': '7 (wheezy)',
+            'best_version': '7',
+            'like': 'debian',
+            'codename': 'wheezy'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_raspbian8_os_release(self):
+        desired_outcome = {
+            'id': 'raspbian',
+            'name': 'Raspbian GNU/Linux',
+            'pretty_name': 'Raspbian GNU/Linux 8 (jessie)',
+            'version': '8',
+            'pretty_version': '8 (jessie)',
+            'best_version': '8',
+            'like': 'debian',
+            'codename': 'jessie'
         }
         self._test_outcome(desired_outcome)
 
@@ -286,17 +306,6 @@ class TestOSRelease(testtools.TestCase):
         }
         self._test_outcome(desired_outcome)
 
-    def test_coreos_os_release(self):
-        desired_outcome = {
-            'id': 'coreos',
-            'name': 'CoreOS',
-            'pretty_name': 'CoreOS 899.15.0',
-            'version': '899.15.0',
-            'pretty_version': '899.15.0',
-            'best_version': '899.15.0'
-        }
-        self._test_outcome(desired_outcome)
-
     def test_amazon2016_os_release(self):
         desired_outcome = {
             'id': 'amzn',
@@ -336,7 +345,7 @@ class TestLSBRelease(DistroTestCase):
     def setUp(self):
         super(TestLSBRelease, self).setUp()
         dist = self._testMethodName.split('_')[1]
-        self._setup_for_distro(os.path.join(DISTROS, dist))
+        self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
         self.distroi = distro.LinuxDistribution(True, 'non', 'non')
 
     def _test_outcome(self, outcome):
@@ -366,6 +375,17 @@ class TestLSBRelease(DistroTestCase):
             'codename': 'rosa'
         }
         self._test_outcome(desired_outcome)
+
+    def test_manjaro1512_lsb_release(self):
+        self._test_outcome({
+            'id': 'manjarolinux',
+            'name': 'ManjaroLinux',
+            'pretty_name': 'Manjaro Linux',
+            'version': '15.12',
+            'pretty_version': '15.12 (Capella)',
+            'best_version': '15.12',
+            'codename': 'Capella'
+        })
 
     def test_ubuntu14normal_lsb_release(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb',
@@ -423,10 +443,11 @@ class TestLSBRelease(DistroTestCase):
         self._setup_for_distro(os.path.join(
             TESTDISTROS, 'lsb', 'lsb_rc{0}'.format(errnum)))
         try:
-            distroi = distro.LinuxDistribution(True, 'non', 'non')  # NOQA
-            exc = None
+            distro.LinuxDistribution(True, 'non', 'non')  # NOQA
         except Exception as _exc:
             exc = _exc
+        else:
+            exc = None
         self.assertEqual(isinstance(exc, subprocess.CalledProcessError), True)
         self.assertEqual(exc.returncode, int(errnum))
 
@@ -522,7 +543,7 @@ class TestDistroRelease(testtools.TestCase):
                       release_file_suffix='release'):
         release_file_id = release_file_id or distro_name
         distro_release = os.path.join(
-            DISTROS, distro_name + version, 'etc', '{0}-{1}'.format(
+            DISTROS_DIR, distro_name + version, 'etc', '{0}-{1}'.format(
                 release_file_id, release_file_suffix))
         self.distroi = distro.LinuxDistribution(False, 'non', distro_release)
 
@@ -611,6 +632,19 @@ class TestDistroRelease(testtools.TestCase):
         }
         self._test_outcome(desired_outcome, 'fedora', '23')
 
+    def test_gentoo_dist_release(self):
+        desired_outcome = {
+            'id': 'gentoo',
+            'name': 'Gentoo Base System',
+            'pretty_name': 'Gentoo Base System 2.2',
+            'version': '2.2',
+            'pretty_version': '2.2',
+            'best_version': '2.2',
+            'major_version': '2',
+            'minor_version': '2',
+        }
+        self._test_outcome(desired_outcome, 'gentoo')
+
     def test_kvmibm1_dist_release(self):
         desired_outcome = {
             'id': 'base',
@@ -638,6 +672,15 @@ class TestDistroRelease(testtools.TestCase):
             'major_version': '5'
         }
         self._test_outcome(desired_outcome, 'mageia', '5')
+
+    def test_manjaro1512_dist_release(self):
+        self._test_outcome({
+            'id': 'manjaro',
+            'name': 'Manjaro Linux',
+            'pretty_name': 'Manjaro Linux',
+            'version': '',
+            'codename': ''
+        }, 'manjaro', '1512')
 
     def test_opensuse42_dist_release(self):
         desired_outcome = {
@@ -724,19 +767,6 @@ class TestDistroRelease(testtools.TestCase):
         }
         self._test_outcome(desired_outcome, 'sles', '12', 'SuSE')
 
-    def test_gentoo_dist_release(self):
-        desired_outcome = {
-            'id': 'gentoo',
-            'name': 'Gentoo Base System',
-            'pretty_name': 'Gentoo Base System 2.2',
-            'version': '2.2',
-            'pretty_version': '2.2',
-            'best_version': '2.2',
-            'major_version': '2',
-            'minor_version': '2',
-        }
-        self._test_outcome(desired_outcome, 'gentoo')
-
 
 class TestOverall(DistroTestCase):
     """Test a LinuxDistribution object created with default arguments.
@@ -768,7 +798,7 @@ class TestOverall(DistroTestCase):
     def setUp(self):
         super(TestOverall, self).setUp()
         dist = self._testMethodName.split('_')[1]
-        self._setup_for_distro(os.path.join(DISTROS, dist))
+        self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
         self.distroi = distro.LinuxDistribution()
 
     def _test_outcome(self, outcome):
@@ -868,6 +898,21 @@ class TestOverall(DistroTestCase):
         }
         self._test_release_file_info('centos-release', desired_info)
 
+    def test_coreos_release(self):
+        desired_outcome = {
+            'id': 'coreos',
+            'name': 'CoreOS',
+            'pretty_name': 'CoreOS 899.15.0',
+            'version': '899.15.0',
+            'pretty_version': '899.15.0',
+            'best_version': '899.15.0',
+            'major_version': '899',
+            'minor_version': '15',
+            'build_number': '0'
+        }
+        self._test_outcome(desired_outcome)
+        self._test_non_existing_release_file()
+
     def test_debian8_release(self):
         desired_outcome = {
             'id': 'debian',
@@ -878,36 +923,6 @@ class TestOverall(DistroTestCase):
             'best_version': '8.2',
             'codename': 'jessie',
             'major_version': '8'
-        }
-        self._test_outcome(desired_outcome)
-        self._test_non_existing_release_file()
-
-    def test_raspbian8_release(self):
-        desired_outcome = {
-            'id': 'raspbian',
-            'name': 'Raspbian GNU/Linux',
-            'pretty_name': 'Raspbian GNU/Linux 8 (jessie)',
-            'version': '8',
-            'pretty_version': '8 (jessie)',
-            'best_version': '8',
-            'like': 'debian',
-            'codename': 'jessie',
-            'major_version': '8',
-        }
-        self._test_outcome(desired_outcome)
-        self._test_non_existing_release_file()
-
-    def test_raspbian7_release(self):
-        desired_outcome = {
-            'id': 'raspbian',
-            'name': 'Raspbian GNU/Linux',
-            'pretty_name': 'Raspbian GNU/Linux 7 (wheezy)',
-            'version': '7',
-            'pretty_version': '7 (wheezy)',
-            'best_version': '7',
-            'like': 'debian',
-            'codename': 'wheezy',
-            'major_version': '7',
         }
         self._test_outcome(desired_outcome)
         self._test_non_existing_release_file()
@@ -1025,6 +1040,25 @@ class TestOverall(DistroTestCase):
         }
         self._test_release_file_info('mageia-release', desired_info)
 
+    def test_manjaro1512_release(self):
+        self._test_outcome({
+            'id': 'manjaro',
+            'name': 'Manjaro Linux',
+            'pretty_name': 'Manjaro Linux',
+            'version': '15.12',
+            'pretty_version': '15.12 (Capella)',
+            'best_version': '15.12',
+            'major_version': '15',
+            'minor_version': '12',
+            'codename': 'Capella'
+        })
+
+        self._test_release_file_info(
+            'manjaro-release',
+            {'id': 'manjaro',
+             'name': 'Manjaro Linux'}
+                                     )
+
     def test_opensuse42_release(self):
         desired_outcome = {
             'id': 'opensuse',
@@ -1069,6 +1103,36 @@ class TestOverall(DistroTestCase):
         distro_info = self._test_release_file_info(
             'oracle-release', desired_info)
         self.assertNotIn('codename', distro_info)
+
+    def test_raspbian7_release(self):
+        desired_outcome = {
+            'id': 'raspbian',
+            'name': 'Raspbian GNU/Linux',
+            'pretty_name': 'Raspbian GNU/Linux 7 (wheezy)',
+            'version': '7',
+            'pretty_version': '7 (wheezy)',
+            'best_version': '7',
+            'like': 'debian',
+            'codename': 'wheezy',
+            'major_version': '7',
+        }
+        self._test_outcome(desired_outcome)
+        self._test_non_existing_release_file()
+
+    def test_raspbian8_release(self):
+        desired_outcome = {
+            'id': 'raspbian',
+            'name': 'Raspbian GNU/Linux',
+            'pretty_name': 'Raspbian GNU/Linux 8 (jessie)',
+            'version': '8',
+            'pretty_version': '8 (jessie)',
+            'best_version': '8',
+            'like': 'debian',
+            'codename': 'jessie',
+            'major_version': '8',
+        }
+        self._test_outcome(desired_outcome)
+        self._test_non_existing_release_file()
 
     def test_rhel6_release(self):
         desired_outcome = {
@@ -1179,21 +1243,6 @@ class TestOverall(DistroTestCase):
         # release file:
         self._test_non_existing_release_file()
 
-    def test_coreos_release(self):
-        desired_outcome = {
-            'id': 'coreos',
-            'name': 'CoreOS',
-            'pretty_name': 'CoreOS 899.15.0',
-            'version': '899.15.0',
-            'pretty_version': '899.15.0',
-            'best_version': '899.15.0',
-            'major_version': '899',
-            'minor_version': '15',
-            'build_number': '0'
-        }
-        self._test_outcome(desired_outcome)
-        self._test_non_existing_release_file()
-
     def test_amazon2016_release(self):
         desired_outcome = {
             'id': 'amzn',
@@ -1288,9 +1337,8 @@ class TestGetAttr(DistroTestCase):
     """
 
     def _test_attr(self, info_method, attr_method):
-        distros = os.listdir(DISTROS)
-        for dist in distros:
-            self._setup_for_distro(os.path.join(DISTROS, dist))
+        for dist in DISTROS:
+            self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
             distroi = distro.LinuxDistribution()
             info = getattr(distroi, info_method)()
             for key in info.keys():
@@ -1314,7 +1362,7 @@ class TestInfo(DistroTestCase):
     def setUp(self):
         super(TestInfo, self).setUp()
         self.ubuntu14_os_release = os.path.join(
-            DISTROS, 'ubuntu14', 'etc', 'os-release')
+            DISTROS_DIR, 'ubuntu14', 'etc', 'os-release')
 
     def test_info(self):
         distroi = distro.LinuxDistribution(
@@ -1428,9 +1476,8 @@ class TestInfo(DistroTestCase):
             self.assertEqual(len(info), 5,
                              "distro: {0}".format(dist))
 
-        distros = os.listdir(DISTROS)
-        for dist in distros:
-            self._setup_for_distro(os.path.join(DISTROS, dist))
+        for dist in DISTROS:
+            self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
 
             distroi = distro.LinuxDistribution()
 
