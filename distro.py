@@ -37,6 +37,10 @@ import subprocess
 import six
 
 
+if not sys.platform.startswith('linux'):
+    raise ImportError('Unsupported platform: {0}'.format(sys.platform))
+
+
 _UNIXCONFDIR = '/etc'
 _OS_RELEASE_BASENAME = 'os-release'
 

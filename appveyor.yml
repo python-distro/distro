@@ -1,0 +1,40 @@
+environment:
+
+  TOX_ENV: pywin
+
+  matrix:
+    - PYTHON: C:\Python27
+      PYTHON_VERSION: 2.7.8
+      PYTHON_ARCH: 32
+
+install:
+
+  #################################
+  # Change Python Registry
+  #################################
+
+  - reg ADD HKCU\Software\Python\PythonCore\2.7\InstallPath /ve /d "C:\Python27" /t REG_SZ /f
+  - reg ADD HKLM\Software\Python\PythonCore\2.7\InstallPath /ve /d "C:\Python27" /t REG_SZ /f
+
+  #################################
+  # Installing Inno Setup
+  #################################
+
+  - choco install -y InnoSetup
+  - set PATH="C:\\Program Files (x86)\\Inno Setup 5";%PATH%
+
+  - SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
+
+  - echo Upgrading pip...
+  - ps: (new-object System.Net.WebClient).Downloadfile('https://bootstrap.pypa.io/get-pip.py', 'C:\Users\appveyor\get-pip.py')
+  - ps: Start-Process -FilePath "C:\Python27\python.exe" -ArgumentList "C:\Users\appveyor\get-pip.py" -Wait -Passthru
+  - pip --version
+
+build: false # Not a C# project, build stuff at the test step instead.
+
+before_test:
+  - echo Installing tox (2.0.0)
+  - pip install tox==2.0.0
+
+test_script:
+  - tox -e %TOX_ENV%
