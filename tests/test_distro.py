@@ -290,6 +290,19 @@ class TestOSRelease(testtools.TestCase):
         }
         self._test_outcome(desired_outcome)
 
+    def test_scientific7_os_release(self):
+        desired_outcome = {
+            'id': 'rhel',
+            'name': 'Scientific Linux',
+            'pretty_name': 'Scientific Linux 7.2 (Nitrogen)',
+            'version': '7.2',
+            'pretty_version': '7.2 (Nitrogen)',
+            'best_version': '7.2',
+            'like': 'fedora',
+            'codename': 'Nitrogen'
+        }
+        self._test_outcome(desired_outcome)
+
 
 class TestLSBRelease(DistroTestCase):
 
@@ -1161,6 +1174,53 @@ class TestOverall(DistroTestCase):
         # distro doesn't currently handle it.
         desired_outcome = {}
         self._test_outcome(desired_outcome)
+
+    def test_scientific6_release(self):
+        desired_outcome = {
+            'id': 'rhel',
+            'name': 'Scientific Linux',
+            'pretty_name': 'Scientific Linux 6.4 (Carbon)',
+            'version': '6.4',
+            'pretty_version': '6.4 (Carbon)',
+            'best_version': '6.4',
+            'codename': 'Carbon',
+            'major_version': '6',
+            'minor_version': '4',
+
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            'id': 'redhat',
+            'name': 'Scientific Linux',
+            'version_id': '6.4',
+            'codename': 'Carbon'
+        }
+        self._test_release_file_info('redhat-release', desired_info)
+
+    def test_scientific7_release(self):
+        desired_outcome = {
+            'id': 'rhel',
+            'name': 'Scientific Linux',
+            'pretty_name': 'Scientific Linux 7.2 (Nitrogen)',
+            'version': '7.2',
+            'pretty_version': '7.2 (Nitrogen)',
+            'best_version': '7.2',
+            'like': 'fedora',
+            'codename': 'Nitrogen',
+            'major_version': '7',
+            'minor_version': '2',
+
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            'id': 'redhat',
+            'name': 'Scientific Linux',
+            'version_id': '7.2',
+            'codename': 'Nitrogen'
+        }
+        self._test_release_file_info('redhat-release', desired_info)
 
 
 class TestGetAttr(DistroTestCase):
