@@ -303,6 +303,14 @@ class TestOSRelease(testtools.TestCase):
         }
         self._test_outcome(desired_outcome)
 
+    def test_gentoo_os_release(self):
+        desired_outcome = {
+            'id': 'gentoo',
+            'name': 'Gentoo',
+            'pretty_name': 'Gentoo/Linux',
+        }
+        self._test_outcome(desired_outcome)
+
 
 class TestLSBRelease(DistroTestCase):
 
@@ -697,6 +705,19 @@ class TestDistroRelease(testtools.TestCase):
             'codename': 's390x'
         }
         self._test_outcome(desired_outcome, 'sles', '12', 'SuSE')
+
+    def test_gentoo_dist_release(self):
+        desired_outcome = {
+            'id': 'gentoo',
+            'name': 'Gentoo Base System',
+            'pretty_name': 'Gentoo Base System 2.2',
+            'version': '2.2',
+            'pretty_version': '2.2',
+            'best_version': '2.2',
+            'major_version': '2',
+            'minor_version': '2',
+        }
+        self._test_outcome(desired_outcome, 'gentoo')
 
 
 class TestOverall(DistroTestCase):
@@ -1210,7 +1231,6 @@ class TestOverall(DistroTestCase):
             'codename': 'Nitrogen',
             'major_version': '7',
             'minor_version': '2',
-
         }
         self._test_outcome(desired_outcome)
 
@@ -1221,6 +1241,26 @@ class TestOverall(DistroTestCase):
             'codename': 'Nitrogen'
         }
         self._test_release_file_info('redhat-release', desired_info)
+
+    def test_gentoo_release(self):
+        desired_outcome = {
+            'id': 'gentoo',
+            'name': 'Gentoo',
+            'pretty_name': 'Gentoo/Linux',
+            'version': '2.2',
+            'pretty_version': '2.2',
+            'best_version': '2.2',
+            'major_version': '2',
+            'minor_version': '2',
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            'id': 'gentoo',
+            'name': 'Gentoo Base System',
+            'version_id': '2.2',
+        }
+        self._test_release_file_info('gentoo-release', desired_info)
 
 
 class TestGetAttr(DistroTestCase):
