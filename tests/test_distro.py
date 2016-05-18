@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import sys
 import testtools
 import subprocess
 try:
@@ -21,17 +22,31 @@ except ImportError:
     from io import StringIO  # Python 3.x
 
 
-import distro
+IS_LINUX = sys.platform.startswith('linux')
+if IS_LINUX:
+    import distro
+
+    RESOURCES = os.path.join('tests', 'resources')
+    DISTROS = os.path.join(RESOURCES, 'distros')
+    TESTDISTROS = os.path.join(RESOURCES, 'testdistros')
+    SPECIAL = os.path.join(RESOURCES, 'special')
+
+    RELATIVE_UNIXCONFDIR = distro._UNIXCONFDIR.lstrip('/')
+
+    MODULE_DISTROI = distro._distroi
 
 
-RESOURCES = os.path.join('tests', 'resources')
-DISTROS = os.path.join(RESOURCES, 'distros')
-TESTDISTROS = os.path.join(RESOURCES, 'testdistros')
-SPECIAL = os.path.join(RESOURCES, 'special')
+class TestNonLinuxPlatform(testtools.TestCase):
+    """
+    Obviously, this only tests Windows. Will add OS X tests on Travis
+    Later
+    """
 
-RELATIVE_UNIXCONFDIR = distro._UNIXCONFDIR.lstrip('/')
-
-MODULE_DISTROI = distro._distroi
+    def test_cant_use_on_windows(self):
+        try:
+            import distro  # NOQA
+        except ImportError as ex:
+            self.assertIn('Unsupported platform', str(ex))
 
 
 class DistroTestCase(testtools.TestCase):
@@ -41,6 +56,8 @@ class DistroTestCase(testtools.TestCase):
 
     def setUp(self):
         super(DistroTestCase, self).setUp()
+        if not IS_LINUX:
+            self.skipTest('Irrelevant on non-linux platforms')
         # The environment stays the same across all testcases, so we
         # save and restore the PATH env var in each test case that
         # changes it:
@@ -64,6 +81,8 @@ class TestOSRelease(testtools.TestCase):
 
     def setUp(self):
         super(TestOSRelease, self).setUp()
+        if not IS_LINUX:
+            self.skipTest('Irrelevant on non-linux platforms')
         dist = self._testMethodName.split('_')[1]
         os_release = os.path.join(DISTROS, dist, 'etc', 'os-release')
         self.distroi = distro.LinuxDistribution(False, os_release, 'non')
@@ -278,6 +297,39 @@ class TestOSRelease(testtools.TestCase):
         }
         self._test_outcome(desired_outcome)
 
+    def test_amazon2016_os_release(self):
+        desired_outcome = {
+            'id': 'amzn',
+            'name': 'Amazon Linux AMI',
+            'pretty_name': 'Amazon Linux AMI 2016.03',
+            'version': '2016.03',
+            'pretty_version': '2016.03',
+            'best_version': '2016.03',
+            'like': 'rhel fedora'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_scientific7_os_release(self):
+        desired_outcome = {
+            'id': 'rhel',
+            'name': 'Scientific Linux',
+            'pretty_name': 'Scientific Linux 7.2 (Nitrogen)',
+            'version': '7.2',
+            'pretty_version': '7.2 (Nitrogen)',
+            'best_version': '7.2',
+            'like': 'fedora',
+            'codename': 'Nitrogen'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_gentoo_os_release(self):
+        desired_outcome = {
+            'id': 'gentoo',
+            'name': 'Gentoo',
+            'pretty_name': 'Gentoo/Linux',
+        }
+        self._test_outcome(desired_outcome)
+
 
 class TestLSBRelease(DistroTestCase):
 
@@ -459,9 +511,8 @@ class TestDistroRelease(testtools.TestCase):
 
     def setUp(self):
         super(TestDistroRelease, self).setUp()
-        # errnum = self._testMethodName.split('_')
-        # distro_release = os.path.join(DISTROS, 'arch', 'etc', 'arch-release')
-        # self.distroi = distro.LinuxDistribution(False, 'non', distro_release)
+        if not IS_LINUX:
+            self.skipTest('Irrelevant on non-linux platforms')
 
     def _test_outcome(self,
                       outcome,
@@ -672,6 +723,19 @@ class TestDistroRelease(testtools.TestCase):
             'codename': 's390x'
         }
         self._test_outcome(desired_outcome, 'sles', '12', 'SuSE')
+
+    def test_gentoo_dist_release(self):
+        desired_outcome = {
+            'id': 'gentoo',
+            'name': 'Gentoo Base System',
+            'pretty_name': 'Gentoo Base System 2.2',
+            'version': '2.2',
+            'pretty_version': '2.2',
+            'best_version': '2.2',
+            'major_version': '2',
+            'minor_version': '2',
+        }
+        self._test_outcome(desired_outcome, 'gentoo')
 
 
 class TestOverall(DistroTestCase):
@@ -1130,6 +1194,92 @@ class TestOverall(DistroTestCase):
         self._test_outcome(desired_outcome)
         self._test_non_existing_release_file()
 
+    def test_amazon2016_release(self):
+        desired_outcome = {
+            'id': 'amzn',
+            'name': 'Amazon Linux AMI',
+            'pretty_name': 'Amazon Linux AMI 2016.03',
+            'version': '2016.03',
+            'pretty_version': '2016.03',
+            'best_version': '2016.03',
+            'like': 'rhel fedora',
+            'major_version': '2016',
+            'minor_version': '03'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_amazon2014_release(self):
+        # Amazon Linux 2014 only contains a system-release file.
+        # distro doesn't currently handle it.
+        desired_outcome = {}
+        self._test_outcome(desired_outcome)
+
+    def test_scientific6_release(self):
+        desired_outcome = {
+            'id': 'rhel',
+            'name': 'Scientific Linux',
+            'pretty_name': 'Scientific Linux 6.4 (Carbon)',
+            'version': '6.4',
+            'pretty_version': '6.4 (Carbon)',
+            'best_version': '6.4',
+            'codename': 'Carbon',
+            'major_version': '6',
+            'minor_version': '4',
+
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            'id': 'redhat',
+            'name': 'Scientific Linux',
+            'version_id': '6.4',
+            'codename': 'Carbon'
+        }
+        self._test_release_file_info('redhat-release', desired_info)
+
+    def test_scientific7_release(self):
+        desired_outcome = {
+            'id': 'rhel',
+            'name': 'Scientific Linux',
+            'pretty_name': 'Scientific Linux 7.2 (Nitrogen)',
+            'version': '7.2',
+            'pretty_version': '7.2 (Nitrogen)',
+            'best_version': '7.2',
+            'like': 'fedora',
+            'codename': 'Nitrogen',
+            'major_version': '7',
+            'minor_version': '2',
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            'id': 'redhat',
+            'name': 'Scientific Linux',
+            'version_id': '7.2',
+            'codename': 'Nitrogen'
+        }
+        self._test_release_file_info('redhat-release', desired_info)
+
+    def test_gentoo_release(self):
+        desired_outcome = {
+            'id': 'gentoo',
+            'name': 'Gentoo',
+            'pretty_name': 'Gentoo/Linux',
+            'version': '2.2',
+            'pretty_version': '2.2',
+            'best_version': '2.2',
+            'major_version': '2',
+            'minor_version': '2',
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            'id': 'gentoo',
+            'name': 'Gentoo Base System',
+            'version_id': '2.2',
+        }
+        self._test_release_file_info('gentoo-release', desired_info)
+
 
 class TestGetAttr(DistroTestCase):
     """Test the consistency between the results of
@@ -1302,6 +1452,8 @@ class TestOSReleaseParsing(testtools.TestCase):
     """
 
     def setUp(self):
+        if not IS_LINUX:
+            self.skipTest('Irrelevant on non-linux platforms')
         self.distroi = distro.LinuxDistribution(False, None, None)
         self.distroi.debug = True
         super(TestOSReleaseParsing, self).setUp()
@@ -1466,6 +1618,11 @@ class TestGlobal(testtools.TestCase):
     arguments.
     """
 
+    def setUp(self):
+        super(TestGlobal, self).setUp()
+        if not IS_LINUX:
+            self.skipTest('Irrelevant on non-linux platforms')
+
     def test_global(self):
         # Because the module-level functions use the module-global
         # LinuxDistribution instance, it would influence the tested
@@ -1555,6 +1712,11 @@ class TestGlobal(testtools.TestCase):
 class TestRepr(testtools.TestCase):
     """Test the __repr__() method.
     """
+
+    def setUp(self):
+        super(TestRepr, self).setUp()
+        if not IS_LINUX:
+            self.skipTest('Irrelevant on non-linux platforms')
 
     def test_repr(self):
         # We test that the class name and the names of all instance attributes
