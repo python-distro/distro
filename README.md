@@ -72,6 +72,15 @@ python
 Several more functions are available. For a complete description of the
 API, see the [latest API documentation](http://distro.readthedocs.org/en/latest/).
 
+## Testing
+
+```shell
+git clone git@github.com:nir0s/distro.git
+cd distro
+pip install tox
+tox
+```
+
 ## Contributions
 
 Pull requests are always welcome to deal with specific distributions or just
