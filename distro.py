@@ -34,7 +34,11 @@ import sys
 import shlex
 import subprocess
 
-import six
+
+if sys.version_info[0] < 3:
+    binary_type = str
+else:
+    binary_type = bytes
 
 
 if not sys.platform.startswith('linux'):
@@ -51,8 +55,7 @@ _OS_RELEASE_BASENAME = 'os-release'
 #:   with blanks translated to underscores.
 #:
 #: * Value: Normalized value.
-NORMALIZED_OS_ID = {
-}
+NORMALIZED_OS_ID = {}
 
 #: Translation table for normalizing the "Distributor ID" attribute returned by
 #: the lsb_release command, for use by the :func:`distro.id` method.
@@ -87,11 +90,13 @@ _DISTRO_RELEASE_BASENAME_PATTERN = re.compile(
     r'(\w+)[-_](release|version)$')
 
 # Base file names to be ignored when searching for distro release file
-_DISTRO_RELEASE_IGNORE_BASENAMES = [
+_DISTRO_RELEASE_IGNORE_BASENAMES = (
     'debian_version',
-    'system-release',
-    _OS_RELEASE_BASENAME
-]
+    'lsb-release',
+    'oem-release',
+    _OS_RELEASE_BASENAME,
+    'system-release'
+)
 
 
 def linux_distribution(full_distribution_name=True):
@@ -711,8 +716,8 @@ class LinuxDistribution(object):
             m = g.match(version_str)
             if m:
                 major, minor, build_number = m.groups()
-                return (major, minor or '', build_number or '')
-        return ('', '', '')
+                return major, minor or '', build_number or ''
+        return '', '', ''
 
     def major_version(self, best=False):
         """
@@ -882,7 +887,7 @@ class LinuxDistribution(object):
             # * commands or their arguments (not allowed in os-release)
             if '=' in token:
                 k, v = token.split('=', 1)
-                if isinstance(v, six.binary_type):
+                if isinstance(v, binary_type):
                     v = v.decode('utf-8')
                 props[k.lower()] = v
                 if k == 'VERSION':
@@ -918,16 +923,19 @@ class LinuxDistribution(object):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
         out, err = p.communicate()
+        out, err = out.decode('ascii'), err.decode('ascii')
         rc = p.returncode
         if rc == 0:
-            content = out.decode('ascii').splitlines()
+            content = out.splitlines()
             return self._parse_lsb_release_content(content)
         elif rc == 127:  # Command not found
             return {}
         else:
-            if sys.version_info[0:2] >= (2, 7):
-                raise subprocess.CalledProcessError(rc, cmd, err)
-            else:
+            if sys.version_info[:2] >= (3, 5):
+                raise subprocess.CalledProcessError(rc, cmd, out, err)
+            elif sys.version_info[:2] >= (2, 7):
+                raise subprocess.CalledProcessError(rc, cmd, out)
+            elif sys.version_info[:2] == (2, 6):
                 raise subprocess.CalledProcessError(rc, cmd)
 
     @staticmethod
@@ -946,7 +954,7 @@ class LinuxDistribution(object):
         """
         props = {}
         for line in lines:
-            if isinstance(line, six.binary_type):
+            if isinstance(line, binary_type):
                 line = line.decode('utf-8')
             kv = line.strip('\n').split(':', 1)
             if len(kv) != 2:
@@ -1027,7 +1035,7 @@ class LinuxDistribution(object):
         Returns:
             A dictionary containing all information items.
         """
-        if isinstance(line, six.binary_type):
+        if isinstance(line, binary_type):
             line = line.decode('utf-8')
         m = _DISTRO_RELEASE_CONTENT_REVERSED_PATTERN.match(
             line.strip()[::-1])
@@ -1038,6 +1046,8 @@ class LinuxDistribution(object):
                 distro_info['version_id'] = m.group(2)[::-1]
             if m.group(1):
                 distro_info['codename'] = m.group(1)[::-1]
+        elif line:
+            distro_info['name'] = line.strip()
         return distro_info
 
 

@@ -39,7 +39,6 @@ setup(
     description='Linux Distribution - a Linux OS platform information API',
     long_description=read('README.rst'),
     py_modules=['distro'],
-    install_requires=['six'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
