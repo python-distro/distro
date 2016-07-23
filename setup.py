@@ -12,15 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from setuptools import setup
 import os
 import codecs
+from setuptools import setup
 
 # The following version is parsed by other parts of this package.
 # Don't change the format of the line, or the variable name.
-package_version = "0.6.0"
+package_version = "1.0.0"
 
 here = os.path.abspath(os.path.dirname(__file__))
+
+try:
+    import argparse  # NOQA
+    install_requires = []
+except ImportError:
+    install_requires = ['argparse']
 
 
 def read(*parts):
@@ -39,6 +45,12 @@ setup(
     description='Linux Distribution - a Linux OS platform information API',
     long_description=read('README.rst'),
     py_modules=['distro'],
+    install_requires=install_requires,
+    entry_points={
+        'console_scripts': [
+            'distro = distro:main',
+        ]
+    },
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',

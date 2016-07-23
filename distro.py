@@ -31,13 +31,15 @@ more information.
 import os
 import re
 import sys
+import json
 import shlex
+import logging
+import argparse
 import subprocess
 
 
 if not sys.platform.startswith('linux'):
     raise ImportError('Unsupported platform: {0}'.format(sys.platform))
-
 
 _UNIXCONFDIR = '/etc'
 _OS_RELEASE_BASENAME = 'os-release'
@@ -73,7 +75,6 @@ NORMALIZED_LSB_ID = {
 NORMALIZED_DISTRO_ID = {
     'redhat': 'rhel',  # RHEL 6.x, 7.x
 }
-
 
 # Pattern for content of distro release file (reversed)
 _DISTRO_RELEASE_CONTENT_REVERSED_PATTERN = re.compile(
@@ -118,7 +119,7 @@ def linux_distribution(full_distribution_name=True):
     method normalizes the distro ID string to a reliable machine-readable value
     for a number of popular Linux distributions.
     """
-    return _distroi.linux_distribution(full_distribution_name)
+    return _distro.linux_distribution(full_distribution_name)
 
 
 def id():
@@ -193,7 +194,7 @@ def id():
       command, with ID values that differ from what was previously determined
       from the distro release file name.
     """
-    return _distroi.id()
+    return _distro.id()
 
 
 def name(pretty=False):
@@ -232,7 +233,7 @@ def name(pretty=False):
         with the value of the pretty version ("<version_id>" and "<codename>"
         fields) of the distro release file, if available.
     """
-    return _distroi.name(pretty)
+    return _distro.name(pretty)
 
 
 def version(pretty=False, best=False):
@@ -276,7 +277,7 @@ def version(pretty=False, best=False):
       the lsb_release command, if it follows the format of the distro release
       files.
     """
-    return _distroi.version(pretty, best)
+    return _distro.version(pretty, best)
 
 
 def version_parts(best=False):
@@ -293,7 +294,7 @@ def version_parts(best=False):
     For a description of the *best* parameter, see the :func:`distro.version`
     method.
     """
-    return _distroi.version_parts(best)
+    return _distro.version_parts(best)
 
 
 def major_version(best=False):
@@ -306,7 +307,7 @@ def major_version(best=False):
     For a description of the *best* parameter, see the :func:`distro.version`
     method.
     """
-    return _distroi.major_version(best)
+    return _distro.major_version(best)
 
 
 def minor_version(best=False):
@@ -319,7 +320,7 @@ def minor_version(best=False):
     For a description of the *best* parameter, see the :func:`distro.version`
     method.
     """
-    return _distroi.minor_version(best)
+    return _distro.minor_version(best)
 
 
 def build_number(best=False):
@@ -332,7 +333,7 @@ def build_number(best=False):
     For a description of the *best* parameter, see the :func:`distro.version`
     method.
     """
-    return _distroi.build_number(best)
+    return _distro.build_number(best)
 
 
 def like():
@@ -349,7 +350,7 @@ def like():
     `os-release man page
     <http://www.freedesktop.org/software/systemd/man/os-release.html>`_.
     """
-    return _distroi.like()
+    return _distro.like()
 
 
 def codename():
@@ -373,7 +374,7 @@ def codename():
 
     * the value of the "<codename>" field of the distro release file.
     """
-    return _distroi.codename()
+    return _distro.codename()
 
 
 def info(pretty=False, best=False):
@@ -417,7 +418,7 @@ def info(pretty=False, best=False):
     For a description of the *pretty* and *best* parameters, see the
     :func:`distro.version` method.
     """
-    return _distroi.info(pretty, best)
+    return _distro.info(pretty, best)
 
 
 def os_release_info():
@@ -427,7 +428,7 @@ def os_release_info():
 
     See `os-release file`_ for details about these information items.
     """
-    return _distroi.os_release_info()
+    return _distro.os_release_info()
 
 
 def lsb_release_info():
@@ -438,7 +439,7 @@ def lsb_release_info():
     See `lsb_release command output`_ for details about these information
     items.
     """
-    return _distroi.lsb_release_info()
+    return _distro.lsb_release_info()
 
 
 def distro_release_info():
@@ -448,7 +449,7 @@ def distro_release_info():
 
     See `distro release file`_ for details about these information items.
     """
-    return _distroi.distro_release_info()
+    return _distro.distro_release_info()
 
 
 def os_release_attr(attribute):
@@ -467,7 +468,7 @@ def os_release_attr(attribute):
 
     See `os-release file`_ for details about these information items.
     """
-    return _distroi.os_release_attr(attribute)
+    return _distro.os_release_attr(attribute)
 
 
 def lsb_release_attr(attribute):
@@ -487,7 +488,7 @@ def lsb_release_attr(attribute):
     See `lsb_release command output`_ for details about these information
     items.
     """
-    return _distroi.lsb_release_attr(attribute)
+    return _distro.lsb_release_attr(attribute)
 
 
 def distro_release_attr(attribute):
@@ -506,7 +507,7 @@ def distro_release_attr(attribute):
 
     See `distro release file`_ for details about these information items.
     """
-    return _distroi.distro_release_attr(attribute)
+    return _distro.distro_release_attr(attribute)
 
 
 class LinuxDistribution(object):
@@ -628,20 +629,22 @@ class LinuxDistribution(object):
 
         For details, see :func:`distro.id`.
         """
+
+        def normalize(distro_id, table):
+            distro_id = distro_id.lower().replace(' ', '_')
+            return table.get(distro_id, distro_id)
+
         distro_id = self.os_release_attr('id')
         if distro_id:
-            distro_id = distro_id.lower().replace(' ', '_')
-            return NORMALIZED_OS_ID.get(distro_id, distro_id)
+            return normalize(distro_id, NORMALIZED_OS_ID)
 
         distro_id = self.lsb_release_attr('distributor_id')
         if distro_id:
-            distro_id = distro_id.lower().replace(' ', '_')
-            return NORMALIZED_LSB_ID.get(distro_id, distro_id)
+            return normalize(distro_id, NORMALIZED_LSB_ID)
 
         distro_id = self.distro_release_attr('id')
         if distro_id:
-            distro_id = distro_id.lower().replace(' ', '_')
-            return NORMALIZED_DISTRO_ID.get(distro_id, distro_id)
+            return normalize(distro_id, NORMALIZED_DISTRO_ID)
 
         return ''
 
@@ -706,10 +709,10 @@ class LinuxDistribution(object):
         """
         version_str = self.version(best=best)
         if version_str:
-            g = re.compile(r'(\d+)\.?(\d+)?\.?(\d+)?')
-            m = g.match(version_str)
-            if m:
-                major, minor, build_number = m.groups()
+            version_regex = re.compile(r'(\d+)\.?(\d+)?\.?(\d+)?')
+            matches = version_regex.match(version_str)
+            if matches:
+                major, minor, build_number = matches.groups()
                 return major, minor or '', build_number or ''
         return '', '', ''
 
@@ -839,8 +842,8 @@ class LinuxDistribution(object):
             A dictionary containing all information items.
         """
         if os.path.isfile(self.os_release_file):
-            with open(self.os_release_file, 'r') as f:
-                return self._parse_os_release_content(f)
+            with open(self.os_release_file) as release_file:
+                return self._parse_os_release_content(release_file)
         return {}
 
     @staticmethod
@@ -911,26 +914,26 @@ class LinuxDistribution(object):
             A dictionary containing all information items.
         """
         cmd = 'lsb_release -a'
-        p = subprocess.Popen(
+        process = subprocess.Popen(
             cmd,
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
-        out, err = p.communicate()
-        out, err = out.decode('ascii'), err.decode('ascii')
-        rc = p.returncode
-        if rc == 0:
-            content = out.splitlines()
+        stdout, stderr = process.communicate()
+        stdout, stderr = stdout.decode('ascii'), stderr.decode('ascii')
+        code = process.returncode
+        if code == 0:
+            content = stdout.splitlines()
             return self._parse_lsb_release_content(content)
-        elif rc == 127:  # Command not found
+        elif code == 127:  # Command not found
             return {}
         else:
             if sys.version_info[:2] >= (3, 5):
-                raise subprocess.CalledProcessError(rc, cmd, out, err)
+                raise subprocess.CalledProcessError(code, cmd, stdout, stderr)
             elif sys.version_info[:2] >= (2, 7):
-                raise subprocess.CalledProcessError(rc, cmd, out)
+                raise subprocess.CalledProcessError(code, cmd, stdout)
             elif sys.version_info[:2] == (2, 6):
-                raise subprocess.CalledProcessError(rc, cmd)
+                raise subprocess.CalledProcessError(code, cmd)
 
     @staticmethod
     def _parse_lsb_release_content(lines):
@@ -1011,7 +1014,7 @@ class LinuxDistribution(object):
             A dictionary containing all information items.
         """
         if os.path.isfile(filepath):
-            with open(filepath, 'r') as fp:
+            with open(filepath) as fp:
                 # Only parse the first line. For instance, on SLES there
                 # are multiple lines. We don't want them...
                 return self._parse_distro_release_content(fp.readline())
@@ -1031,18 +1034,48 @@ class LinuxDistribution(object):
         """
         if isinstance(line, bytes):
             line = line.decode('utf-8')
-        m = _DISTRO_RELEASE_CONTENT_REVERSED_PATTERN.match(
+        matches = _DISTRO_RELEASE_CONTENT_REVERSED_PATTERN.match(
             line.strip()[::-1])
         distro_info = {}
-        if m:
-            distro_info['name'] = m.group(3)[::-1]   # regexp ensures non-None
-            if m.group(2):
-                distro_info['version_id'] = m.group(2)[::-1]
-            if m.group(1):
-                distro_info['codename'] = m.group(1)[::-1]
+        if matches:
+            # regexp ensures non-None
+            distro_info['name'] = matches.group(3)[::-1]
+            if matches.group(2):
+                distro_info['version_id'] = matches.group(2)[::-1]
+            if matches.group(1):
+                distro_info['codename'] = matches.group(1)[::-1]
         elif line:
             distro_info['name'] = line.strip()
         return distro_info
 
 
-_distroi = LinuxDistribution()
+_distro = LinuxDistribution()
+
+
+def main():
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(logging.StreamHandler(sys.stdout))
+
+    parser = argparse.ArgumentParser(description="Linux distro info tool")
+    parser.add_argument(
+        '--json',
+        '-j',
+        help="Output in machine readable format",
+        action="store_true")
+    args = parser.parse_args()
+
+    if args.json:
+        logger.info(json.dumps(info()))
+    else:
+        logger.info('Name: {0}'.format(name(pretty=True)))
+        distribution_version = version(pretty=True)
+        if distribution_version:
+            logger.info('Version: {0}'.format(distribution_version))
+        distribution_codename = codename()
+        if distribution_codename:
+            logger.info('Codename: {0}'.format(distribution_codename))
+
+
+if __name__ == '__main__':
+    main()

@@ -13,9 +13,10 @@
 # limitations under the License.
 
 import os
-import subprocess
 import sys
+import ast
 import testtools
+import subprocess
 try:
     from StringIO import StringIO  # Python 2.x
 except ImportError:
@@ -35,12 +36,11 @@ if IS_LINUX:
     import distro
 
     RELATIVE_UNIXCONFDIR = distro._UNIXCONFDIR[1:]
-    MODULE_DISTROI = distro._distroi
+    MODULE_DISTRO = distro._distro
 
 
 class TestNonLinuxPlatform(testtools.TestCase):
-    """
-    Obviously, this only tests Windows. Will add OS X tests on Travis
+    """Obviously, this only tests Windows. Will add OS X tests on Travis
     Later
     """
 
@@ -51,15 +51,45 @@ class TestNonLinuxPlatform(testtools.TestCase):
             self.assertIn('Unsupported platform', str(ex))
 
 
+class TestCli(testtools.TestCase):
+
+    @testtools.skipIf(not IS_LINUX, 'Irrelevant on non-linux platforms')
+    def setUp(self):
+        super(TestCli, self).setUp()
+
+    def _run(self, command):
+        stdout, _ = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE).communicate()
+        # Need to decode or we get bytes in Python 3.x
+        return stdout.decode('utf-8')
+
+    def test_cli(self):
+        command = [sys.executable, '-m', 'distro']
+        desired_output = 'Name: ' + distro.name(pretty=True)
+        distro_version = distro.version(pretty=True)
+        distro_codename = distro.codename()
+        if distro_version:
+            desired_output += '\n' + 'Version: ' + distro_version
+        if distro_codename:
+            desired_output += '\n' + 'Codename: ' + distro_codename
+        desired_output += '\n'
+        self.assertEqual(self._run(command), desired_output)
+
+    def test_cli_json(self):
+        command = [sys.executable, '-m', 'distro', '-j']
+        self.assertEqual(ast.literal_eval(self._run(command)), distro.info())
+
+
 class DistroTestCase(testtools.TestCase):
     """A base class for any testcase classes that test the distributions
     represented in the `DISTROS` subtree.
     """
 
+    @testtools.skipIf(not IS_LINUX, 'Irrelevant on non-linux platforms')
     def setUp(self):
         super(DistroTestCase, self).setUp()
-        if not IS_LINUX:
-            self.skipTest('Irrelevant on non-linux platforms')
         # The environment stays the same across all testcases, so we
         # save and restore the PATH env var in each test case that
         # changes it:
@@ -81,29 +111,28 @@ class DistroTestCase(testtools.TestCase):
 
 class TestOSRelease(testtools.TestCase):
 
+    @testtools.skipIf(not IS_LINUX, 'Irrelevant on non-linux platforms')
     def setUp(self):
         super(TestOSRelease, self).setUp()
-        if not IS_LINUX:
-            self.skipTest('Irrelevant on non-linux platforms')
         dist = self._testMethodName.split('_')[1]
         os_release = os.path.join(DISTROS_DIR, dist, 'etc', 'os-release')
-        self.distroi = distro.LinuxDistribution(False, os_release, 'non')
+        self.distro = distro.LinuxDistribution(False, os_release, 'non')
 
     def _test_outcome(self, outcome):
-        self.assertEqual(self.distroi.id(), outcome.get('id', ''))
-        self.assertEqual(self.distroi.name(), outcome.get('name', ''))
+        self.assertEqual(self.distro.id(), outcome.get('id', ''))
+        self.assertEqual(self.distro.name(), outcome.get('name', ''))
         self.assertEqual(
-            self.distroi.name(pretty=True),
+            self.distro.name(pretty=True),
             outcome.get('pretty_name', ''))
-        self.assertEqual(self.distroi.version(), outcome.get('version', ''))
+        self.assertEqual(self.distro.version(), outcome.get('version', ''))
         self.assertEqual(
-            self.distroi.version(pretty=True),
+            self.distro.version(pretty=True),
             outcome.get('pretty_version', ''))
         self.assertEqual(
-            self.distroi.version(best=True),
+            self.distro.version(best=True),
             outcome.get('best_version', ''))
-        self.assertEqual(self.distroi.like(), outcome.get('like', ''))
-        self.assertEqual(self.distroi.codename(), outcome.get('codename', ''))
+        self.assertEqual(self.distro.like(), outcome.get('like', ''))
+        self.assertEqual(self.distro.codename(), outcome.get('codename', ''))
 
     def test_arch_os_release(self):
         desired_outcome = {
@@ -346,23 +375,23 @@ class TestLSBRelease(DistroTestCase):
         super(TestLSBRelease, self).setUp()
         dist = self._testMethodName.split('_')[1]
         self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
-        self.distroi = distro.LinuxDistribution(True, 'non', 'non')
+        self.distro = distro.LinuxDistribution(True, 'non', 'non')
 
     def _test_outcome(self, outcome):
-        self.assertEqual(self.distroi.id(), outcome.get('id', ''))
-        self.assertEqual(self.distroi.name(), outcome.get('name', ''))
+        self.assertEqual(self.distro.id(), outcome.get('id', ''))
+        self.assertEqual(self.distro.name(), outcome.get('name', ''))
         self.assertEqual(
-            self.distroi.name(pretty=True),
+            self.distro.name(pretty=True),
             outcome.get('pretty_name', ''))
-        self.assertEqual(self.distroi.version(), outcome.get('version', ''))
+        self.assertEqual(self.distro.version(), outcome.get('version', ''))
         self.assertEqual(
-            self.distroi.version(pretty=True),
+            self.distro.version(pretty=True),
             outcome.get('pretty_version', ''))
         self.assertEqual(
-            self.distroi.version(best=True),
+            self.distro.version(best=True),
             outcome.get('best_version', ''))
-        self.assertEqual(self.distroi.like(), outcome.get('like', ''))
-        self.assertEqual(self.distroi.codename(), outcome.get('codename', ''))
+        self.assertEqual(self.distro.like(), outcome.get('like', ''))
+        self.assertEqual(self.distro.codename(), outcome.get('codename', ''))
 
     def test_linuxmint17_lsb_release(self):
         desired_outcome = {
@@ -391,7 +420,7 @@ class TestLSBRelease(DistroTestCase):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb',
                                             'ubuntu14_normal'))
 
-        self.distroi = distro.LinuxDistribution(True, 'non', 'non')
+        self.distro = distro.LinuxDistribution(True, 'non', 'non')
 
         desired_outcome = {
             'id': 'ubuntu',
@@ -408,7 +437,7 @@ class TestLSBRelease(DistroTestCase):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb',
                                             'ubuntu14_nomodules'))
 
-        self.distroi = distro.LinuxDistribution(True, 'non', 'non')
+        self.distro = distro.LinuxDistribution(True, 'non', 'non')
 
         desired_outcome = {
             'id': 'ubuntu',
@@ -425,7 +454,7 @@ class TestLSBRelease(DistroTestCase):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb',
                                             'ubuntu14_trailingblanks'))
 
-        self.distroi = distro.LinuxDistribution(True, 'non', 'non')
+        self.distro = distro.LinuxDistribution(True, 'non', 'non')
 
         desired_outcome = {
             'id': 'ubuntu',
@@ -474,34 +503,34 @@ class TestLSBRelease(DistroTestCase):
 
 class TestSpecialRelease(DistroTestCase):
     def _test_outcome(self, outcome):
-        self.assertEqual(self.distroi.id(), outcome.get('id', ''))
-        self.assertEqual(self.distroi.name(), outcome.get('name', ''))
+        self.assertEqual(self.distro.id(), outcome.get('id', ''))
+        self.assertEqual(self.distro.name(), outcome.get('name', ''))
         self.assertEqual(
-            self.distroi.name(pretty=True),
+            self.distro.name(pretty=True),
             outcome.get('pretty_name', ''))
-        self.assertEqual(self.distroi.version(), outcome.get('version', ''))
+        self.assertEqual(self.distro.version(), outcome.get('version', ''))
         self.assertEqual(
-            self.distroi.version(pretty=True),
+            self.distro.version(pretty=True),
             outcome.get('pretty_version', ''))
         self.assertEqual(
-            self.distroi.version(best=True),
+            self.distro.version(best=True),
             outcome.get('best_version', ''))
-        self.assertEqual(self.distroi.like(), outcome.get('like', ''))
-        self.assertEqual(self.distroi.codename(), outcome.get('codename', ''))
+        self.assertEqual(self.distro.like(), outcome.get('like', ''))
+        self.assertEqual(self.distro.codename(), outcome.get('codename', ''))
         self.assertEqual(
-            self.distroi.major_version(),
+            self.distro.major_version(),
             outcome.get('major_version', ''))
         self.assertEqual(
-            self.distroi.minor_version(),
+            self.distro.minor_version(),
             outcome.get('minor_version', ''))
         self.assertEqual(
-            self.distroi.build_number(),
+            self.distro.build_number(),
             outcome.get('build_number', ''))
 
     def test_empty_release(self):
         distro_release = os.path.join(SPECIAL, 'empty-release')
 
-        self.distroi = distro.LinuxDistribution(False, 'non', distro_release)
+        self.distro = distro.LinuxDistribution(False, 'non', distro_release)
 
         desired_outcome = {
             'id': 'empty'
@@ -512,7 +541,7 @@ class TestSpecialRelease(DistroTestCase):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'distro',
                                             'unknowndistro'))
 
-        self.distroi = distro.LinuxDistribution()
+        self.distro = distro.LinuxDistribution()
 
         desired_outcome = {
             'id': 'unknowndistro',
@@ -530,10 +559,9 @@ class TestSpecialRelease(DistroTestCase):
 
 class TestDistroRelease(testtools.TestCase):
 
+    @testtools.skipIf(not IS_LINUX, 'Irrelevant on non-linux platforms')
     def setUp(self):
         super(TestDistroRelease, self).setUp()
-        if not IS_LINUX:
-            self.skipTest('Irrelevant on non-linux platforms')
 
     def _test_outcome(self,
                       outcome,
@@ -545,30 +573,30 @@ class TestDistroRelease(testtools.TestCase):
         distro_release = os.path.join(
             DISTROS_DIR, distro_name + version, 'etc', '{0}-{1}'.format(
                 release_file_id, release_file_suffix))
-        self.distroi = distro.LinuxDistribution(False, 'non', distro_release)
+        self.distro = distro.LinuxDistribution(False, 'non', distro_release)
 
-        self.assertEqual(self.distroi.id(), outcome.get('id', ''))
-        self.assertEqual(self.distroi.name(), outcome.get('name', ''))
+        self.assertEqual(self.distro.id(), outcome.get('id', ''))
+        self.assertEqual(self.distro.name(), outcome.get('name', ''))
         self.assertEqual(
-            self.distroi.name(pretty=True),
+            self.distro.name(pretty=True),
             outcome.get('pretty_name', ''))
-        self.assertEqual(self.distroi.version(), outcome.get('version', ''))
+        self.assertEqual(self.distro.version(), outcome.get('version', ''))
         self.assertEqual(
-            self.distroi.version(pretty=True),
+            self.distro.version(pretty=True),
             outcome.get('pretty_version', ''))
         self.assertEqual(
-            self.distroi.version(best=True),
+            self.distro.version(best=True),
             outcome.get('best_version', ''))
-        self.assertEqual(self.distroi.like(), outcome.get('like', ''))
-        self.assertEqual(self.distroi.codename(), outcome.get('codename', ''))
+        self.assertEqual(self.distro.like(), outcome.get('like', ''))
+        self.assertEqual(self.distro.codename(), outcome.get('codename', ''))
         self.assertEqual(
-            self.distroi.major_version(),
+            self.distro.major_version(),
             outcome.get('major_version', ''))
         self.assertEqual(
-            self.distroi.minor_version(),
+            self.distro.minor_version(),
             outcome.get('minor_version', ''))
         self.assertEqual(
-            self.distroi.build_number(),
+            self.distro.build_number(),
             outcome.get('build_number', ''))
 
     def test_arch_dist_release(self):
@@ -799,44 +827,44 @@ class TestOverall(DistroTestCase):
         super(TestOverall, self).setUp()
         dist = self._testMethodName.split('_')[1]
         self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
-        self.distroi = distro.LinuxDistribution()
+        self.distro = distro.LinuxDistribution()
 
     def _test_outcome(self, outcome):
-        self.assertEqual(self.distroi.id(), outcome.get('id', ''))
-        self.assertEqual(self.distroi.name(), outcome.get('name', ''))
+        self.assertEqual(self.distro.id(), outcome.get('id', ''))
+        self.assertEqual(self.distro.name(), outcome.get('name', ''))
         self.assertEqual(
-            self.distroi.name(pretty=True),
+            self.distro.name(pretty=True),
             outcome.get('pretty_name', ''))
-        self.assertEqual(self.distroi.version(), outcome.get('version', ''))
+        self.assertEqual(self.distro.version(), outcome.get('version', ''))
         self.assertEqual(
-            self.distroi.version(pretty=True),
+            self.distro.version(pretty=True),
             outcome.get('pretty_version', ''))
         self.assertEqual(
-            self.distroi.version(best=True),
+            self.distro.version(best=True),
             outcome.get('best_version', ''))
-        self.assertEqual(self.distroi.like(), outcome.get('like', ''))
-        self.assertEqual(self.distroi.codename(), outcome.get('codename', ''))
+        self.assertEqual(self.distro.like(), outcome.get('like', ''))
+        self.assertEqual(self.distro.codename(), outcome.get('codename', ''))
         self.assertEqual(
-            self.distroi.major_version(),
+            self.distro.major_version(),
             outcome.get('major_version', ''))
         self.assertEqual(
-            self.distroi.minor_version(),
+            self.distro.minor_version(),
             outcome.get('minor_version', ''))
         self.assertEqual(
-            self.distroi.build_number(),
+            self.distro.build_number(),
             outcome.get('build_number', ''))
 
     def _test_non_existing_release_file(self):
         # Test the info from the searched distro release file
         # does not have one.
-        self.assertEqual(self.distroi.distro_release_file, '')
-        self.assertEqual(len(self.distroi.distro_release_info()), 0)
+        self.assertEqual(self.distro.distro_release_file, '')
+        self.assertEqual(len(self.distro.distro_release_info()), 0)
 
     def _test_release_file_info(self, filename, outcome):
         # Test the info from the searched distro release file
         self.assertEqual(os.path.basename(
-            self.distroi.distro_release_file), filename)
-        distro_info = self.distroi.distro_release_info()
+            self.distro.distro_release_file), filename)
+        distro_info = self.distro.distro_release_info()
         for key, value in outcome.items():
             self.assertEqual(distro_info[key], value)
         return distro_info
@@ -1056,8 +1084,7 @@ class TestOverall(DistroTestCase):
         self._test_release_file_info(
             'manjaro-release',
             {'id': 'manjaro',
-             'name': 'Manjaro Linux'}
-                                     )
+             'name': 'Manjaro Linux'})
 
     def test_opensuse42_release(self):
         desired_outcome = {
@@ -1339,12 +1366,12 @@ class TestGetAttr(DistroTestCase):
     def _test_attr(self, info_method, attr_method):
         for dist in DISTROS:
             self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
-            distroi = distro.LinuxDistribution()
-            info = getattr(distroi, info_method)()
+            _distro = distro.LinuxDistribution()
+            info = getattr(_distro, info_method)()
             for key in info.keys():
                 self.assertEqual(
                     info[key],
-                    getattr(distroi, attr_method)(key),
+                    getattr(_distro, attr_method)(key),
                     "distro: {0}, key: {1}".format(dist, key))
 
     def test_os_release_attr(self):
@@ -1365,7 +1392,7 @@ class TestInfo(DistroTestCase):
             DISTROS_DIR, 'ubuntu14', 'etc', 'os-release')
 
     def test_info(self):
-        distroi = distro.LinuxDistribution(
+        _distro = distro.LinuxDistribution(
             False, self.ubuntu14_os_release, 'non')
 
         desired_info = {
@@ -1380,14 +1407,14 @@ class TestInfo(DistroTestCase):
             'codename': 'Trusty Tahr'
         }
 
-        info = distroi.info()
+        info = _distro.info()
         self.assertDictEqual(info, desired_info)
 
         desired_info_diff = {
             'version': '14.04 (Trusty Tahr)'
         }
         desired_info.update(desired_info_diff)
-        info = distroi.info(pretty=True)
+        info = _distro.info(pretty=True)
         self.assertDictEqual(info, desired_info)
 
         desired_info_diff = {
@@ -1399,14 +1426,14 @@ class TestInfo(DistroTestCase):
             }
         }
         desired_info.update(desired_info_diff)
-        info = distroi.info(best=True)
+        info = _distro.info(best=True)
         self.assertDictEqual(info, desired_info)
 
         desired_info_diff = {
             'version': '14.04.3 (Trusty Tahr)'
         }
         desired_info.update(desired_info_diff)
-        info = distroi.info(pretty=True, best=True)
+        info = _distro.info(pretty=True, best=True)
         self.assertDictEqual(info, desired_info)
 
     def test_none(self):
@@ -1420,28 +1447,28 @@ class TestInfo(DistroTestCase):
             self.assertEqual(info['version_parts']['build_number'], '')
             self.assertEqual(info['codename'], '')
 
-        distroi = distro.LinuxDistribution(False, 'non', 'non')
+        _distro = distro.LinuxDistribution(False, 'non', 'non')
 
-        info = distroi.info()
+        info = _distro.info()
         _test_none(info)
 
-        info = distroi.info(best=True)
+        info = _distro.info(best=True)
         _test_none(info)
 
-        info = distroi.info(pretty=True)
+        info = _distro.info(pretty=True)
         _test_none(info)
 
-        info = distroi.info(pretty=True, best=True)
+        info = _distro.info(pretty=True, best=True)
         _test_none(info)
 
     def test_linux_disribution(self):
-        distroi = distro.LinuxDistribution(False, self.ubuntu14_os_release)
-        i = distroi.linux_distribution()
+        _distro = distro.LinuxDistribution(False, self.ubuntu14_os_release)
+        i = _distro.linux_distribution()
         self.assertEqual(i, ('Ubuntu', '14.04', 'Trusty Tahr'))
 
     def test_linux_disribution_full_false(self):
-        distroi = distro.LinuxDistribution(False, self.ubuntu14_os_release)
-        i = distroi.linux_distribution(full_distribution_name=False)
+        _distro = distro.LinuxDistribution(False, self.ubuntu14_os_release)
+        i = _distro.linux_distribution(full_distribution_name=False)
         self.assertEqual(i, ('ubuntu', '14.04', 'Trusty Tahr'))
 
     def test_all(self):
@@ -1451,25 +1478,25 @@ class TestInfo(DistroTestCase):
 
         def _test_all(info, best=False, pretty=False):
             self.assertEqual(info['id'],
-                             distroi.id(),
+                             _distro.id(),
                              "distro: {0}".format(dist))
             self.assertEqual(info['version'],
-                             distroi.version(pretty=pretty, best=best),
+                             _distro.version(pretty=pretty, best=best),
                              "distro: {0}".format(dist))
             self.assertEqual(info['version_parts']['major'],
-                             distroi.major_version(best=best),
+                             _distro.major_version(best=best),
                              "distro: {0}".format(dist))
             self.assertEqual(info['version_parts']['minor'],
-                             distroi.minor_version(best=best),
+                             _distro.minor_version(best=best),
                              "distro: {0}".format(dist))
             self.assertEqual(info['version_parts']['build_number'],
-                             distroi.build_number(best=best),
+                             _distro.build_number(best=best),
                              "distro: {0}".format(dist))
             self.assertEqual(info['like'],
-                             distroi.like(),
+                             _distro.like(),
                              "distro: {0}".format(dist))
             self.assertEqual(info['codename'],
-                             distroi.codename(),
+                             _distro.codename(),
                              "distro: {0}".format(dist))
             self.assertEqual(len(info['version_parts']), 3,
                              "distro: {0}".format(dist))
@@ -1479,18 +1506,18 @@ class TestInfo(DistroTestCase):
         for dist in DISTROS:
             self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
 
-            distroi = distro.LinuxDistribution()
+            _distro = distro.LinuxDistribution()
 
-            info = distroi.info()
+            info = _distro.info()
             _test_all(info)
 
-            info = distroi.info(best=True)
+            info = _distro.info(best=True)
             _test_all(info, best=True)
 
-            info = distroi.info(pretty=True)
+            info = _distro.info(pretty=True)
             _test_all(info, pretty=True)
 
-            info = distroi.info(pretty=True, best=True)
+            info = _distro.info(pretty=True, best=True)
             _test_all(info, pretty=True, best=True)
 
 
@@ -1498,15 +1525,14 @@ class TestOSReleaseParsing(testtools.TestCase):
     """Test the parsing of os-release files.
     """
 
+    @testtools.skipIf(not IS_LINUX, 'Irrelevant on non-linux platforms')
     def setUp(self):
-        if not IS_LINUX:
-            self.skipTest('Irrelevant on non-linux platforms')
-        self.distroi = distro.LinuxDistribution(False, None, None)
-        self.distroi.debug = True
+        self.distro = distro.LinuxDistribution(False, None, None)
+        self.distro.debug = True
         super(TestOSReleaseParsing, self).setUp()
 
     def _get_props(self, input):
-        return self.distroi._parse_os_release_content(StringIO(
+        return self.distro._parse_os_release_content(StringIO(
             input,
         ))
 
@@ -1619,7 +1645,7 @@ class TestOSReleaseParsing(testtools.TestCase):
         self.assertEqual(props.get('key', None), '"value"')
 
     def test_kv_26_double_quoted_multiline(self):
-        props = self.distroi._parse_os_release_content(StringIO(
+        props = self.distro._parse_os_release_content(StringIO(
             'KEY="a multi\n'
             'line value"\n'
         ))
@@ -1628,7 +1654,7 @@ class TestOSReleaseParsing(testtools.TestCase):
 
     def test_kv_27_double_quoted_multiline_2(self):
         props = self._get_props('KEY=\' a  simple   value \'\n')
-        props = self.distroi._parse_os_release_content(StringIO(
+        props = self.distro._parse_os_release_content(StringIO(
             'KEY="a multi\n'
             'line=value"\n'
         ))
@@ -1644,7 +1670,7 @@ class TestOSReleaseParsing(testtools.TestCase):
         self.assertEqual(props.get('key', None), 'var=value')
 
     def test_kx_01(self):
-        props = self.distroi._parse_os_release_content(StringIO(
+        props = self.distro._parse_os_release_content(StringIO(
             'KEY1=value1\n'
             'KEY2="value  2"\n'
         ))
@@ -1652,7 +1678,7 @@ class TestOSReleaseParsing(testtools.TestCase):
         self.assertEqual(props.get('key2', None), 'value  2')
 
     def test_kx_02(self):
-        props = self.distroi._parse_os_release_content(StringIO(
+        props = self.distro._parse_os_release_content(StringIO(
             '# KEY1=value1\n'
             'KEY2="value  2"\n'
         ))
@@ -1665,10 +1691,9 @@ class TestGlobal(testtools.TestCase):
     arguments.
     """
 
+    @testtools.skipIf(not IS_LINUX, 'Irrelevant on non-linux platforms')
     def setUp(self):
         super(TestGlobal, self).setUp()
-        if not IS_LINUX:
-            self.skipTest('Irrelevant on non-linux platforms')
 
     def test_global(self):
         # Because the module-level functions use the module-global
@@ -1681,7 +1706,7 @@ class TestGlobal(testtools.TestCase):
 
         def _test_consistency(function, kwargs=None):
             kwargs = kwargs or {}
-            method_result = getattr(MODULE_DISTROI, function)(**kwargs)
+            method_result = getattr(MODULE_DISTRO, function)(**kwargs)
             function_result = getattr(distro, function)(**kwargs)
             self.assertEqual(method_result, function_result)
 
@@ -1760,15 +1785,11 @@ class TestRepr(testtools.TestCase):
     """Test the __repr__() method.
     """
 
-    def setUp(self):
-        super(TestRepr, self).setUp()
-        if not IS_LINUX:
-            self.skipTest('Irrelevant on non-linux platforms')
-
+    @testtools.skipIf(not IS_LINUX, 'Irrelevant on non-linux platforms')
     def test_repr(self):
         # We test that the class name and the names of all instance attributes
         # show up in the repr() string.
-        repr_str = repr(distro._distroi)
+        repr_str = repr(distro._distro)
         self.assertIn("LinuxDistribution", repr_str)
-        for attr in MODULE_DISTROI.__dict__.keys():
+        for attr in MODULE_DISTRO.__dict__.keys():
             self.assertIn(attr + '=', repr_str)
