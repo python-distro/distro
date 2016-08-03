@@ -35,12 +35,6 @@ import shlex
 import subprocess
 
 
-if sys.version_info[0] < 3:
-    binary_type = str
-else:
-    binary_type = bytes
-
-
 if not sys.platform.startswith('linux'):
     raise ImportError('Unsupported platform: {0}'.format(sys.platform))
 
@@ -874,7 +868,7 @@ class LinuxDistribution(object):
         # string. This causes a UnicodeDecodeError to be raised when the
         # parsed content is a unicode object. The following fix resolves that
         # (... but it should be fixed in shlex...):
-        if sys.version_info[0] == 2 and isinstance(lexer.wordchars, str):
+        if sys.version_info[0] == 2 and isinstance(lexer.wordchars, bytes):
             lexer.wordchars = lexer.wordchars.decode('iso-8859-1')
 
         tokens = list(lexer)
@@ -887,7 +881,7 @@ class LinuxDistribution(object):
             # * commands or their arguments (not allowed in os-release)
             if '=' in token:
                 k, v = token.split('=', 1)
-                if isinstance(v, binary_type):
+                if isinstance(v, bytes):
                     v = v.decode('utf-8')
                 props[k.lower()] = v
                 if k == 'VERSION':
@@ -954,7 +948,7 @@ class LinuxDistribution(object):
         """
         props = {}
         for line in lines:
-            if isinstance(line, binary_type):
+            if isinstance(line, bytes):
                 line = line.decode('utf-8')
             kv = line.strip('\n').split(':', 1)
             if len(kv) != 2:
@@ -1035,7 +1029,7 @@ class LinuxDistribution(object):
         Returns:
             A dictionary containing all information items.
         """
-        if isinstance(line, binary_type):
+        if isinstance(line, bytes):
             line = line.decode('utf-8')
         m = _DISTRO_RELEASE_CONTENT_REVERSED_PATTERN.match(
             line.strip()[::-1])
