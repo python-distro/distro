@@ -1,25 +1,17 @@
 sudo: false
 language: python
-python:
-  - "2.7"
-matrix:
-  include:
-    - python: 3.5
-      env:
-      - TOX_ENV=py35
-    - python: 3.4
-      env:
-      - TOX_ENV=py34
-    - python: pypy
-      env:
-      - TOX_ENV=pypy
+python: 3.5
 env:
-    - TOX_ENV=flake8
-    - TOX_ENV=py27
-    - TOX_ENV=py26
+    - TOXENV=flake8
+    - TOXENV=py26
+    - TOXENV=py27
+    - TOXENV=py34
+    - TOXENV=py35
+    - TOXENV=pypy
+    - TOXENV=pypy3
 install:
     - pip install tox
 script:
-    - tox -e $TOX_ENV
+    - tox
 after_success:
     coveralls
