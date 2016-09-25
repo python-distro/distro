@@ -1,0 +1,24 @@
+**1.0.0 (2016-09-25)**
+
+* Add a CLI and a `distro` entry point. For Python 2.6, argparse will be installed.
+* Add many test cases (e.g. Raspbian 8, CoreOS, Amazon Linux, Scientific Linux, Gentoo, Manjaro)
+* Make distro non-importable on non-compatible platforms (e.g. Windows and tested via AppVeyor)
+* Completely redo the testing framework to make it easier to add tests
+* Remove six as a dependency
+* Emit stderr if `lsb_release` fails
+* Fix some encoding related issues
+* We now use `bytes` invariantly
+* Test on pypy
+
+**0.6.0 (2016-04-21)**
+
+* Introduces a new name (`distro`)
+* No longer a package. constants.py has been removed and distro is now a single module.
+* Documentation fixes.
+* distro.info() now receives best and pretty flags.
+* Added Linux Mint test case.
+* Removed get_ prefix from get_*_release_attr functions.
+* Now testing on Python 3.4.
+* Codename is now passed in distro.info()
+
+All previous work was done on `ld` and therefore unmentioned here. See the release log in GitHub if you want the entire log.
