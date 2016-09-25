@@ -3,8 +3,12 @@ Distro - a Linux OS platform information API
 
 [![Build Status](https://travis-ci.org/nir0s/distro.svg?branch=master)](https://travis-ci.org/nir0s/distro)
 [![Build status](https://ci.appveyor.com/api/projects/status/e812qjk1gf0f74r5/branch/master?svg=true)](https://ci.appveyor.com/project/nir0s/distro/branch/master)
-[![PyPI downloads](http://img.shields.io/pypi/dm/distro.svg)](https://pypi.python.org/pypi/distro)
 [![PyPI version](http://img.shields.io/pypi/v/distro.svg)](https://pypi.python.org/pypi/distro)
+[![Supported Python Versions](https://img.shields.io/pypi/pyversions/distro.svg)](https://img.shields.io/pypi/pyversions/distro.svg)
+[![Requirements Status](https://requires.io/github/nir0s/distro/requirements.svg?branch=master)](https://requires.io/github/nir0s/distro/requirements/?branch=master)
+[![Code Coverage](https://codecov.io/github/nir0s/distro/coverage.svg?branch=master)](https://codecov.io/github/nir0s/distro?branch=master)
+[![Is Wheel](https://img.shields.io/pypi/wheel/distro.svg?style=flat)](https://pypi.python.org/pypi/distro)
+[![Latest Github Release](https://img.shields.io/github/release/nir0s/distro.svg)](https://img.shields.io/github/release/nir0s/distro.svg)
 
 
 The `distro` (for: Linux Distribution) package provides information about the
