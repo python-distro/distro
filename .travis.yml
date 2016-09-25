@@ -11,7 +11,8 @@ env:
     - TOXENV=pypy3
 install:
     - pip install tox
+    - pip install codecov
 script:
     - tox
 after_success:
-    coveralls
+  - codecov
