@@ -1,0 +1,10 @@
+[run]
+branch = True
+source =
+    distro.py
+
+[paths]
+source =
+   distro.py
+   .tox/*/lib/python*/site-packages/distro.py
+   .tox/pypy/site-packages/distro.py
