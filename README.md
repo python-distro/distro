@@ -66,8 +66,16 @@ data that mimics the exact behavior of the data sources of
 
 ## Usage
 
-```
-python
+```bash
+$ distro
+Name: Antergos Linux
+Version: 2015.10 (ISO-Rolling)
+Codename: ISO-Rolling
+
+$ distro -j
+{"codename": "ISO-Rolling", "version": "2015.10", "like": "arch", "version_parts": {"major": "2015", "build_number": "", "minor": "10"}, "id": "antergos"}
+
+$ python
 >>> import distro
 >>> distro.linux_distribution(full_distribution_name=False)
 '('centos', '7.1.1503', 'Core')'
