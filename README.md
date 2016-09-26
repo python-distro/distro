@@ -8,7 +8,7 @@ Distro - a Linux OS platform information API
 [![Requirements Status](https://requires.io/github/nir0s/distro/requirements.svg?branch=master)](https://requires.io/github/nir0s/distro/requirements/?branch=master)
 [![Code Coverage](https://codecov.io/github/nir0s/distro/coverage.svg?branch=master)](https://codecov.io/github/nir0s/distro?branch=master)
 [![Is Wheel](https://img.shields.io/pypi/wheel/distro.svg?style=flat)](https://pypi.python.org/pypi/distro)
-[![Latest Github Release](https://img.shields.io/github/release/nir0s/distro.svg)](https://img.shields.io/github/release/nir0s/distro.svg)
+[![Latest Github Release](https://readthedocs.org/projects/distro/badge/?version=stable)](http://distro.readthedocs.io/en/latest/)
 
 
 The `distro` (for: Linux Distribution) package provides information about the
