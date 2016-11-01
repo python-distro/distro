@@ -8,3 +8,9 @@ source =
    distro.py
    .tox/*/lib/python*/site-packages/distro.py
    .tox/pypy/site-packages/distro.py
+
+[report]
+exclude_lines =
+    if __name__ == .__main__.:
+    raise ImportError
+    raise subprocess.CalledProcessError

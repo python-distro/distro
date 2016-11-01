@@ -951,8 +951,7 @@ class LinuxDistribution(object):
         """
         props = {}
         for line in lines:
-            if isinstance(line, bytes):
-                line = line.decode('utf-8')
+            line = line.decode('utf-8') if isinstance(line, bytes) else line
             kv = line.strip('\n').split(':', 1)
             if len(kv) != 2:
                 # Ignore lines without colon.

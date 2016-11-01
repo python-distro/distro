@@ -15,12 +15,13 @@
 import os
 import sys
 import ast
-import testtools
 import subprocess
 try:
     from StringIO import StringIO  # Python 2.x
 except ImportError:
     from io import StringIO  # Python 3.x
+
+import testtools
 
 
 BASE = os.path.abspath(os.path.dirname(__file__))
@@ -57,6 +58,10 @@ class TestCli(testtools.TestCase):
     def setUp(self):
         super(TestCli, self).setUp()
 
+    def _parse(self, command):
+        sys.argv = command.split()
+        distro.main()
+
     def _run(self, command):
         stdout, _ = subprocess.Popen(
             command,
@@ -64,6 +69,10 @@ class TestCli(testtools.TestCase):
             stderr=subprocess.PIPE).communicate()
         # Need to decode or we get bytes in Python 3.x
         return stdout.decode('utf-8')
+
+    def test_cli_for_coverage_yuch(self):
+        self._parse('distro')
+        self._parse('distro -j')
 
     def test_cli(self):
         command = [sys.executable, '-m', 'distro']
@@ -1475,7 +1484,6 @@ class TestInfo(DistroTestCase):
         """Test info() by comparing its results with the results of specific
         consolidated accessor functions.
         """
-
         def _test_all(info, best=False, pretty=False):
             self.assertEqual(info['id'],
                              _distro.id(),
