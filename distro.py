@@ -1065,7 +1065,7 @@ def main():
     args = parser.parse_args()
 
     if args.json:
-        logger.info(json.dumps(info()))
+        logger.info(json.dumps(info(), indent=4, sort_keys=True))
     else:
         logger.info('Name: %s', name(pretty=True))
         distribution_version = version(pretty=True)
