@@ -920,7 +920,7 @@ class LinuxDistribution(object):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
-        stdout, stderr = stdout.decode('ascii'), stderr.decode('ascii')
+        stdout, stderr = stdout.decode('utf-8'), stderr.decode('utf-8')
         code = process.returncode
         if code == 0:
             content = stdout.splitlines()
