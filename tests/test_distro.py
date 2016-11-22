@@ -1170,6 +1170,28 @@ class TestOverall(DistroTestCase):
         self._test_outcome(desired_outcome)
         self._test_non_existing_release_file()
 
+    def test_rhel5_release(self):
+        desired_outcome = {
+            'id': 'rhel',
+            'name': 'Red Hat Enterprise Linux Server',
+            'pretty_name': 'Red Hat Enterprise Linux Server release 5.11 (Tikanga)',
+            'version': '5.11',
+            'pretty_version': '5.11 (Tikanga)',
+            'best_version': '5.11',
+            'codename': 'Tikanga',
+            'major_version': '5',
+            'minor_version': '11'
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            'id': 'redhat',
+            'name': 'Red Hat Enterprise Linux Server',
+            'version_id': '5.11',
+            'codename': 'Tikanga'
+        }
+        self._test_release_file_info('redhat-release', desired_info)
+
     def test_rhel6_release(self):
         desired_outcome = {
             'id': 'rhel',
