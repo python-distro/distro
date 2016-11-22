@@ -1127,7 +1127,7 @@ class TestOverall(DistroTestCase):
         desired_outcome = {
             'id': 'rhel',
             'name': 'Red Hat Enterprise Linux Server',
-            'pretty_name': 'Red Hat Enterprise Linux Server release 5.11 (Tikanga)',
+            'pretty_name': 'Red Hat Enterprise Linux Server 5.11 (Tikanga)',
             'version': '5.11',
             'pretty_version': '5.11 (Tikanga)',
             'best_version': '5.11',
