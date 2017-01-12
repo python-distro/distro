@@ -86,8 +86,9 @@ test:
 
 .PHONY: publish
 publish:
-	python setup.py sdist upload
-	@echo "$@ done; uploaded the ld package to PyPI."
+	python setup.py sdist bdist_wheel
+	twine upload -s dist/$(PACKAGENAME)-*
+	@echo "$@ done."
 
 .PHONY: html
 html:
