@@ -1,3 +1,11 @@
+**1.0.2 (2017.01.12)**
+
+* Add MANIFEST file (which also includes the LICENSE as part of Issue #139)
+* Default to releasing using Twine (as per Issue #121)
+* Update license in setup.py
+* Test on py33, py36 and py3 based flake8
+* Add setup.cfg file
+
 **1.0.1 (2016-11-03)**
 
 * Prettify output when running `distro -j`
