@@ -14,8 +14,10 @@
 # limitations under the License.
 
 from __future__ import print_function
-import distro
+
 from pprint import pformat
+
+import distro
 
 
 def pprint(obj):
