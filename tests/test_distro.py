@@ -79,10 +79,8 @@ class TestCli(testtools.TestCase):
         desired_output = 'Name: ' + distro.name(pretty=True)
         distro_version = distro.version(pretty=True)
         distro_codename = distro.codename()
-        if distro_version:
-            desired_output += '\n' + 'Version: ' + distro_version
-        if distro_codename:
-            desired_output += '\n' + 'Codename: ' + distro_codename
+        desired_output += '\n' + 'Version: ' + distro_version
+        desired_output += '\n' + 'Codename: ' + distro_codename
         desired_output += '\n'
         self.assertEqual(self._run(command), desired_output)
 
