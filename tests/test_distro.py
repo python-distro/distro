@@ -21,7 +21,7 @@ try:
 except ImportError:
     from io import StringIO  # Python 3.x
 
-import testtools
+import pytest
 
 
 BASE = os.path.abspath(os.path.dirname(__file__))
@@ -29,7 +29,7 @@ RESOURCES = os.path.join(BASE, 'resources')
 DISTROS_DIR = os.path.join(RESOURCES, 'distros')
 TESTDISTROS = os.path.join(RESOURCES, 'testdistros')
 SPECIAL = os.path.join(RESOURCES, 'special')
-DISTROS = [x for x in os.listdir(DISTROS_DIR) if x != '__shared__']
+DISTROS = [dist for dist in os.listdir(DISTROS_DIR) if dist != '__shared__']
 
 
 IS_LINUX = sys.platform.startswith('linux')
@@ -40,7 +40,7 @@ if IS_LINUX:
     MODULE_DISTRO = distro._distro
 
 
-class TestNonLinuxPlatform(testtools.TestCase):
+class TestNonLinuxPlatform:
     """Obviously, this only tests Windows. Will add OS X tests on Travis
     Later
     """
@@ -49,14 +49,11 @@ class TestNonLinuxPlatform(testtools.TestCase):
         try:
             import distro  # NOQA
         except ImportError as ex:
-            self.assertIn('Unsupported platform', str(ex))
+            assert 'Unsupported platform' in str(ex)
 
 
-class TestCli(testtools.TestCase):
-
-    @testtools.skipIf(not IS_LINUX, 'Irrelevant on non-linux platforms')
-    def setUp(self):
-        super(TestCli, self).setUp()
+@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
+class TestCli:
 
     def _parse(self, command):
         sys.argv = command.split()
@@ -84,29 +81,27 @@ class TestCli(testtools.TestCase):
         if distro_codename:
             desired_output += '\n' + 'Codename: ' + distro_codename
         desired_output += '\n'
-        self.assertEqual(self._run(command), desired_output)
+        assert self._run(command) == desired_output
 
     def test_cli_json(self):
         command = [sys.executable, '-m', 'distro', '-j']
-        self.assertEqual(ast.literal_eval(self._run(command)), distro.info())
+        assert ast.literal_eval(self._run(command)) == distro.info()
 
 
-class DistroTestCase(testtools.TestCase):
+@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
+class DistroTestCase(object):
     """A base class for any testcase classes that test the distributions
     represented in the `DISTROS` subtree.
     """
 
-    @testtools.skipIf(not IS_LINUX, 'Irrelevant on non-linux platforms')
-    def setUp(self):
-        super(DistroTestCase, self).setUp()
+    def setup_method(self, test_method):
         # The environment stays the same across all testcases, so we
         # save and restore the PATH env var in each test case that
         # changes it:
         self._saved_path = os.environ["PATH"]
         self._saved_UNIXCONFDIR = distro._UNIXCONFDIR
 
-    def tearDown(self):
-        super(DistroTestCase, self).tearDown()
+    def teardown_method(self, test_method):
         os.environ["PATH"] = self._saved_path
         distro._UNIXCONFDIR = self._saved_UNIXCONFDIR
 
@@ -118,30 +113,25 @@ class DistroTestCase(testtools.TestCase):
         distro._UNIXCONFDIR = os.path.join(distro_root, RELATIVE_UNIXCONFDIR)
 
 
-class TestOSRelease(testtools.TestCase):
+@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
+class TestOSRelease:
 
-    @testtools.skipIf(not IS_LINUX, 'Irrelevant on non-linux platforms')
-    def setUp(self):
-        super(TestOSRelease, self).setUp()
-        dist = self._testMethodName.split('_')[1]
+    def setup_method(self, test_method):
+        dist = test_method.__name__.split('_')[1]
         os_release = os.path.join(DISTROS_DIR, dist, 'etc', 'os-release')
         self.distro = distro.LinuxDistribution(False, os_release, 'non')
 
     def _test_outcome(self, outcome):
-        self.assertEqual(self.distro.id(), outcome.get('id', ''))
-        self.assertEqual(self.distro.name(), outcome.get('name', ''))
-        self.assertEqual(
-            self.distro.name(pretty=True),
-            outcome.get('pretty_name', ''))
-        self.assertEqual(self.distro.version(), outcome.get('version', ''))
-        self.assertEqual(
-            self.distro.version(pretty=True),
-            outcome.get('pretty_version', ''))
-        self.assertEqual(
-            self.distro.version(best=True),
-            outcome.get('best_version', ''))
-        self.assertEqual(self.distro.like(), outcome.get('like', ''))
-        self.assertEqual(self.distro.codename(), outcome.get('codename', ''))
+        assert self.distro.id() == outcome.get('id', '')
+        assert self.distro.name() == outcome.get('name', '')
+        assert self.distro.name(pretty=True) == outcome.get('pretty_name', '')
+        assert self.distro.version() == outcome.get('version', '')
+        assert self.distro.version(pretty=True) == \
+            outcome.get('pretty_version', '')
+        assert self.distro.version(best=True) == \
+            outcome.get('best_version', '')
+        assert self.distro.like() == outcome.get('like', '')
+        assert self.distro.codename() == outcome.get('codename', '')
 
     def test_arch_os_release(self):
         desired_outcome = {
@@ -378,29 +368,27 @@ class TestOSRelease(testtools.TestCase):
         self._test_outcome(desired_outcome)
 
 
+@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestLSBRelease(DistroTestCase):
 
-    def setUp(self):
-        super(TestLSBRelease, self).setUp()
-        dist = self._testMethodName.split('_')[1]
+    def setup_method(self, test_method):
+        super(TestLSBRelease, self).setup_method(test_method)
+        self.test_method_name = test_method.__name__
+        dist = test_method.__name__.split('_')[1]
         self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
         self.distro = distro.LinuxDistribution(True, 'non', 'non')
 
     def _test_outcome(self, outcome):
-        self.assertEqual(self.distro.id(), outcome.get('id', ''))
-        self.assertEqual(self.distro.name(), outcome.get('name', ''))
-        self.assertEqual(
-            self.distro.name(pretty=True),
-            outcome.get('pretty_name', ''))
-        self.assertEqual(self.distro.version(), outcome.get('version', ''))
-        self.assertEqual(
-            self.distro.version(pretty=True),
-            outcome.get('pretty_version', ''))
-        self.assertEqual(
-            self.distro.version(best=True),
-            outcome.get('best_version', ''))
-        self.assertEqual(self.distro.like(), outcome.get('like', ''))
-        self.assertEqual(self.distro.codename(), outcome.get('codename', ''))
+        assert self.distro.id() == outcome.get('id', '')
+        assert self.distro.name() == outcome.get('name', '')
+        assert self.distro.name(pretty=True) == outcome.get('pretty_name', '')
+        assert self.distro.version() == outcome.get('version', '')
+        assert self.distro.version(pretty=True) == \
+            outcome.get('pretty_version', '')
+        assert self.distro.version(best=True) == \
+            outcome.get('best_version', '')
+        assert self.distro.like() == outcome.get('like', '')
+        assert self.distro.codename() == outcome.get('codename', '')
 
     def test_linuxmint17_lsb_release(self):
         desired_outcome = {
@@ -486,59 +474,49 @@ class TestLSBRelease(DistroTestCase):
             exc = _exc
         else:
             exc = None
-        self.assertEqual(isinstance(exc, subprocess.CalledProcessError), True)
-        self.assertEqual(exc.returncode, int(errnum))
+        assert isinstance(exc, subprocess.CalledProcessError)
+        assert exc.returncode == int(errnum)
 
     def test_lsb_release_rc001(self):
-        errnum = self._testMethodName[-3:]
+        errnum = self.test_method_name[-3:]
         self._test_lsb_release_error_level(errnum)
 
     def test_lsb_release_rc002(self):
-        errnum = self._testMethodName[-3:]
+        errnum = self.test_method_name[-3:]
         self._test_lsb_release_error_level(errnum)
 
     def test_lsb_release_rc126(self):
-        errnum = self._testMethodName[-3:]
+        errnum = self.test_method_name[-3:]
         self._test_lsb_release_error_level(errnum)
 
     def test_lsb_release_rc130(self):
-        errnum = self._testMethodName[-3:]
+        errnum = self.test_method_name[-3:]
         self._test_lsb_release_error_level(errnum)
 
     def test_lsb_release_rc255(self):
-        errnum = self._testMethodName[-3:]
+        errnum = self.test_method_name[-3:]
         self._test_lsb_release_error_level(errnum)
 
 
+@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestSpecialRelease(DistroTestCase):
     def _test_outcome(self, outcome):
-        self.assertEqual(self.distro.id(), outcome.get('id', ''))
-        self.assertEqual(self.distro.name(), outcome.get('name', ''))
-        self.assertEqual(
-            self.distro.name(pretty=True),
-            outcome.get('pretty_name', ''))
-        self.assertEqual(self.distro.version(), outcome.get('version', ''))
-        self.assertEqual(
-            self.distro.version(pretty=True),
-            outcome.get('pretty_version', ''))
-        self.assertEqual(
-            self.distro.version(best=True),
-            outcome.get('best_version', ''))
-        self.assertEqual(self.distro.like(), outcome.get('like', ''))
-        self.assertEqual(self.distro.codename(), outcome.get('codename', ''))
-        self.assertEqual(
-            self.distro.major_version(),
-            outcome.get('major_version', ''))
-        self.assertEqual(
-            self.distro.minor_version(),
-            outcome.get('minor_version', ''))
-        self.assertEqual(
-            self.distro.build_number(),
-            outcome.get('build_number', ''))
+        assert self.distro.id() == outcome.get('id', '')
+        assert self.distro.name() == outcome.get('name', '')
+        assert self.distro.name(pretty=True) == outcome.get('pretty_name', '')
+        assert self.distro.version() == outcome.get('version', '')
+        assert self.distro.version(pretty=True) == \
+            outcome.get('pretty_version', '')
+        assert self.distro.version(best=True) == \
+            outcome.get('best_version', '')
+        assert self.distro.like() == outcome.get('like', '')
+        assert self.distro.codename() == outcome.get('codename', '')
+        assert self.distro.major_version() == outcome.get('major_version', '')
+        assert self.distro.minor_version() == outcome.get('minor_version', '')
+        assert self.distro.build_number() == outcome.get('build_number', '')
 
     def test_empty_release(self):
         distro_release = os.path.join(SPECIAL, 'empty-release')
-
         self.distro = distro.LinuxDistribution(False, 'non', distro_release)
 
         desired_outcome = {
@@ -566,11 +544,8 @@ class TestSpecialRelease(DistroTestCase):
         self._test_outcome(desired_outcome)
 
 
-class TestDistroRelease(testtools.TestCase):
-
-    @testtools.skipIf(not IS_LINUX, 'Irrelevant on non-linux platforms')
-    def setUp(self):
-        super(TestDistroRelease, self).setUp()
+@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
+class TestDistroRelease:
 
     def _test_outcome(self,
                       outcome,
@@ -584,29 +559,19 @@ class TestDistroRelease(testtools.TestCase):
                 release_file_id, release_file_suffix))
         self.distro = distro.LinuxDistribution(False, 'non', distro_release)
 
-        self.assertEqual(self.distro.id(), outcome.get('id', ''))
-        self.assertEqual(self.distro.name(), outcome.get('name', ''))
-        self.assertEqual(
-            self.distro.name(pretty=True),
-            outcome.get('pretty_name', ''))
-        self.assertEqual(self.distro.version(), outcome.get('version', ''))
-        self.assertEqual(
-            self.distro.version(pretty=True),
-            outcome.get('pretty_version', ''))
-        self.assertEqual(
-            self.distro.version(best=True),
-            outcome.get('best_version', ''))
-        self.assertEqual(self.distro.like(), outcome.get('like', ''))
-        self.assertEqual(self.distro.codename(), outcome.get('codename', ''))
-        self.assertEqual(
-            self.distro.major_version(),
-            outcome.get('major_version', ''))
-        self.assertEqual(
-            self.distro.minor_version(),
-            outcome.get('minor_version', ''))
-        self.assertEqual(
-            self.distro.build_number(),
-            outcome.get('build_number', ''))
+        assert self.distro.id() == outcome.get('id', '')
+        assert self.distro.name() == outcome.get('name', '')
+        assert self.distro.name(pretty=True) == outcome.get('pretty_name', '')
+        assert self.distro.version() == outcome.get('version', '')
+        assert self.distro.version(pretty=True) == \
+            outcome.get('pretty_version', '')
+        assert self.distro.version(best=True) == \
+            outcome.get('best_version', '')
+        assert self.distro.like() == outcome.get('like', '')
+        assert self.distro.codename() == outcome.get('codename', '')
+        assert self.distro.major_version() == outcome.get('major_version', '')
+        assert self.distro.minor_version() == outcome.get('minor_version', '')
+        assert self.distro.build_number() == outcome.get('build_number', '')
 
     def test_arch_dist_release(self):
         desired_outcome = {
@@ -805,6 +770,7 @@ class TestDistroRelease(testtools.TestCase):
         self._test_outcome(desired_outcome, 'sles', '12', 'SuSE')
 
 
+@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestOverall(DistroTestCase):
     """Test a LinuxDistribution object created with default arguments.
 
@@ -832,50 +798,39 @@ class TestOverall(DistroTestCase):
       * `xenserver` - XenServer
     """
 
-    def setUp(self):
-        super(TestOverall, self).setUp()
-        dist = self._testMethodName.split('_')[1]
+    def setup_method(self, test_method):
+        super(TestOverall, self).setup_method(test_method)
+        dist = test_method.__name__.split('_')[1]
         self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
         self.distro = distro.LinuxDistribution()
 
     def _test_outcome(self, outcome):
-        self.assertEqual(self.distro.id(), outcome.get('id', ''))
-        self.assertEqual(self.distro.name(), outcome.get('name', ''))
-        self.assertEqual(
-            self.distro.name(pretty=True),
-            outcome.get('pretty_name', ''))
-        self.assertEqual(self.distro.version(), outcome.get('version', ''))
-        self.assertEqual(
-            self.distro.version(pretty=True),
-            outcome.get('pretty_version', ''))
-        self.assertEqual(
-            self.distro.version(best=True),
-            outcome.get('best_version', ''))
-        self.assertEqual(self.distro.like(), outcome.get('like', ''))
-        self.assertEqual(self.distro.codename(), outcome.get('codename', ''))
-        self.assertEqual(
-            self.distro.major_version(),
-            outcome.get('major_version', ''))
-        self.assertEqual(
-            self.distro.minor_version(),
-            outcome.get('minor_version', ''))
-        self.assertEqual(
-            self.distro.build_number(),
-            outcome.get('build_number', ''))
+        assert self.distro.id() == outcome.get('id', '')
+        assert self.distro.name() == outcome.get('name', '')
+        assert self.distro.name(pretty=True) == outcome.get('pretty_name', '')
+        assert self.distro.version() == outcome.get('version', '')
+        assert self.distro.version(pretty=True) == \
+            outcome.get('pretty_version', '')
+        assert self.distro.version(best=True) == \
+            outcome.get('best_version', '')
+        assert self.distro.like() == outcome.get('like', '')
+        assert self.distro.codename() == outcome.get('codename', '')
+        assert self.distro.major_version() == outcome.get('major_version', '')
+        assert self.distro.minor_version() == outcome.get('minor_version', '')
+        assert self.distro.build_number() == outcome.get('build_number', '')
 
     def _test_non_existing_release_file(self):
         # Test the info from the searched distro release file
         # does not have one.
-        self.assertEqual(self.distro.distro_release_file, '')
-        self.assertEqual(len(self.distro.distro_release_info()), 0)
+        assert self.distro.distro_release_file == ''
+        assert len(self.distro.distro_release_info()) == 0
 
     def _test_release_file_info(self, filename, outcome):
         # Test the info from the searched distro release file
-        self.assertEqual(os.path.basename(
-            self.distro.distro_release_file), filename)
+        assert os.path.basename(self.distro.distro_release_file) == filename
         distro_info = self.distro.distro_release_info()
         for key, value in outcome.items():
-            self.assertEqual(distro_info[key], value)
+            assert distro_info[key] == value
         return distro_info
 
     def test_arch_release(self):
@@ -1138,7 +1093,7 @@ class TestOverall(DistroTestCase):
         }
         distro_info = self._test_release_file_info(
             'oracle-release', desired_info)
-        self.assertNotIn('codename', distro_info)
+        assert 'codename' not in distro_info
 
     def test_raspbian7_release(self):
         desired_outcome = {
@@ -1235,7 +1190,7 @@ class TestOverall(DistroTestCase):
         }
         distro_info = self._test_release_file_info(
             'slackware-version', desired_info)
-        self.assertNotIn('codename', distro_info)
+        assert 'codename' not in distro_info
 
     def test_sles12_release(self):
         desired_outcome = {
@@ -1366,6 +1321,7 @@ class TestOverall(DistroTestCase):
         self._test_release_file_info('gentoo-release', desired_info)
 
 
+@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestGetAttr(DistroTestCase):
     """Test the consistency between the results of
     `{source}_release_attr()` and `{source}_release_info()` for all
@@ -1378,10 +1334,10 @@ class TestGetAttr(DistroTestCase):
             _distro = distro.LinuxDistribution()
             info = getattr(_distro, info_method)()
             for key in info.keys():
-                self.assertEqual(
-                    info[key],
-                    getattr(_distro, attr_method)(key),
-                    "distro: {0}, key: {1}".format(dist, key))
+                try:
+                    assert info[key] == getattr(_distro, attr_method)(key)
+                except AssertionError:
+                    print("distro: {0}, key: {1}".format(dist, key))
 
     def test_os_release_attr(self):
         self._test_attr('os_release_info', 'os_release_attr')
@@ -1393,10 +1349,11 @@ class TestGetAttr(DistroTestCase):
         self._test_attr('distro_release_info', 'distro_release_attr')
 
 
+@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestInfo(DistroTestCase):
 
-    def setUp(self):
-        super(TestInfo, self).setUp()
+    def setup_method(self, test_method):
+        super(TestInfo, self).setup_method(test_method)
         self.ubuntu14_os_release = os.path.join(
             DISTROS_DIR, 'ubuntu14', 'etc', 'os-release')
 
@@ -1417,14 +1374,14 @@ class TestInfo(DistroTestCase):
         }
 
         info = _distro.info()
-        self.assertDictEqual(info, desired_info)
+        assert info == desired_info
 
         desired_info_diff = {
             'version': '14.04 (Trusty Tahr)'
         }
         desired_info.update(desired_info_diff)
         info = _distro.info(pretty=True)
-        self.assertDictEqual(info, desired_info)
+        assert info == desired_info
 
         desired_info_diff = {
             'version': '14.04.3',
@@ -1436,25 +1393,25 @@ class TestInfo(DistroTestCase):
         }
         desired_info.update(desired_info_diff)
         info = _distro.info(best=True)
-        self.assertDictEqual(info, desired_info)
+        assert info == desired_info
 
         desired_info_diff = {
             'version': '14.04.3 (Trusty Tahr)'
         }
         desired_info.update(desired_info_diff)
         info = _distro.info(pretty=True, best=True)
-        self.assertDictEqual(info, desired_info)
+        assert info == desired_info
 
     def test_none(self):
 
         def _test_none(info):
-            self.assertEqual(info['id'], '')
-            self.assertEqual(info['version'], '')
-            self.assertEqual(info['like'], '')
-            self.assertEqual(info['version_parts']['major'], '')
-            self.assertEqual(info['version_parts']['minor'], '')
-            self.assertEqual(info['version_parts']['build_number'], '')
-            self.assertEqual(info['codename'], '')
+            assert info['id'] == ''
+            assert info['version'] == ''
+            assert info['like'] == ''
+            assert info['version_parts']['major'] == ''
+            assert info['version_parts']['minor'] == ''
+            assert info['version_parts']['build_number'] == ''
+            assert info['codename'] == ''
 
         _distro = distro.LinuxDistribution(False, 'non', 'non')
 
@@ -1473,43 +1430,30 @@ class TestInfo(DistroTestCase):
     def test_linux_disribution(self):
         _distro = distro.LinuxDistribution(False, self.ubuntu14_os_release)
         i = _distro.linux_distribution()
-        self.assertEqual(i, ('Ubuntu', '14.04', 'Trusty Tahr'))
+        assert i == ('Ubuntu', '14.04', 'Trusty Tahr')
 
     def test_linux_disribution_full_false(self):
         _distro = distro.LinuxDistribution(False, self.ubuntu14_os_release)
         i = _distro.linux_distribution(full_distribution_name=False)
-        self.assertEqual(i, ('ubuntu', '14.04', 'Trusty Tahr'))
+        assert i == ('ubuntu', '14.04', 'Trusty Tahr')
 
     def test_all(self):
         """Test info() by comparing its results with the results of specific
         consolidated accessor functions.
         """
         def _test_all(info, best=False, pretty=False):
-            self.assertEqual(info['id'],
-                             _distro.id(),
-                             "distro: {0}".format(dist))
-            self.assertEqual(info['version'],
-                             _distro.version(pretty=pretty, best=best),
-                             "distro: {0}".format(dist))
-            self.assertEqual(info['version_parts']['major'],
-                             _distro.major_version(best=best),
-                             "distro: {0}".format(dist))
-            self.assertEqual(info['version_parts']['minor'],
-                             _distro.minor_version(best=best),
-                             "distro: {0}".format(dist))
-            self.assertEqual(info['version_parts']['build_number'],
-                             _distro.build_number(best=best),
-                             "distro: {0}".format(dist))
-            self.assertEqual(info['like'],
-                             _distro.like(),
-                             "distro: {0}".format(dist))
-            self.assertEqual(info['codename'],
-                             _distro.codename(),
-                             "distro: {0}".format(dist))
-            self.assertEqual(len(info['version_parts']), 3,
-                             "distro: {0}".format(dist))
-            self.assertEqual(len(info), 5,
-                             "distro: {0}".format(dist))
+            assert info['id'] == _distro.id()
+            assert info['version'] == _distro.version(pretty=pretty, best=best)
+            assert info['version_parts']['major'] == \
+                _distro.major_version(best=best)
+            assert info['version_parts']['minor'] == \
+                _distro.minor_version(best=best)
+            assert info['version_parts']['build_number'] == \
+                _distro.build_number(best=best)
+            assert info['like'] == _distro.like()
+            assert info['codename'] == _distro.codename()
+            assert len(info['version_parts']) == 3
+            assert len(info) == 5
 
         for dist in DISTROS:
             self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
@@ -1529,15 +1473,14 @@ class TestInfo(DistroTestCase):
             _test_all(info, pretty=True, best=True)
 
 
-class TestOSReleaseParsing(testtools.TestCase):
+@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
+class TestOSReleaseParsing:
     """Test the parsing of os-release files.
     """
 
-    @testtools.skipIf(not IS_LINUX, 'Irrelevant on non-linux platforms')
-    def setUp(self):
+    def setup_method(self, test_method):
         self.distro = distro.LinuxDistribution(False, None, None)
         self.distro.debug = True
-        super(TestOSReleaseParsing, self).setUp()
 
     def _get_props(self, input):
         return self.distro._parse_os_release_content(StringIO(
@@ -1546,15 +1489,15 @@ class TestOSReleaseParsing(testtools.TestCase):
 
     def _test_zero_length_props(self, input):
         props = self._get_props(input)
-        self.assertEqual(len(props), 0)
+        assert len(props) == 0
 
     def _test_empty_value(self, input):
         props = self._get_props(input)
-        self.assertEqual(props.get('key', None), '')
+        assert props.get('key', None) == ''
 
     def _test_parsed_value(self, input):
         props = self._get_props(input)
-        self.assertEqual(props.get('key', None), 'value')
+        assert props.get('key', None) == 'value'
 
     def test_kv_01_empty_file(self):
         self._test_zero_length_props('')
@@ -1603,61 +1546,58 @@ class TestOSReleaseParsing(testtools.TestCase):
 
     def test_kv_15_double_quoted_words(self):
         props = self._get_props('KEY="a simple value" cmd\n')
-        self.assertEqual(props.get('key', None), 'a simple value')
+        assert props.get('key', None) == 'a simple value'
 
     def test_kv_16_double_quoted_words_with_multi_blanks(self):
         props = self._get_props('KEY=" a  simple   value "\n')
-        self.assertEqual(props.get('key', None), ' a  simple   value ')
+        assert props.get('key', None) == ' a  simple   value '
 
     def test_kv_17_double_quoted_word_with_single_quote(self):
         props = self._get_props('KEY="it\'s value"\n')
-        self.assertEqual(props.get('key', None), 'it\'s value')
+        assert props.get('key', None) == 'it\'s value'
 
     def test_kv_18_double_quoted_word_with_double_quote(self):
         props = self._get_props('KEY="a \\"bold\\" move"\n')
-        self.assertEqual(props.get('key', None), 'a "bold" move')
+        assert props.get('key', None) == 'a "bold" move'
 
     def test_kv_19_single_quoted_words(self):
         props = self._get_props('KEY=\'a simple value\'\n')
-        self.assertEqual(props.get('key', None), 'a simple value')
+        assert props.get('key', None) == 'a simple value'
 
     def test_kv_20_single_quoted_words_with_multi_blanks(self):
         props = self._get_props('KEY=\' a  simple   value \'\n')
-        self.assertEqual(props.get('key', None), ' a  simple   value ')
+        assert props.get('key', None) == ' a  simple   value '
 
     def test_kv_21_single_quoted_word_with_double_quote(self):
         props = self._get_props('KEY=\'a "bold" move\'\n')
-        self.assertEqual(props.get('key', None), 'a "bold" move')
+        assert props.get('key', None) == 'a "bold" move'
 
     def test_kv_22_quoted_unicode_wordchar(self):
         # "wordchar" means it is in the shlex.wordchars variable.
         props = self._get_props(u'KEY="wordchar: \u00CA (E accent grave)"\n')
-        self.assertEqual(
-            props.get('key', None),
-            u'wordchar: \u00CA (E accent grave)')
+        assert props.get('key', None) == u'wordchar: \u00CA (E accent grave)'
 
     def test_kv_23_quoted_unicode_non_wordchar(self):
         # "non-wordchar" means it is not in the shlex.wordchars variable.
         props = self._get_props(
             u'KEY="non-wordchar: \u00A1 (inverted exclamation mark)"\n')
-        self.assertEqual(
-            props.get('key', None),
-            u'non-wordchar: \u00A1 (inverted exclamation mark)')
+        assert (props.get('key', None) ==
+                u'non-wordchar: \u00A1 (inverted exclamation mark)')
 
     def test_kv_24_double_quoted_entire_single_quoted_word(self):
         props = self._get_props('KEY="\'value\'"\n')
-        self.assertEqual(props.get('key', None), "'value'")
+        assert props.get('key', None) == "'value'"
 
     def test_kv_25_single_quoted_entire_double_quoted_word(self):
         props = self._get_props('KEY=\'"value"\'\n')
-        self.assertEqual(props.get('key', None), '"value"')
+        assert props.get('key', None) == '"value"'
 
     def test_kv_26_double_quoted_multiline(self):
         props = self.distro._parse_os_release_content(StringIO(
             'KEY="a multi\n'
             'line value"\n'
         ))
-        self.assertEqual(props.get('key', None), 'a multi\nline value')
+        assert props.get('key', None) == 'a multi\nline value'
         # TODO: Find out why the result is not 'a multi line value'
 
     def test_kv_27_double_quoted_multiline_2(self):
@@ -1666,42 +1606,42 @@ class TestOSReleaseParsing(testtools.TestCase):
             'KEY="a multi\n'
             'line=value"\n'
         ))
-        self.assertEqual(props.get('key', None), 'a multi\nline=value')
+        assert props.get('key', None) == 'a multi\nline=value'
         # TODO: Find out why the result is not 'a multi line=value'
 
     def test_kv_28_double_quoted_word_with_equal(self):
         props = self._get_props('KEY="var=value"\n')
-        self.assertEqual(props.get('key', None), 'var=value')
+        assert props.get('key', None) == 'var=value'
 
     def test_kv_29_single_quoted_word_with_equal(self):
         props = self._get_props('KEY=\'var=value\'\n')
-        self.assertEqual(props.get('key', None), 'var=value')
+        assert props.get('key', None) == 'var=value'
 
     def test_kx_01(self):
         props = self.distro._parse_os_release_content(StringIO(
             'KEY1=value1\n'
             'KEY2="value  2"\n'
         ))
-        self.assertEqual(props.get('key1', None), 'value1')
-        self.assertEqual(props.get('key2', None), 'value  2')
+        assert props.get('key1', None) == 'value1'
+        assert props.get('key2', None) == 'value  2'
 
     def test_kx_02(self):
         props = self.distro._parse_os_release_content(StringIO(
             '# KEY1=value1\n'
             'KEY2="value  2"\n'
         ))
-        self.assertEqual(props.get('key1', None), None)
-        self.assertEqual(props.get('key2', None), 'value  2')
+        assert props.get('key1', None) is None
+        assert props.get('key2', None) == 'value  2'
 
 
-class TestGlobal(testtools.TestCase):
+@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
+class TestGlobal:
     """Test the global module-level functions, and default values of their
     arguments.
     """
 
-    @testtools.skipIf(not IS_LINUX, 'Irrelevant on non-linux platforms')
-    def setUp(self):
-        super(TestGlobal, self).setUp()
+    def setup_method(self, test_method):
+        pass
 
     def test_global(self):
         # Because the module-level functions use the module-global
@@ -1716,7 +1656,7 @@ class TestGlobal(testtools.TestCase):
             kwargs = kwargs or {}
             method_result = getattr(MODULE_DISTRO, function)(**kwargs)
             function_result = getattr(distro, function)(**kwargs)
-            self.assertEqual(method_result, function_result)
+            assert method_result == function_result
 
         kwargs = {'full_distribution_name': True}
         _test_consistency('linux_distribution', kwargs)
@@ -1789,15 +1729,15 @@ class TestGlobal(testtools.TestCase):
             _test_consistency('distro_release_attr', {'attribute': key})
 
 
-class TestRepr(testtools.TestCase):
+@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
+class TestRepr:
     """Test the __repr__() method.
     """
 
-    @testtools.skipIf(not IS_LINUX, 'Irrelevant on non-linux platforms')
     def test_repr(self):
         # We test that the class name and the names of all instance attributes
         # show up in the repr() string.
         repr_str = repr(distro._distro)
-        self.assertIn("LinuxDistribution", repr_str)
+        assert "LinuxDistribution" in repr_str
         for attr in MODULE_DISTRO.__dict__.keys():
-            self.assertIn(attr + '=', repr_str)
+            assert attr + '=' in repr_str
