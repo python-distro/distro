@@ -1012,12 +1012,13 @@ class LinuxDistribution(object):
         Returns:
             A dictionary containing all information items.
         """
-        if os.path.isfile(filepath):
+        try:
             with open(filepath) as fp:
                 # Only parse the first line. For instance, on SLES there
                 # are multiple lines. We don't want them...
                 return self._parse_distro_release_content(fp.readline())
-        return {}
+        except (OSError, IOError):
+            return {}
 
     @staticmethod
     def _parse_distro_release_content(line):
