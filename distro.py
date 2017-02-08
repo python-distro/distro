@@ -1070,11 +1070,9 @@ def main():
     else:
         logger.info('Name: %s', name(pretty=True))
         distribution_version = version(pretty=True)
-        if distribution_version:
-            logger.info('Version: %s', distribution_version)
+        logger.info('Version: %s', distribution_version)
         distribution_codename = codename()
-        if distribution_codename:
-            logger.info('Codename: %s', distribution_codename)
+        logger.info('Codename: %s', distribution_codename)
 
 
 if __name__ == '__main__':
