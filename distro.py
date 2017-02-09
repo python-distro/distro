@@ -1001,9 +1001,12 @@ class LinuxDistribution(object):
                             self.distro_release_file = filepath
                             distro_info['id'] = match.group(1)
                             return distro_info
-                    except IOError:
+                    except (OSError, IOError) as e:
                         # If we find an unreadable file, continue
-                        continue
+                        if e.errno == 13:
+                            continue
+                        else:
+                            raise e
             return {}
 
     def _parse_distro_release_file(self, filepath):
