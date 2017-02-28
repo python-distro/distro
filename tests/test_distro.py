@@ -367,6 +367,268 @@ class TestOSRelease:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
+class TestReleaseWithExtraFile(DistroTestCase):
+
+    def setup_method(self, test_method):
+        super(TestReleaseWithExtraFile, self).setup_method(test_method)
+        self.test_method_name = test_method.__name__
+        dist = test_method.__name__.split('_')[1]
+        dist_dir = os.path.join(DISTROS_DIR, dist)
+        self._setup_for_distro(dist_dir)
+
+        # Create a second file with no release info and no file permissions to
+        # test ignoring unreadable files.
+        extra_file = os.path.join(dist_dir, 'aaa-release')
+        open(extra_file, 'w').close()
+        os.chmod(extra_file, 0)
+
+        self.distro = distro.LinuxDistribution(False, 'non', 'non')
+
+    def teardown_method(self, test_method):
+        # Remove test file after giving ourselves permissions to remove
+        dist = test_method.__name__.split('_')[1]
+        dist_dir = os.path.join(DISTROS_DIR, dist)
+        extra_file = os.path.join(dist_dir, 'aaa-release')
+        os.chmod(extra_file, 0o600)
+        os.remove(extra_file)
+        super(TestReleaseWithExtraFile, self).teardown_method(test_method)
+
+    def test_arch_os_release(self):
+        desired_outcome = {
+            'id': 'arch',
+            'name': 'Arch Linux',
+            'pretty_name': 'Arch Linux',
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_centos7_os_release(self):
+        desired_outcome = {
+            'id': 'centos',
+            'name': 'CentOS Linux',
+            'pretty_name': 'CentOS Linux 7 (Core)',
+            'version': '7',
+            'pretty_version': '7 (Core)',
+            'best_version': '7',
+            'like': 'rhel fedora',
+            'codename': 'Core'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_coreos_os_release(self):
+        desired_outcome = {
+            'id': 'coreos',
+            'name': 'CoreOS',
+            'pretty_name': 'CoreOS 899.15.0',
+            'version': '899.15.0',
+            'pretty_version': '899.15.0',
+            'best_version': '899.15.0'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_debian8_os_release(self):
+        desired_outcome = {
+            'id': 'debian',
+            'name': 'Debian GNU/Linux',
+            'pretty_name': 'Debian GNU/Linux 8 (jessie)',
+            'version': '8',
+            'pretty_version': '8 (jessie)',
+            'best_version': '8',
+            'codename': 'jessie'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_fedora19_os_release(self):
+        desired_outcome = {
+            'id': 'fedora',
+            'name': 'Fedora',
+            'pretty_name': u'Fedora 19 (Schr\u00F6dinger\u2019s Cat)',
+            'version': '19',
+            'pretty_version': u'19 (Schr\u00F6dinger\u2019s Cat)',
+            'best_version': '19',
+            'codename': u'Schr\u00F6dinger\u2019s Cat'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_fedora23_os_release(self):
+        desired_outcome = {
+            'id': 'fedora',
+            'name': 'Fedora',
+            'pretty_name': 'Fedora 23 (Twenty Three)',
+            'version': '23',
+            'pretty_version': '23 (Twenty Three)',
+            'best_version': '23',
+            'codename': 'Twenty Three'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_kvmibm1_os_release(self):
+        desired_outcome = {
+            'id': 'kvmibm',
+            'name': 'KVM for IBM z Systems',
+            'pretty_name': 'KVM for IBM z Systems 1.1.1 (Z)',
+            'version': '1.1.1',
+            'pretty_version': '1.1.1 (Z)',
+            'best_version': '1.1.1',
+            'like': 'rhel fedora',
+            'codename': 'Z'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_linuxmint17_os_release(self):
+        # Note: LinuxMint 17 actually *does* have Ubuntu 14.04 data in its
+        #       os-release file. See discussion in GitHub issue #78.
+        desired_outcome = {
+            'id': 'ubuntu',
+            'name': 'Ubuntu',
+            'pretty_name': 'Ubuntu 14.04.3 LTS',
+            'version': '14.04',
+            'pretty_version': '14.04 (Trusty Tahr)',
+            'best_version': '14.04.3',
+            'like': 'debian',
+            'codename': 'Trusty Tahr'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_mageia5_os_release(self):
+        desired_outcome = {
+            'id': 'mageia',
+            'name': 'Mageia',
+            'pretty_name': 'Mageia 5',
+            'version': '5',
+            'pretty_version': '5',
+            'best_version': '5',
+            'like': 'mandriva fedora',
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_manjaro1512_os_release(self):
+        self._test_outcome({
+            'id': 'manjaro',
+            'name': 'Manjaro Linux',
+            'pretty_name': 'Manjaro Linux',
+        })
+
+    def test_opensuse42_os_release(self):
+        desired_outcome = {
+            'id': 'opensuse',
+            'name': 'openSUSE Leap',
+            'pretty_name': 'openSUSE Leap 42.1 (x86_64)',
+            'version': '42.1',
+            'pretty_version': '42.1',
+            'best_version': '42.1',
+            'like': 'suse',
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_raspbian7_os_release(self):
+        desired_outcome = {
+            'id': 'raspbian',
+            'name': 'Raspbian GNU/Linux',
+            'pretty_name': 'Raspbian GNU/Linux 7 (wheezy)',
+            'version': '7',
+            'pretty_version': '7 (wheezy)',
+            'best_version': '7',
+            'like': 'debian',
+            'codename': 'wheezy'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_raspbian8_os_release(self):
+        desired_outcome = {
+            'id': 'raspbian',
+            'name': 'Raspbian GNU/Linux',
+            'pretty_name': 'Raspbian GNU/Linux 8 (jessie)',
+            'version': '8',
+            'pretty_version': '8 (jessie)',
+            'best_version': '8',
+            'like': 'debian',
+            'codename': 'jessie'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_rhel7_os_release(self):
+        desired_outcome = {
+            'id': 'rhel',
+            'name': 'Red Hat Enterprise Linux Server',
+            'pretty_name': 'Red Hat Enterprise Linux Server 7.0 (Maipo)',
+            'version': '7.0',
+            'pretty_version': '7.0 (Maipo)',
+            'best_version': '7.0',
+            'like': 'fedora',
+            'codename': 'Maipo'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_slackware14_os_release(self):
+        desired_outcome = {
+            'id': 'slackware',
+            'name': 'Slackware',
+            'pretty_name': 'Slackware 14.1',
+            'version': '14.1',
+            'pretty_version': '14.1',
+            'best_version': '14.1'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_sles12_os_release(self):
+        desired_outcome = {
+            'id': 'sles',
+            'name': 'SLES',
+            'pretty_name': 'SUSE Linux Enterprise Server 12 SP1',
+            'version': '12.1',
+            'pretty_version': '12.1',
+            'best_version': '12.1'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_ubuntu14_os_release(self):
+        desired_outcome = {
+            'id': 'ubuntu',
+            'name': 'Ubuntu',
+            'pretty_name': 'Ubuntu 14.04.3 LTS',
+            'version': '14.04',
+            'pretty_version': '14.04 (Trusty Tahr)',
+            'best_version': '14.04.3',
+            'like': 'debian',
+            'codename': 'Trusty Tahr'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_amazon2016_os_release(self):
+        desired_outcome = {
+            'id': 'amzn',
+            'name': 'Amazon Linux AMI',
+            'pretty_name': 'Amazon Linux AMI 2016.03',
+            'version': '2016.03',
+            'pretty_version': '2016.03',
+            'best_version': '2016.03',
+            'like': 'rhel fedora'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_scientific7_os_release(self):
+        desired_outcome = {
+            'id': 'rhel',
+            'name': 'Scientific Linux',
+            'pretty_name': 'Scientific Linux 7.2 (Nitrogen)',
+            'version': '7.2',
+            'pretty_version': '7.2 (Nitrogen)',
+            'best_version': '7.2',
+            'like': 'fedora',
+            'codename': 'Nitrogen'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_gentoo_os_release(self):
+        desired_outcome = {
+            'id': 'gentoo',
+            'name': 'Gentoo',
+            'pretty_name': 'Gentoo/Linux',
+        }
+        self._test_outcome(desired_outcome)
+
+
+@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestLSBRelease(DistroTestCase):
 
     def setup_method(self, test_method):
