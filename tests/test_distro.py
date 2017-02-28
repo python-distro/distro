@@ -393,6 +393,18 @@ class TestReleaseWithExtraFile(DistroTestCase):
         os.remove(extra_file)
         super(TestReleaseWithExtraFile, self).teardown_method(test_method)
 
+    def _test_outcome(self, outcome):
+        assert self.distro.id() == outcome.get('id', '')
+        assert self.distro.name() == outcome.get('name', '')
+        assert self.distro.name(pretty=True) == outcome.get('pretty_name', '')
+        assert self.distro.version() == outcome.get('version', '')
+        assert self.distro.version(pretty=True) == \
+            outcome.get('pretty_version', '')
+        assert self.distro.version(best=True) == \
+            outcome.get('best_version', '')
+        assert self.distro.like() == outcome.get('like', '')
+        assert self.distro.codename() == outcome.get('codename', '')
+
     def test_arch_os_release(self):
         desired_outcome = {
             'id': 'arch',
