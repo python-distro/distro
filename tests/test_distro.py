@@ -368,6 +368,7 @@ class TestOSRelease:
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestReleaseWithExtraFile(DistroTestCase):
+    """This class tests all of TestOverall with an extra file in the way"""
 
     def setup_method(self, test_method):
         super(TestReleaseWithExtraFile, self).setup_method(test_method)
@@ -378,17 +379,17 @@ class TestReleaseWithExtraFile(DistroTestCase):
 
         # Create a second file with no release info and no file permissions to
         # test ignoring unreadable files.
-        extra_file = os.path.join(dist_dir, 'aaa-release')
+        extra_file = os.path.join(distro._UNIXCONFDIR, 'aaa-release')
         open(extra_file, 'w').close()
         os.chmod(extra_file, 0)
 
-        self.distro = distro.LinuxDistribution(False, 'non', 'non')
+        self.distro = distro.LinuxDistribution(False)
 
     def teardown_method(self, test_method):
         # Remove test file after giving ourselves permissions to remove
         dist = test_method.__name__.split('_')[1]
         dist_dir = os.path.join(DISTROS_DIR, dist)
-        extra_file = os.path.join(dist_dir, 'aaa-release')
+        extra_file = os.path.join(distro._UNIXCONFDIR, 'aaa-release')
         os.chmod(extra_file, 0o600)
         os.remove(extra_file)
         super(TestReleaseWithExtraFile, self).teardown_method(test_method)
@@ -404,8 +405,25 @@ class TestReleaseWithExtraFile(DistroTestCase):
             outcome.get('best_version', '')
         assert self.distro.like() == outcome.get('like', '')
         assert self.distro.codename() == outcome.get('codename', '')
+        assert self.distro.major_version() == outcome.get('major_version', '')
+        assert self.distro.minor_version() == outcome.get('minor_version', '')
+        assert self.distro.build_number() == outcome.get('build_number', '')
 
-    def test_arch_os_release(self):
+    def _test_non_existing_release_file(self):
+        # Test the info from the searched distro release file
+        # does not have one.
+        assert self.distro.distro_release_file == ''
+        assert len(self.distro.distro_release_info()) == 0
+
+    def _test_release_file_info(self, filename, outcome):
+        # Test the info from the searched distro release file
+        assert os.path.basename(self.distro.distro_release_file) == filename
+        distro_info = self.distro.distro_release_info()
+        for key, value in outcome.items():
+            assert distro_info[key] == value
+        return distro_info
+
+    def test_arch_release(self):
         desired_outcome = {
             'id': 'arch',
             'name': 'Arch Linux',
@@ -413,43 +431,93 @@ class TestReleaseWithExtraFile(DistroTestCase):
         }
         self._test_outcome(desired_outcome)
 
-    def test_centos7_os_release(self):
+        # Test the info from the searched distro release file
+        # Does not have one; The empty /etc/arch-release file is not
+        # considered a valid distro release file:
+        self._test_non_existing_release_file()
+
+    def test_centos5_release(self):
+        desired_outcome = {
+            'id': 'centos',
+            'name': 'CentOS',
+            'pretty_name': 'CentOS 5.11 (Final)',
+            'version': '5.11',
+            'pretty_version': '5.11 (Final)',
+            'best_version': '5.11',
+            'codename': 'Final',
+            'major_version': '5',
+            'minor_version': '11'
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            'id': 'centos',
+            'name': 'CentOS',
+            'version_id': '5.11',
+            'codename': 'Final'
+        }
+        self._test_release_file_info('centos-release', desired_info)
+
+    def test_centos7_release(self):
         desired_outcome = {
             'id': 'centos',
             'name': 'CentOS Linux',
             'pretty_name': 'CentOS Linux 7 (Core)',
             'version': '7',
             'pretty_version': '7 (Core)',
-            'best_version': '7',
+            'best_version': '7.1.1503',
             'like': 'rhel fedora',
-            'codename': 'Core'
+            'codename': 'Core',
+            'major_version': '7'
         }
         self._test_outcome(desired_outcome)
 
-    def test_coreos_os_release(self):
+        desired_info = {
+            'id': 'centos',
+            'name': 'CentOS Linux',
+            'version_id': '7.1.1503',
+            'codename': 'Core'
+        }
+        self._test_release_file_info('centos-release', desired_info)
+
+    def test_coreos_release(self):
         desired_outcome = {
             'id': 'coreos',
             'name': 'CoreOS',
             'pretty_name': 'CoreOS 899.15.0',
             'version': '899.15.0',
             'pretty_version': '899.15.0',
-            'best_version': '899.15.0'
+            'best_version': '899.15.0',
+            'major_version': '899',
+            'minor_version': '15',
+            'build_number': '0'
         }
         self._test_outcome(desired_outcome)
+        self._test_non_existing_release_file()
 
-    def test_debian8_os_release(self):
+    def test_debian8_release(self):
         desired_outcome = {
             'id': 'debian',
             'name': 'Debian GNU/Linux',
             'pretty_name': 'Debian GNU/Linux 8 (jessie)',
             'version': '8',
             'pretty_version': '8 (jessie)',
-            'best_version': '8',
-            'codename': 'jessie'
+            'best_version': '8.2',
+            'codename': 'jessie',
+            'major_version': '8'
+        }
+        self._test_outcome(desired_outcome)
+        self._test_non_existing_release_file()
+
+    def test_exherbo_release(self):
+        desired_outcome = {
+            'id': 'exherbo',
+            'name': 'Exherbo',
+            'pretty_name': 'Exherbo Linux',
         }
         self._test_outcome(desired_outcome)
 
-    def test_fedora19_os_release(self):
+    def test_fedora19_release(self):
         desired_outcome = {
             'id': 'fedora',
             'name': 'Fedora',
@@ -457,11 +525,20 @@ class TestReleaseWithExtraFile(DistroTestCase):
             'version': '19',
             'pretty_version': u'19 (Schr\u00F6dinger\u2019s Cat)',
             'best_version': '19',
-            'codename': u'Schr\u00F6dinger\u2019s Cat'
+            'codename': u'Schr\u00F6dinger\u2019s Cat',
+            'major_version': '19'
         }
         self._test_outcome(desired_outcome)
 
-    def test_fedora23_os_release(self):
+        desired_info = {
+            'id': 'fedora',
+            'name': 'Fedora',
+            'version_id': '19',
+            'codename': u'Schr\u00F6dinger\u2019s Cat'
+        }
+        self._test_release_file_info('fedora-release', desired_info)
+
+    def test_fedora23_release(self):
         desired_outcome = {
             'id': 'fedora',
             'name': 'Fedora',
@@ -469,11 +546,20 @@ class TestReleaseWithExtraFile(DistroTestCase):
             'version': '23',
             'pretty_version': '23 (Twenty Three)',
             'best_version': '23',
-            'codename': 'Twenty Three'
+            'codename': 'Twenty Three',
+            'major_version': '23'
         }
         self._test_outcome(desired_outcome)
 
-    def test_kvmibm1_os_release(self):
+        desired_info = {
+            'id': 'fedora',
+            'name': 'Fedora',
+            'version_id': '23',
+            'codename': 'Twenty Three'
+        }
+        self._test_release_file_info('fedora-release', desired_info)
+
+    def test_kvmibm1_release(self):
         desired_outcome = {
             'id': 'kvmibm',
             'name': 'KVM for IBM z Systems',
@@ -482,13 +568,22 @@ class TestReleaseWithExtraFile(DistroTestCase):
             'pretty_version': '1.1.1 (Z)',
             'best_version': '1.1.1',
             'like': 'rhel fedora',
-            'codename': 'Z'
+            'codename': 'Z',
+            'major_version': '1',
+            'minor_version': '1',
+            'build_number': '1'
         }
         self._test_outcome(desired_outcome)
 
-    def test_linuxmint17_os_release(self):
-        # Note: LinuxMint 17 actually *does* have Ubuntu 14.04 data in its
-        #       os-release file. See discussion in GitHub issue #78.
+        desired_info = {
+            'id': 'base',
+            'name': 'KVM for IBM z Systems',
+            'version_id': '1.1.1',
+            'codename': 'Z'
+        }
+        self._test_release_file_info('base-release', desired_info)
+
+    def test_linuxmint17_release(self):
         desired_outcome = {
             'id': 'ubuntu',
             'name': 'Ubuntu',
@@ -497,42 +592,100 @@ class TestReleaseWithExtraFile(DistroTestCase):
             'pretty_version': '14.04 (Trusty Tahr)',
             'best_version': '14.04.3',
             'like': 'debian',
-            'codename': 'Trusty Tahr'
+            'codename': 'Trusty Tahr',
+            'major_version': '14',
+            'minor_version': '04'
         }
         self._test_outcome(desired_outcome)
+        self._test_non_existing_release_file()
 
-    def test_mageia5_os_release(self):
+    def test_mageia5_release(self):
         desired_outcome = {
             'id': 'mageia',
             'name': 'Mageia',
             'pretty_name': 'Mageia 5',
             'version': '5',
-            'pretty_version': '5',
+            'pretty_version': '5 (thornicroft)',
             'best_version': '5',
             'like': 'mandriva fedora',
+            # TODO: Codename differs between distro release and lsb_release.
+            'codename': 'thornicroft',
+            'major_version': '5'
         }
         self._test_outcome(desired_outcome)
 
-    def test_manjaro1512_os_release(self):
+        desired_info = {
+            'id': 'mageia',
+            'name': 'Mageia',
+            'version_id': '5',
+            'codename': 'Official'
+        }
+        self._test_release_file_info('mageia-release', desired_info)
+
+    def test_manjaro1512_release(self):
         self._test_outcome({
             'id': 'manjaro',
             'name': 'Manjaro Linux',
             'pretty_name': 'Manjaro Linux',
+            'version': '15.12',
+            'pretty_version': '15.12 (Capella)',
+            'best_version': '15.12',
+            'major_version': '15',
+            'minor_version': '12',
+            'codename': 'Capella'
         })
 
-    def test_opensuse42_os_release(self):
+        self._test_release_file_info(
+            'manjaro-release',
+            {'id': 'manjaro',
+             'name': 'Manjaro Linux'})
+
+    def test_opensuse42_release(self):
         desired_outcome = {
             'id': 'opensuse',
             'name': 'openSUSE Leap',
             'pretty_name': 'openSUSE Leap 42.1 (x86_64)',
             'version': '42.1',
-            'pretty_version': '42.1',
+            'pretty_version': '42.1 (x86_64)',
             'best_version': '42.1',
             'like': 'suse',
+            'codename': 'x86_64',
+            'major_version': '42',
+            'minor_version': '1'
         }
         self._test_outcome(desired_outcome)
 
-    def test_raspbian7_os_release(self):
+        desired_info = {
+            'id': 'SuSE',
+            'name': 'openSUSE',
+            'version_id': '42.1',
+            'codename': 'x86_64'
+        }
+        self._test_release_file_info('SuSE-release', desired_info)
+
+    def test_oracle7_release(self):
+        desired_outcome = {
+            'id': 'oracle',
+            'name': 'Oracle Linux Server',
+            'pretty_name': 'Oracle Linux Server 7.1',
+            'version': '7.1',
+            'pretty_version': '7.1',
+            'best_version': '7.1',
+            'major_version': '7',
+            'minor_version': '1'
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            'id': 'oracle',
+            'name': 'Oracle Linux Server',
+            'version_id': '7.1',
+        }
+        distro_info = self._test_release_file_info(
+            'oracle-release', desired_info)
+        assert 'codename' not in distro_info
+
+    def test_raspbian7_release(self):
         desired_outcome = {
             'id': 'raspbian',
             'name': 'Raspbian GNU/Linux',
@@ -541,11 +694,13 @@ class TestReleaseWithExtraFile(DistroTestCase):
             'pretty_version': '7 (wheezy)',
             'best_version': '7',
             'like': 'debian',
-            'codename': 'wheezy'
+            'codename': 'wheezy',
+            'major_version': '7',
         }
         self._test_outcome(desired_outcome)
+        self._test_non_existing_release_file()
 
-    def test_raspbian8_os_release(self):
+    def test_raspbian8_release(self):
         desired_outcome = {
             'id': 'raspbian',
             'name': 'Raspbian GNU/Linux',
@@ -554,11 +709,57 @@ class TestReleaseWithExtraFile(DistroTestCase):
             'pretty_version': '8 (jessie)',
             'best_version': '8',
             'like': 'debian',
-            'codename': 'jessie'
+            'codename': 'jessie',
+            'major_version': '8',
+        }
+        self._test_outcome(desired_outcome)
+        self._test_non_existing_release_file()
+
+    def test_rhel5_release(self):
+        desired_outcome = {
+            'id': 'rhel',
+            'name': 'Red Hat Enterprise Linux Server',
+            'pretty_name': 'Red Hat Enterprise Linux Server 5.11 (Tikanga)',
+            'version': '5.11',
+            'pretty_version': '5.11 (Tikanga)',
+            'best_version': '5.11',
+            'codename': 'Tikanga',
+            'major_version': '5',
+            'minor_version': '11'
         }
         self._test_outcome(desired_outcome)
 
-    def test_rhel7_os_release(self):
+        desired_info = {
+            'id': 'redhat',
+            'name': 'Red Hat Enterprise Linux Server',
+            'version_id': '5.11',
+            'codename': 'Tikanga'
+        }
+        self._test_release_file_info('redhat-release', desired_info)
+
+    def test_rhel6_release(self):
+        desired_outcome = {
+            'id': 'rhel',
+            'name': 'Red Hat Enterprise Linux Server',
+            'pretty_name': 'Red Hat Enterprise Linux Server 6.5 (Santiago)',
+            'version': '6.5',
+            'pretty_version': '6.5 (Santiago)',
+            'best_version': '6.5',
+            'codename': 'Santiago',
+            'major_version': '6',
+            'minor_version': '5'
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            'id': 'redhat',
+            'name': 'Red Hat Enterprise Linux Server',
+            'version_id': '6.5',
+            'codename': 'Santiago'
+        }
+        self._test_release_file_info('redhat-release', desired_info)
+
+    def test_rhel7_release(self):
         desired_outcome = {
             'id': 'rhel',
             'name': 'Red Hat Enterprise Linux Server',
@@ -567,33 +768,65 @@ class TestReleaseWithExtraFile(DistroTestCase):
             'pretty_version': '7.0 (Maipo)',
             'best_version': '7.0',
             'like': 'fedora',
-            'codename': 'Maipo'
+            'codename': 'Maipo',
+            'major_version': '7',
+            'minor_version': '0'
         }
         self._test_outcome(desired_outcome)
 
-    def test_slackware14_os_release(self):
+        desired_info = {
+            'id': 'redhat',
+            'name': 'Red Hat Enterprise Linux Server',
+            'version_id': '7.0',
+            'codename': 'Maipo'
+        }
+        self._test_release_file_info('redhat-release', desired_info)
+
+    def test_slackware14_release(self):
         desired_outcome = {
             'id': 'slackware',
             'name': 'Slackware',
             'pretty_name': 'Slackware 14.1',
             'version': '14.1',
             'pretty_version': '14.1',
-            'best_version': '14.1'
+            'best_version': '14.1',
+            'major_version': '14',
+            'minor_version': '1'
         }
         self._test_outcome(desired_outcome)
 
-    def test_sles12_os_release(self):
+        desired_info = {
+            'id': 'slackware',
+            'name': 'Slackware',
+            'version_id': '14.1',
+        }
+        distro_info = self._test_release_file_info(
+            'slackware-version', desired_info)
+        assert 'codename' not in distro_info
+
+    def test_sles12_release(self):
         desired_outcome = {
             'id': 'sles',
             'name': 'SLES',
             'pretty_name': 'SUSE Linux Enterprise Server 12 SP1',
             'version': '12.1',
-            'pretty_version': '12.1',
-            'best_version': '12.1'
+            'pretty_version': '12.1 (n/a)',
+            'best_version': '12.1',
+            'codename': 'n/a',
+            'major_version': '12',
+            'minor_version': '1'
         }
         self._test_outcome(desired_outcome)
 
-    def test_ubuntu14_os_release(self):
+        desired_info = {
+            'id': 'SuSE',
+            'name': 'SUSE Linux Enterprise Server',
+            'version_id': '12',
+            'codename': 's390x'
+        }
+        self._test_release_file_info('SuSE-release', desired_info)
+
+    def test_ubuntu14_release(self):
         desired_outcome = {
             'id': 'ubuntu',
             'name': 'Ubuntu',
@@ -602,11 +835,18 @@ class TestReleaseWithExtraFile(DistroTestCase):
             'pretty_version': '14.04 (Trusty Tahr)',
             'best_version': '14.04.3',
             'like': 'debian',
-            'codename': 'Trusty Tahr'
+            'codename': 'Trusty Tahr',
+            'major_version': '14',
+            'minor_version': '04'
         }
         self._test_outcome(desired_outcome)
 
-    def test_amazon2016_os_release(self):
+        # Test the info from the searched distro release file
+        # Does not have one; /etc/debian_version is not considered a distro
+        # release file:
+        self._test_non_existing_release_file()
+
+    def test_amazon2016_release(self):
         desired_outcome = {
             'id': 'amzn',
             'name': 'Amazon Linux AMI',
@@ -614,11 +854,42 @@ class TestReleaseWithExtraFile(DistroTestCase):
             'version': '2016.03',
             'pretty_version': '2016.03',
             'best_version': '2016.03',
-            'like': 'rhel fedora'
+            'like': 'rhel fedora',
+            'major_version': '2016',
+            'minor_version': '03'
         }
         self._test_outcome(desired_outcome)
 
-    def test_scientific7_os_release(self):
+    def test_amazon2014_release(self):
+        # Amazon Linux 2014 only contains a system-release file.
+        # distro doesn't currently handle it.
+        desired_outcome = {}
+        self._test_outcome(desired_outcome)
+
+    def test_scientific6_release(self):
+        desired_outcome = {
+            'id': 'rhel',
+            'name': 'Scientific Linux',
+            'pretty_name': 'Scientific Linux 6.4 (Carbon)',
+            'version': '6.4',
+            'pretty_version': '6.4 (Carbon)',
+            'best_version': '6.4',
+            'codename': 'Carbon',
+            'major_version': '6',
+            'minor_version': '4',
+
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            'id': 'redhat',
+            'name': 'Scientific Linux',
+            'version_id': '6.4',
+            'codename': 'Carbon'
+        }
+        self._test_release_file_info('redhat-release', desired_info)
+
+    def test_scientific7_release(self):
         desired_outcome = {
             'id': 'rhel',
             'name': 'Scientific Linux',
@@ -627,17 +898,39 @@ class TestReleaseWithExtraFile(DistroTestCase):
             'pretty_version': '7.2 (Nitrogen)',
             'best_version': '7.2',
             'like': 'fedora',
-            'codename': 'Nitrogen'
+            'codename': 'Nitrogen',
+            'major_version': '7',
+            'minor_version': '2',
         }
         self._test_outcome(desired_outcome)
 
-    def test_gentoo_os_release(self):
+        desired_info = {
+            'id': 'redhat',
+            'name': 'Scientific Linux',
+            'version_id': '7.2',
+            'codename': 'Nitrogen'
+        }
+        self._test_release_file_info('redhat-release', desired_info)
+
+    def test_gentoo_release(self):
         desired_outcome = {
             'id': 'gentoo',
             'name': 'Gentoo',
             'pretty_name': 'Gentoo/Linux',
+            'version': '2.2',
+            'pretty_version': '2.2',
+            'best_version': '2.2',
+            'major_version': '2',
+            'minor_version': '2',
         }
         self._test_outcome(desired_outcome)
+
+        desired_info = {
+            'id': 'gentoo',
+            'name': 'Gentoo Base System',
+            'version_id': '2.2',
+        }
+        self._test_release_file_info('gentoo-release', desired_info)
 
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
