@@ -368,7 +368,11 @@ class TestOSRelease:
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestReleaseWithExtraFile(DistroTestCase):
-    """This class tests all of TestOverall with an extra file in the way"""
+    """
+    This class tests all souces except for LSBrelease.
+    It executes these tests with an extra file 'aaa=release' in the way.
+    The 'aaa-release' file has no read permissions
+    """
 
     def setup_method(self, test_method):
         super(TestReleaseWithExtraFile, self).setup_method(test_method)
@@ -502,7 +506,7 @@ class TestReleaseWithExtraFile(DistroTestCase):
             'pretty_name': 'Debian GNU/Linux 8 (jessie)',
             'version': '8',
             'pretty_version': '8 (jessie)',
-            'best_version': '8.2',
+            'best_version': '8',
             'codename': 'jessie',
             'major_version': '8'
         }
@@ -605,11 +609,11 @@ class TestReleaseWithExtraFile(DistroTestCase):
             'name': 'Mageia',
             'pretty_name': 'Mageia 5',
             'version': '5',
-            'pretty_version': '5 (thornicroft)',
+            'pretty_version': '5 (Official)',
             'best_version': '5',
             'like': 'mandriva fedora',
             # TODO: Codename differs between distro release and lsb_release.
-            'codename': 'thornicroft',
+            'codename': 'Official',
             'major_version': '5'
         }
         self._test_outcome(desired_outcome)
@@ -626,13 +630,7 @@ class TestReleaseWithExtraFile(DistroTestCase):
         self._test_outcome({
             'id': 'manjaro',
             'name': 'Manjaro Linux',
-            'pretty_name': 'Manjaro Linux',
-            'version': '15.12',
-            'pretty_version': '15.12 (Capella)',
-            'best_version': '15.12',
-            'major_version': '15',
-            'minor_version': '12',
-            'codename': 'Capella'
+            'pretty_name': 'Manjaro Linux'
         })
 
         self._test_release_file_info(
@@ -810,9 +808,9 @@ class TestReleaseWithExtraFile(DistroTestCase):
             'name': 'SLES',
             'pretty_name': 'SUSE Linux Enterprise Server 12 SP1',
             'version': '12.1',
-            'pretty_version': '12.1 (n/a)',
+            'pretty_version': '12.1 (s390x)',
             'best_version': '12.1',
-            'codename': 'n/a',
+            'codename': 's390x',
             'major_version': '12',
             'minor_version': '1'
         }
