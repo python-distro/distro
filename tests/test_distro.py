@@ -365,6 +365,17 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
+    def test_openelec6_os_release(self):
+        desired_outcome = {
+            'id': 'openelec',
+            'name': 'OpenELEC',
+            'pretty_name': 'OpenELEC (official) - Version: 6.0.3',
+            'version': '6.0',
+            'pretty_version': '6.0',
+            'best_version': '6.0.3',
+        }
+        self._test_outcome(desired_outcome)
+
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestLSBRelease(DistroTestCase):
@@ -410,6 +421,20 @@ class TestLSBRelease(DistroTestCase):
             'best_version': '15.12',
             'codename': 'Capella'
         })
+
+    # @pytest.mark.xfail
+    # def test_openelec6_lsb_release(self):
+    #     # TODO: This should be fixed as part of #109 when dealing
+    #     # with distro inconsistencies
+    #     desired_outcome = {
+    #         'id': 'openelec',
+    #         'name': 'OpenELEC',
+    #         'pretty_name': 'OpenELEC (official) - Version: 6.0.3',
+    #         'version': '6.0.3',
+    #         'pretty_version': '6.0.3',
+    #         'best_version': '6.0.3',
+    #     }
+    #     self._test_outcome(desired_outcome)
 
     def test_ubuntu14normal_lsb_release(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb',
@@ -1339,6 +1364,19 @@ class TestOverall(DistroTestCase):
             'version_id': '2.2',
         }
         self._test_release_file_info('gentoo-release', desired_info)
+
+    def test_openelec6_release(self):
+        desired_outcome = {
+            'id': 'openelec',
+            'name': 'OpenELEC',
+            'pretty_name': 'OpenELEC (official) - Version: 6.0.3',
+            'version': '6.0',
+            'pretty_version': '6.0',
+            'best_version': '6.0.3',
+            'major_version': '6',
+            'minor_version': '0',
+        }
+        self._test_outcome(desired_outcome)
 
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
