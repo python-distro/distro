@@ -61,7 +61,7 @@ $ distro -j
 $ python
 >>> import distro
 >>> distro.linux_distribution(full_distribution_name=False)
-'('centos', '7.1.1503', 'Core')'
+('centos', '7.1.1503', 'Core')
 ```
 
 

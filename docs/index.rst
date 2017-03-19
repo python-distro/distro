@@ -1,4 +1,5 @@
 
+.. _distro official repo: https://github.com/nir0s/distro
 .. _distro issue tracker: https://github.com/nir0s/distro/issues
 .. _open issues on missing test data: https://github.com/nir0s/distro/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22>
 
@@ -6,6 +7,7 @@
 **distro** package (Linux Distribution) version |version|
 *********************************************************
 
+Official distro repository: `distro official repo`_
 
 Overview and motivation
 =======================
@@ -14,7 +16,6 @@ Overview and motivation
 
 If you want to jump into the API description right away, read about the
 `consolidated accessor functions`_.
-
 
 Compatibility
 =============

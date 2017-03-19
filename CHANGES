@@ -1,3 +1,14 @@
+**1.0.3 (2017.03.19)**
+
+* Add manual mapping for `redhatenterpriseserver` (previously only redhatenterpriseworkstation was mapped)
+* Return empty information when failing to read a seemingly version related file due to IO or OS errors.
+* When using the CLI without providing the -j flag, printout keys even if their values are empty.
+* Replace nose with pytest
+* Add RHEL5 test case
+* Add OpenELEC test case
+* Update supported Python versions (with py36)
+* Update classifiers
+
 **1.0.2 (2017.01.12)**
 
 * Add MANIFEST file (which also includes the LICENSE as part of Issue #139)
