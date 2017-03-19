@@ -1019,6 +1019,9 @@ class LinuxDistribution(object):
                 # are multiple lines. We don't want them...
                 return self._parse_distro_release_content(fp.readline())
         except (OSError, IOError):
+            # Ignore not being able to read a specific, seemingly version
+            # related file.
+            # See https://github.com/nir0s/distro/issues/162
             return {}
 
     @staticmethod
