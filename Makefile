@@ -48,19 +48,45 @@ help:
 	@echo "  dev       - prepare a development environment (includes tests)"
 	@echo "  instdev   - prepare a development environment (no tests)"
 	@echo "  install   - install into current Python environment"
-	@echo "  test      - test from this directory using tox, including test coverage"
-	@echo "  publish   - upload to PyPI"
 	@echo "  html      - generate docs as standalone HTML files in: $(SPHINXBUILDDIR)/html"
 	@echo "  pdf       - generate docs as PDF (via LaTeX) for paper format: $(SPHINXPAPER) in: $(SPHINXBUILDDIR)/pdf"
 	@echo "  man       - generate docs as manual pages in: $(SPHINXBUILDDIR)/man"
 	@echo "  docchanges   - generate an overview of all changed/added/deprecated items in docs"
 	@echo "  doclinkcheck - check all external links in docs for integrity"
 	@echo "  doccoverage  - run coverage check of the documentation"
-	@echo "  clean     - remove any temporary build products"
 	@echo "  clobber   - remove any build products"
+	@echo "  build     - build the package"
+	@echo "  test      - test from this directory using tox, including test coverage"
+	@echo "  publish   - upload to PyPI"
+	@echo "  clean     - remove any temporary build products"
+	@echo "  dry-run   - perform all action required for a release without actually releasing"
 
 .PHONY: release
-release: publish
+release: test clean build publish
+	@echo "$@ done."
+
+.PHONY: test
+test:
+	pip install 'tox>=1.7.2'
+	tox
+	@echo "$@ done."
+
+.PHONY: clean
+clean:
+	rm -rf dist build $(PACKAGENAME).egg-info
+	@echo "$@ done."
+
+.PHONY: build
+build:
+	python setup.py sdist bdist_wheel
+
+.PHONY: publish
+publish:
+	twine upload -r pypi dist/$(PACKAGENAME)-*
+	@echo "$@ done."
+
+.PHONY: dry-run
+dry-run: test clean build
 	@echo "$@ done."
 
 .PHONY: dev
@@ -76,18 +102,6 @@ instdev:
 .PHONY: install
 install:
 	python setup.py install
-	@echo "$@ done."
-
-.PHONY: test
-test:
-	sudo pip install 'tox>=1.7.2'
-	tox
-	@echo "$@ done."
-
-.PHONY: publish
-publish:
-	python setup.py sdist bdist_wheel
-	twine upload -s dist/$(PACKAGENAME)-*
 	@echo "$@ done."
 
 .PHONY: html
@@ -124,11 +138,6 @@ doclinkcheck:
 doccoverage:
 	$(SPHINXBUILD) -b coverage $(ALLSPHINXOPTS) $(SPHINXBUILDDIR)/coverage
 	@echo "$@ done; the doc coverage results are in $(SPHINXBUILDDIR)/coverage/python.txt."
-
-.PHONY: clean
-clean:
-	rm -rf build $(PACKAGENAME).egg-info
-	@echo "$@ done."
 
 .PHONY: clobber
 clobber: clean
