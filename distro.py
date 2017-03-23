@@ -991,7 +991,7 @@ class LinuxDistribution(object):
                 basenames.sort()
             except OSError:
                 # This may occur when /etc is not readable but we can't be
-                # sure about the *-release files. Check common entries of 
+                # sure about the *-release files. Check common entries of
                 # /etc for information. If they turn out to not be there the
                 # error is handled in `_parse_distro_release_file()`.
                 basenames = ['os-release', 'redhat-release', 'system-release',
