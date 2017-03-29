@@ -111,7 +111,6 @@ class DistroTestCase(object):
         distro._UNIXCONFDIR = os.path.join(distro_root, RELATIVE_UNIXCONFDIR)
 
 
-
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestOSRelease:
 
@@ -1391,9 +1390,6 @@ def _bad_os_listdir(path='.'):
 class TestOverallWithEtcNotReadable(TestOverall):
     def setup_method(self, test_method):
         super(TestOverall, self).setup_method(test_method)
-        dist = test_method.__name__.split('_')[1]
-        self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
-        self.distro = distro.LinuxDistribution()
         self._old_listdir = os.listdir
         os.listdir = _bad_os_listdir
         
