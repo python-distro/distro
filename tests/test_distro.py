@@ -111,6 +111,7 @@ class DistroTestCase(object):
         distro._UNIXCONFDIR = os.path.join(distro_root, RELATIVE_UNIXCONFDIR)
 
 
+
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestOSRelease:
 
@@ -1377,6 +1378,29 @@ class TestOverall(DistroTestCase):
             'minor_version': '0',
         }
         self._test_outcome(desired_outcome)
+        
+        
+def _bad_os_listdir(path='.'):
+    """ This function is used by TestOverallWithEtcNotReadable to simulate
+    a folder that cannot be called with os.listdir() but files are still
+    readable. Forces distro to guess which *-release files are available. """
+    raise OSError()
+
+
+@pytest.mark.skipIf(not IS_LINUX, reason='Irrelevant on non-linx')
+class TestOverallWithEtcNotReadable(TestOverall):
+    def setup_method(self, test_method):
+        super(TestOverall, self).setup_method(test_method)
+        dist = test_method.__name__.split('_')[1]
+        self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
+        self.distro = distro.LinuxDistribution()
+        self._old_listdir = os.listdir
+        os.listdir = _bad_os_listdir
+        
+    def teardown_method(self, test_method):
+        super(TestOverallWithEtcNotReadable, self).teardown_method(test_method)
+        if os.listdir is _bad_os_listdir:
+            os.listdir = self._old_listdir
 
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
