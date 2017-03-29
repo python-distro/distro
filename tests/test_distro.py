@@ -1389,7 +1389,7 @@ def _bad_os_listdir(path='.'):
 @pytest.mark.skipIf(not IS_LINUX, reason='Irrelevant on non-linx')
 class TestOverallWithEtcNotReadable(TestOverall):
     def setup_method(self, test_method):
-        super(TestOverall, self).setup_method(test_method)
+        super(TestOverallWithEtcNotReadable, self).setup_method(test_method)
         self._old_listdir = os.listdir
         os.listdir = _bad_os_listdir
         
