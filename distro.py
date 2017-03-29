@@ -994,9 +994,17 @@ class LinuxDistribution(object):
                 # sure about the *-release files. Check common entries of
                 # /etc for information. If they turn out to not be there the
                 # error is handled in `_parse_distro_release_file()`.
-                basenames = ['SuSE-release', 'base-release', 'centos-release',
-                             'centos-release', 'fedora-release', 'os-release',
-                             'redhat-release', 'system-release']
+                basenames = ['SuSE-release',
+                             'arch-release',
+                             'base-release',
+                             'centos-release',
+                             'fedora-release',
+                             'gentoo-release',
+                             'majaro-release',
+                             'oracle-release',
+                             'redhat-release',
+                             'sl-release',
+                             'slackware-version']
             for basename in basenames:
                 if basename in _DISTRO_RELEASE_IGNORE_BASENAMES:
                     continue
