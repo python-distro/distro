@@ -588,6 +588,13 @@ class LinuxDistribution(object):
         * :py:exc:`UnicodeError`: A data source has unexpected characters or
           uses an unexpected encoding.
         """
+        # The order that information is preferred to be searched for.
+        # This is different on distros such as Linux Mint which should
+        # get information from lsb-release before os-release.
+        self._preferred_source_order = ['os-release',
+                                        'lsb-release',
+                                        'distro-release']
+
         self.os_release_file = os_release_file or \
             os.path.join(_UNIXCONFDIR, _OS_RELEASE_BASENAME)
         self.distro_release_file = distro_release_file or ''  # updated later
@@ -595,6 +602,7 @@ class LinuxDistribution(object):
         self._lsb_release_info = self._get_lsb_release_info() \
             if include_lsb else {}
         self._distro_release_info = self._get_distro_release_info()
+        self._resolve_distro_inconsistencies()
 
     def __repr__(self):
         """Return repr of all info
@@ -635,18 +643,16 @@ class LinuxDistribution(object):
             distro_id = distro_id.lower().replace(' ', '_')
             return table.get(distro_id, distro_id)
 
-        distro_id = self.os_release_attr('id')
-        if distro_id:
+        distro_id, source = self._preferred_release_attr({'os-release': 'id',
+                                                          'lsb-release': 'distributor_id',
+                                                          'distro-release': 'id'})
+
+        if source == 'os-release':
             return normalize(distro_id, NORMALIZED_OS_ID)
-
-        distro_id = self.lsb_release_attr('distributor_id')
-        if distro_id:
+        elif source == 'lsb-release':
             return normalize(distro_id, NORMALIZED_LSB_ID)
-
-        distro_id = self.distro_release_attr('id')
-        if distro_id:
+        elif source == 'distro-release':
             return normalize(distro_id, NORMALIZED_DISTRO_ID)
-
         return ''
 
     def name(self, pretty=False):
@@ -655,17 +661,18 @@ class LinuxDistribution(object):
 
         For details, see :func:`distro.name`.
         """
-        name = self.os_release_attr('name') \
-            or self.lsb_release_attr('distributor_id') \
-            or self.distro_release_attr('name')
         if pretty:
-            name = self.os_release_attr('pretty_name') \
-                or self.lsb_release_attr('description')
-            if not name:
-                name = self.distro_release_attr('name')
+            name, source = self._preferred_release_attr({'os-release': 'pretty_name',
+                                                         'lsb-release': 'description',
+                                                         'distro-release': 'name'})
+            if source == 'distro-release':
                 version = self.version(pretty=True)
                 if version:
                     name = name + ' ' + version
+        else:
+            name, _ = self._preferred_release_attr({'os-release': 'name',
+                                                    'lsb-release': 'distributor_id',
+                                                    'distro-release': 'name'})
         return name or ''
 
     def version(self, pretty=False, best=False):
@@ -847,8 +854,7 @@ class LinuxDistribution(object):
                 return self._parse_os_release_content(release_file)
         return {}
 
-    @staticmethod
-    def _parse_os_release_content(lines):
+    def _parse_os_release_content(self, lines):
         """
         Parse the lines of an os-release file.
 
@@ -905,6 +911,7 @@ class LinuxDistribution(object):
             else:
                 # Ignore any tokens that are not variable assignments
                 pass
+
         return props
 
     def _get_lsb_release_info(self):
@@ -1069,6 +1076,35 @@ class LinuxDistribution(object):
         elif line:
             distro_info['name'] = line.strip()
         return distro_info
+
+    def _resolve_distro_inconsistencies(self):
+        # Debian stretch/sid does not contain parenthesis in it's PRETTY_NAME
+        # field for /etc/os-release like all other distros so it would hide the
+        # codename from being parsed correctly. This would only occur when lsb-release
+        # is not installed. Issue #152
+        if self.id() == 'debian' and self.codename() == '':
+            if 'stretch/sid' in self.os_release_attr('pretty_name'):
+                self._os_release_info['codename'] = 'stretch/sid'
+
+    def _preferred_release_attr(self, attr):
+        """ Gets release information from sources in the order
+        that the information is preferred. If information is not
+        found in one source then the next source will be searched.
+        The source where the information is from is also returned. """
+        value = ''
+        for source in self._preferred_source_order:
+            if source in attr:
+                if source == 'os-release':
+                    value = self.os_release_attr(attr[source])
+                elif source == 'lsb-release':
+                    value = self.lsb_release_attr(attr[source])
+                elif source == 'distro-release':
+                    value = self.distro_release_attr(attr[source])
+                else:
+                    raise ValueError('Unknown source `%s`' % source)
+                if value != '':
+                    return value, source
+        return value, ''
 
 
 _distro = LinuxDistribution()

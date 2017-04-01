@@ -566,6 +566,18 @@ class TestSpecialRelease(DistroTestCase):
         }
         self._test_outcome(desired_outcome)
 
+    def test_debian_stretch_docker_release(self):
+        self._setup_for_distro(os.path.join(SPECIAL, 'debian_stretch_docker'))
+        self.distro = distro.LinuxDistribution()
+
+        desired_outcome = {
+            'id': 'debian',
+            'name': 'Debian GNU/Linux',
+            'pretty_name': 'Debian GNU/Linux stretch/sid',
+            'codename': 'stretch/sid',
+        }
+        self._test_outcome(desired_outcome)
+
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestDistroRelease:
@@ -1818,4 +1830,6 @@ class TestRepr:
         repr_str = repr(distro._distro)
         assert "LinuxDistribution" in repr_str
         for attr in MODULE_DISTRO.__dict__.keys():
+            if attr == '_preferred_source_order':
+                continue
             assert attr + '=' in repr_str
