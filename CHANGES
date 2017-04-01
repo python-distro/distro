@@ -1,3 +1,7 @@
+**1.0.4 (2017.04.01)**
+
+* Fix not being able to read `/etc/` and yet able to read release files inside it.
+
 **1.0.3 (2017.03.19)**
 
 * Add manual mapping for `redhatenterpriseserver` (previously only redhatenterpriseworkstation was mapped)
