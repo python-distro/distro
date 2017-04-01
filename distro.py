@@ -602,6 +602,7 @@ class LinuxDistribution(object):
         self._lsb_release_info = self._get_lsb_release_info() \
             if include_lsb else {}
         self._distro_release_info = self._get_distro_release_info()
+
         self._resolve_distro_inconsistencies()
 
     def __repr__(self):
@@ -682,14 +683,21 @@ class LinuxDistribution(object):
         For details, see :func:`distro.version`.
         """
         versions = [
-            self.os_release_attr('version_id'),
+            self._preferred_release_attr({'os-release': 'version_id',
+                                          'lsb-release': 'release',
+                                          'distro-release': 'version_id'})[0],
             self.lsb_release_attr('release'),
             self.distro_release_attr('version_id'),
             self._parse_distro_release_content(
-                self.os_release_attr('pretty_name')).get('version_id', ''),
-            self._parse_distro_release_content(
                 self.lsb_release_attr('description')).get('version_id', '')
         ]
+
+        # Linux Mint has Ubuntu's version in os-release so exclude it from this list.
+        if self.id() != 'linuxmint':
+            versions.insert(1, self.os_release_attr('version_id'))
+            versions.insert(4, self._parse_distro_release_content(
+                self.os_release_attr('pretty_name')).get('version_id', ''),)
+
         version = ''
         if best:
             # This algorithm uses the last version in priority order that has
@@ -762,10 +770,9 @@ class LinuxDistribution(object):
 
         For details, see :func:`distro.codename`.
         """
-        return self.os_release_attr('codename') \
-            or self.lsb_release_attr('codename') \
-            or self.distro_release_attr('codename') \
-            or ''
+        return self._preferred_release_attr({'os-release': 'codename',
+                                             'lsb-release': 'codename',
+                                             'distro-release': 'codename'})[0]
 
     def info(self, pretty=False, best=False):
         """
@@ -1085,6 +1092,15 @@ class LinuxDistribution(object):
         if self.id() == 'debian' and self.codename() == '':
             if 'stretch/sid' in self.os_release_attr('pretty_name'):
                 self._os_release_info['codename'] = 'stretch/sid'
+
+        # Linux Mint has the same os-release as Ubuntu and lsb-release contains
+        # all information about Linux Mint. Change the order that distro gets
+        # information from release files for Linux Mint to prefer lsb-release. Issue #78
+        if self.os_release_attr('id') == 'ubuntu' and \
+                self.lsb_release_attr('distributor_id') == 'LinuxMint':
+            self._preferred_source_order = ['lsb-release',
+                                            'os-release',
+                                            'distro-release']
 
     def _preferred_release_attr(self, attr):
         """ Gets release information from sources in the order
