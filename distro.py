@@ -644,9 +644,10 @@ class LinuxDistribution(object):
             distro_id = distro_id.lower().replace(' ', '_')
             return table.get(distro_id, distro_id)
 
-        distro_id, source = self._preferred_release_attr({'os-release': 'id',
-                                                          'lsb-release': 'distributor_id',
-                                                          'distro-release': 'id'})
+        distro_id, source = self._preferred_release_attr({
+            'os-release': 'id',
+            'lsb-release': 'distributor_id',
+            'distro-release': 'id'})
 
         if source == 'os-release':
             return normalize(distro_id, NORMALIZED_OS_ID)
@@ -663,17 +664,19 @@ class LinuxDistribution(object):
         For details, see :func:`distro.name`.
         """
         if pretty:
-            name, source = self._preferred_release_attr({'os-release': 'pretty_name',
-                                                         'lsb-release': 'description',
-                                                         'distro-release': 'name'})
+            name, source = self._preferred_release_attr({
+                'os-release': 'pretty_name',
+                'lsb-release': 'description',
+                'distro-release': 'name'})
             if source == 'distro-release':
                 version = self.version(pretty=True)
                 if version:
                     name = name + ' ' + version
         else:
-            name, _ = self._preferred_release_attr({'os-release': 'name',
-                                                    'lsb-release': 'distributor_id',
-                                                    'distro-release': 'name'})
+            name, _ = self._preferred_release_attr({
+                'os-release': 'name',
+                'lsb-release': 'distributor_id',
+                'distro-release': 'name'})
         return name or ''
 
     def version(self, pretty=False, best=False):
@@ -692,7 +695,8 @@ class LinuxDistribution(object):
                 self.lsb_release_attr('description')).get('version_id', '')
         ]
 
-        # Linux Mint has Ubuntu's version in os-release so exclude it from this list.
+        # Linux Mint has Ubuntu's version in
+        # os-release so exclude it from this list.
         if self.id() != 'linuxmint':
             versions.insert(1, self.os_release_attr('version_id'))
             versions.insert(4, self._parse_distro_release_content(
@@ -1086,16 +1090,17 @@ class LinuxDistribution(object):
 
     def _resolve_distro_inconsistencies(self):
         # Debian stretch/sid does not contain parenthesis in it's PRETTY_NAME
-        # field for /etc/os-release like all other distros so it would hide the
-        # codename from being parsed correctly. This would only occur when lsb-release
-        # is not installed. Issue #152
+        # field for /etc/os-release like all other distros so it would hide
+        # the codename from being parsed correctly. This would only occur
+        # when lsb-release is not installed. See issue #152 for more info.
         if self.id() == 'debian' and self.codename() == '':
             if 'stretch/sid' in self.os_release_attr('pretty_name'):
                 self._os_release_info['codename'] = 'stretch/sid'
 
         # Linux Mint has the same os-release as Ubuntu and lsb-release contains
         # all information about Linux Mint. Change the order that distro gets
-        # information from release files for Linux Mint to prefer lsb-release. Issue #78
+        # information from release files for Linux Mint to prefer lsb-release.
+        # See issue #78 for more info.
         if self.os_release_attr('id') == 'ubuntu' and \
                 self.lsb_release_attr('distributor_id') == 'LinuxMint':
             self._preferred_source_order = ['lsb-release',
