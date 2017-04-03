@@ -813,7 +813,6 @@ class TestOverall(DistroTestCase):
       * `cloudlinux` - CloudLinux OS
       * `gentoo` - GenToo Linux
       * `ibm_powerkvm` - IBM PowerKVM
-      * `mandriva` - Mandriva Linux
       * `parallels` - Parallels
       * `pidora` - Pidora (Fedora remix for Raspberry Pi)
       * `raspbian` - Raspbian
@@ -1377,8 +1376,29 @@ class TestOverall(DistroTestCase):
             'minor_version': '0',
         }
         self._test_outcome(desired_outcome)
-        
-        
+
+    def test_mandriva2011_release(self):
+        desired_outcome = {
+            'id': 'mandrivalinux',
+            'name': 'MandrivaLinux',
+            'pretty_name': 'Mandriva Linux 2011.0',
+            'version': '2011.0',
+            'pretty_version': '2011.0 (turtle)',
+            'best_version': '2011.0',
+            'major_version': '2011',
+            'minor_version': '0',
+            'codename': 'turtle'
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            'id': 'mandrake',
+            'name': 'Mandriva Linux',
+            'version_id': '2011.0',
+        }
+        self._test_release_file_info('mandrake-release', desired_info)
+
+
 def _bad_os_listdir(path='.'):
     """ This function is used by TestOverallWithEtcNotReadable to simulate
     a folder that cannot be called with os.listdir() but files are still
