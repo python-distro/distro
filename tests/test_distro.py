@@ -376,6 +376,21 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
+    def test_cloudlinux7_os_release(self):
+        desired_outcome = {
+            'id': 'cloudlinux',
+            'codename': 'Yury Malyshev',
+            'name': 'CloudLinux',
+            'pretty_name': 'CloudLinux 7.3 (Yury Malyshev)',
+            'like': 'rhel fedora centos',
+            'version': '7.3',
+            'pretty_version': '7.3 (Yury Malyshev)',
+            'best_version': '7.3',
+            'major_version': '7',
+            'minor_version': '3'
+        }
+        self._test_outcome(desired_outcome)
+
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestLSBRelease(DistroTestCase):
@@ -792,6 +807,51 @@ class TestDistroRelease:
         }
         self._test_outcome(desired_outcome, 'sles', '12', 'SuSE')
 
+    def test_cloudlinux5_dist_release(self):
+        # Uses redhat-release only to get information.
+        # The id of 'rhel' can only be fixed with issue #109.
+        desired_outcome = {
+            'id': 'rhel',
+            'codename': 'Vladislav Volkov',
+            'name': 'CloudLinux Server',
+            'pretty_name': 'CloudLinux Server 5.11 (Vladislav Volkov)',
+            'version': '5.11',
+            'pretty_version': '5.11 (Vladislav Volkov)',
+            'best_version': '5.11',
+            'major_version': '5',
+            'minor_version': '11'
+        }
+        self._test_outcome(desired_outcome, 'cloudlinux', '5', 'redhat')
+
+    def test_cloudlinux6_dist_release(self):
+        # Same as above, only has redhat-release.
+        desired_outcome = {
+            'id': 'rhel',
+            'codename': 'Oleg Makarov',
+            'name': 'CloudLinux Server',
+            'pretty_name': 'CloudLinux Server 6.8 (Oleg Makarov)',
+            'version': '6.8',
+            'pretty_version': '6.8 (Oleg Makarov)',
+            'best_version': '6.8',
+            'major_version': '6',
+            'minor_version': '8'
+        }
+        self._test_outcome(desired_outcome, 'cloudlinux', '6', 'redhat')
+
+    def test_cloudlinux7_dist_release(self):
+        desired_outcome = {
+            'id': 'rhel',
+            'codename': 'Yury Malyshev',
+            'name': 'CloudLinux',
+            'pretty_name': 'CloudLinux 7.3 (Yury Malyshev)',
+            'version': '7.3',
+            'pretty_version': '7.3 (Yury Malyshev)',
+            'best_version': '7.3',
+            'major_version': '7',
+            'minor_version': '3'
+        }
+        self._test_outcome(desired_outcome, 'cloudlinux', '7', 'redhat')
+
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestOverall(DistroTestCase):
@@ -810,7 +870,6 @@ class TestOverall(DistroTestCase):
     to be reliably maintained w.r.t. to their ID (see `id()`). Testcases for
     the following distros are still missing:
       * `amazon` - Amazon Linux
-      * `cloudlinux` - CloudLinux OS
       * `gentoo` - GenToo Linux
       * `ibm_powerkvm` - IBM PowerKVM
       * `parallels` - Parallels
@@ -1397,6 +1456,52 @@ class TestOverall(DistroTestCase):
             'version_id': '2011.0',
         }
         self._test_release_file_info('mandrake-release', desired_info)
+
+    def test_cloudlinux5_release(self):
+        # Uses redhat-release only to get information.
+        # The id of 'rhel' can only be fixed with issue #109.
+        desired_outcome = {
+            'id': 'rhel',
+            'codename': 'Vladislav Volkov',
+            'name': 'CloudLinux Server',
+            'pretty_name': 'CloudLinux Server 5.11 (Vladislav Volkov)',
+            'version': '5.11',
+            'pretty_version': '5.11 (Vladislav Volkov)',
+            'best_version': '5.11',
+            'major_version': '5',
+            'minor_version': '11'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_cloudlinux6_release(self):
+        # Same as above, only has redhat-release.
+        desired_outcome = {
+            'id': 'rhel',
+            'codename': 'Oleg Makarov',
+            'name': 'CloudLinux Server',
+            'pretty_name': 'CloudLinux Server 6.8 (Oleg Makarov)',
+            'version': '6.8',
+            'pretty_version': '6.8 (Oleg Makarov)',
+            'best_version': '6.8',
+            'major_version': '6',
+            'minor_version': '8'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_cloudlinux7_release(self):
+        desired_outcome = {
+            'id': 'cloudlinux',
+            'codename': 'Yury Malyshev',
+            'name': 'CloudLinux',
+            'pretty_name': 'CloudLinux 7.3 (Yury Malyshev)',
+            'like': 'rhel fedora centos',
+            'version': '7.3',
+            'pretty_version': '7.3 (Yury Malyshev)',
+            'best_version': '7.3',
+            'major_version': '7',
+            'minor_version': '3'
+        }
+        self._test_outcome(desired_outcome)
 
 
 def _bad_os_listdir(path='.'):
