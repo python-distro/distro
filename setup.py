@@ -44,11 +44,11 @@ setup(
     platforms='All',
     description='Linux Distribution - a Linux OS platform information API',
     long_description=read('README.rst'),
-    py_modules=['distro'],
+    packages=['distro'],
     install_requires=install_requires,
     entry_points={
         'console_scripts': [
-            'distro = distro:main',
+            'distro = distro.__main__:main',
         ]
     },
     classifiers=[
