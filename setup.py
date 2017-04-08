@@ -42,13 +42,13 @@ setup(
     author_email='nir36g@gmail.com',
     license='Apache License, Version 2.0',
     platforms='All',
-    description='Linux Distribution - a Linux OS platform information API',
+    description='Distro - an OS platform information API',
     long_description=read('README.rst'),
     packages=['distro'],
     install_requires=install_requires,
     entry_points={
         'console_scripts': [
-            'distro = distro.__main__:main',
+            'distro = distro:main',
         ]
     },
     classifiers=[
@@ -57,6 +57,8 @@ setup(
         'Intended Audience :: System Administrators',
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: POSIX :: Linux',
+        'Operating System :: Microsoft',
+        'Operating System :: MacOS',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',

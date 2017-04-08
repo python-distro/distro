@@ -1,3 +1,6 @@
+import re
+
+
 class Distribution(object):
     def distribution(self, full_distribution_name=True):
         """
