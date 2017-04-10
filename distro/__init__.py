@@ -363,6 +363,12 @@ def info(pretty=False, best=False):
 if platform.system() == 'Linux':
     from ._linux import get_distribution
     _distro = get_distribution()
+elif platform.system() == 'Windows':
+    from ._windows import get_distribution
+    _distro = get_distribution()
+elif platform.system() == 'Mac OS':
+    from ._mac_os import get_distribution
+    _distro = get_distribution()
 else:
     raise ImportError('Unsupported platform: {0}'.format(platform.system()))
 
