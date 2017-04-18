@@ -384,7 +384,7 @@ def main():
     logger.setLevel(logging.DEBUG)
     logger.addHandler(logging.StreamHandler(sys.stdout))
 
-    parser = argparse.ArgumentParser(description="Linux distro info tool")
+    parser = argparse.ArgumentParser(description="OS platform info tool")
     parser.add_argument(
         '--json',
         '-j',
@@ -404,4 +404,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
