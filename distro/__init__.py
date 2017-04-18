@@ -27,12 +27,8 @@ Still, there are many cases in which access to Linux distribution information
 is needed. See `Python issue 1322 <https://bugs.python.org/issue1322>`_ for
 more information.
 """
-import argparse
-import json
-import logging
+
 import platform
-import sys
-from . import name, info, version, codename
 
 __all__ = ['distribution',
            'get_distribution',
@@ -394,6 +390,11 @@ else:
 
 _distro = get_distribution()
 
+import argparse
+import json
+import logging
+import sys
+from . import name, info, version, codename
 
 def main():
     logger = logging.getLogger(__name__)

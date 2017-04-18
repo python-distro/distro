@@ -352,13 +352,13 @@ class LinuxDistribution(Distribution):
         Returns:
             A dictionary containing all information items.
         """
-        if os.path.isfile(self.os_release_file):
+        try:
             with open(self.os_release_file) as release_file:
                 return self._parse_os_release_content(release_file)
-        return {}
+        except (OSError, IOError):
+            return {}
 
-    @staticmethod
-    def _parse_os_release_content(lines):
+    def _parse_os_release_content(self, lines):
         """
         Parse the lines of an os-release file.
 
@@ -399,23 +399,27 @@ class LinuxDistribution(Distribution):
                     v = v.decode('utf-8')
                 props[k.lower()] = v
                 if k == 'VERSION':
-                    # this handles cases in which the codename is in
-                    # the `(CODENAME)` (rhel, centos, fedora) format
-                    # or in the `, CODENAME` format (Ubuntu).
-                    codename = re.search(r'(\(\D+\))|,(\s+)?\D+', v)
-                    if codename:
-                        codename = codename.group()
-                        codename = codename.strip('()')
-                        codename = codename.strip(',')
-                        codename = codename.strip()
-                        # codename appears within paranthese.
-                        props['codename'] = codename
-                    else:
-                        props['codename'] = ''
+                    codename = self._parse_codename_from_os_release_version(v)
+                    props['codename'] = codename
             else:
                 # Ignore any tokens that are not variable assignments
                 pass
         return props
+
+    def _parse_codename_from_os_release_version(self, version):
+        # this handles cases in which the codename is in
+        # the `(CODENAME)` (rhel, centos, fedora) format
+        # or in the `, CODENAME` format (Ubuntu).
+        codename = re.search(r'(\(\D+\))|,(\s+)?\D+', version)
+        if codename:
+            codename = codename.group()
+            codename = codename.strip('()')
+            codename = codename.strip(',')
+            codename = codename.strip()
+            # codename appears within paranthesis.
+            return codename
+        else:
+            return ''
 
     def _get_lsb_release_info(self):
         """
@@ -587,19 +591,40 @@ class LinuxDistribution(Distribution):
 class LinuxMintDistribution(LinuxDistribution):
     """ LinuxMint has the same /etc/os-release file as
     Ubuntu and will give incorrect information as os-release
-    is always prioritized over lsb-release. """
+    is always prioritized over lsb-release. See issue #"""
     def os_release_attr(self, attribute):
         if attribute == 'id_like':
             return super(LinuxMintDistribution, self).os_release_attr(attribute)
         return ''
 
 
-def get_distribution():
-    ld = LinuxDistribution()
+class DebianDistribution(LinuxDistribution):
+    """ Debian does not put it's codename within parenthesis
+    unlike all other distributions so it requires it's own
+    parsing to get a correct codename. """
+    def _parse_os_release_content(self, lines):
+        props = super(DebianDistribution, self)._parse_os_release_content(lines)
+
+        # Starting with Debian 9 (stretch/sid) there is no longer
+        # a VERSION inside of /etc/os-release and so we must get
+        # the codename from the PRETTY_NAME value to not rely on
+        # lsb-release being installed.
+        if not props.get('codename', '') and 'pretty_name' in props:
+            codename = re.search('\s([^\s]+)$', props['pretty_name'])
+            if codename:
+                props['codename'] = codename.group(1)
+
+        return props
+
+
+def get_distribution(*args):
+    ld = LinuxDistribution(*args)
     if (_normalize_id(ld.os_release_attr('id'),
                       NORMALIZED_OS_ID) == 'ubuntu' and
                 _normalize_id(ld.lsb_release_attr('distributor_id'),
                               NORMALIZED_OS_ID) == 'linuxmint'):
-        return LinuxMintDistribution()
+        return LinuxMintDistribution(*args)
+    elif ld.id() == 'debian':
+        return DebianDistribution(*args)
     else:
         return ld

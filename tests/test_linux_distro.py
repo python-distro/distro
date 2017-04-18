@@ -47,7 +47,7 @@ class DistroTestCase(object):
 
     def teardown_method(self, test_method):
         os.environ["PATH"] = self._saved_path
-        distro._UNIXCONFDIR = self._saved_UNIXCONFDIR
+        distro._linux._UNIXCONFDIR = self._saved_UNIXCONFDIR
 
     def _setup_for_distro(self, distro_root):
         distro_bin = os.path.join(distro_root, 'bin')
@@ -59,9 +59,9 @@ class DistroTestCase(object):
 
 class TestOSRelease:
     def setup_method(self, test_method):
-        dist = test_method.__name__.split('_')[1]
+        dist = '_'.join(test_method.__name__.split('_')[1:-2])
         os_release = os.path.join(DISTROS_DIR, dist, 'etc', 'os-release')
-        self.distro = distro._linux.LinuxDistribution(False, os_release, 'non')
+        self.distro = distro._linux.get_distribution(False, os_release, 'non')
 
     def _test_outcome(self, outcome):
         assert self.distro.id() == outcome.get('id', '')
@@ -116,6 +116,15 @@ class TestOSRelease:
             'pretty_version': '8 (jessie)',
             'best_version': '8',
             'codename': 'jessie'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_debian9_os_release(self):
+        desired_outcome = {
+            'id': 'debian',
+            'name': 'Debian GNU/Linux',
+            'pretty_name': 'Debian GNU/Linux stretch/sid',
+            'codename': 'stretch/sid'  # This test is for issue #152
         }
         self._test_outcome(desired_outcome)
 
