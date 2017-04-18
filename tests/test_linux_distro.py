@@ -399,20 +399,6 @@ class TestLSBRelease(DistroTestCase):
             'codename': 'Capella'
         })
 
-    # @pytest.mark.xfail
-    # def test_openelec6_lsb_release(self):
-    #     # TODO: This should be fixed as part of #109 when dealing
-    #     # with distro inconsistencies
-    #     desired_outcome = {
-    #         'id': 'openelec',
-    #         'name': 'OpenELEC',
-    #         'pretty_name': 'OpenELEC (official) - Version: 6.0.3',
-    #         'version': '6.0.3',
-    #         'pretty_version': '6.0.3',
-    #         'best_version': '6.0.3',
-    #     }
-    #     self._test_outcome(desired_outcome)
-
     def test_ubuntu14normal_lsb_release(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb',
                                             'ubuntu14_normal'))
@@ -797,7 +783,7 @@ class TestOverall(DistroTestCase):
         super(TestOverall, self).setup_method(test_method)
         dist = test_method.__name__.split('_')[1]
         self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
-        self.distro = distro._linux.LinuxDistribution()
+        self.distro = distro._linux.get_distribution()
 
     def _test_outcome(self, outcome):
         assert self.distro.id() == outcome.get('id', '')
@@ -990,16 +976,16 @@ class TestOverall(DistroTestCase):
 
     def test_linuxmint17_release(self):
         desired_outcome = {
-            'id': 'ubuntu',
-            'name': 'Ubuntu',
-            'pretty_name': 'Ubuntu 14.04.3 LTS',
-            'version': '14.04',
-            'pretty_version': '14.04 (Trusty Tahr)',
-            'best_version': '14.04.3',
+            'id': 'linuxmint',
+            'name': 'LinuxMint',
+            'pretty_name': 'Linux Mint 17.3 Rosa',
+            'version': '17.3',
+            'pretty_version': '17.3 (rosa)',
+            'best_version': '17.3',
             'like': 'debian',
-            'codename': 'Trusty Tahr',
-            'major_version': '14',
-            'minor_version': '04'
+            'codename': 'rosa',
+            'major_version': '17',
+            'minor_version': '3'
         }
         self._test_outcome(desired_outcome)
         self._test_non_existing_release_file()

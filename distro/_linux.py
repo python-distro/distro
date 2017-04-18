@@ -60,6 +60,11 @@ _DISTRO_RELEASE_IGNORE_BASENAMES = (
 )
 
 
+def _normalize_id(distro_id, table):
+    distro_id = distro_id.lower().replace(' ', '_')
+    return table.get(distro_id, distro_id)
+
+
 class LinuxDistribution(Distribution):
     """
     Provides information about a Linux distribution.
@@ -180,21 +185,17 @@ class LinuxDistribution(Distribution):
 
         For details, see :func:`distro.id`.
         """
-        def normalize(distro_id, table):
-            distro_id = distro_id.lower().replace(' ', '_')
-            return table.get(distro_id, distro_id)
-
         distro_id = self.os_release_attr('id')
         if distro_id:
-            return normalize(distro_id, NORMALIZED_OS_ID)
+            return _normalize_id(distro_id, NORMALIZED_OS_ID)
 
         distro_id = self.lsb_release_attr('distributor_id')
         if distro_id:
-            return normalize(distro_id, NORMALIZED_LSB_ID)
+            return _normalize_id(distro_id, NORMALIZED_LSB_ID)
 
         distro_id = self.distro_release_attr('id')
         if distro_id:
-            return normalize(distro_id, NORMALIZED_DISTRO_ID)
+            return _normalize_id(distro_id, NORMALIZED_DISTRO_ID)
 
         return ''
 
@@ -583,5 +584,22 @@ class LinuxDistribution(Distribution):
         return distro_info
 
 
+class LinuxMintDistribution(LinuxDistribution):
+    """ LinuxMint has the same /etc/os-release file as
+    Ubuntu and will give incorrect information as os-release
+    is always prioritized over lsb-release. """
+    def os_release_attr(self, attribute):
+        if attribute == 'id_like':
+            return super(LinuxMintDistribution, self).os_release_attr(attribute)
+        return ''
+
+
 def get_distribution():
-    return LinuxDistribution()
+    ld = LinuxDistribution()
+    if (_normalize_id(ld.os_release_attr('id'),
+                      NORMALIZED_OS_ID) == 'ubuntu' and
+                _normalize_id(ld.lsb_release_attr('distributor_id'),
+                              NORMALIZED_OS_ID) == 'linuxmint'):
+        return LinuxMintDistribution()
+    else:
+        return ld
