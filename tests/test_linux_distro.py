@@ -753,7 +753,7 @@ class TestDistroRelease:
         self._test_outcome(desired_outcome, 'sles', '12', 'SuSE')
 
 
-class TestOverall(DistroTestCase):
+class TestLinuxOverall(DistroTestCase):
     """Test a LinuxDistribution object created with default arguments.
 
     The direct accessor functions on that object are tested (e.g. `id()`); they
@@ -780,7 +780,7 @@ class TestOverall(DistroTestCase):
     """
 
     def setup_method(self, test_method):
-        super(TestOverall, self).setup_method(test_method)
+        super(TestLinuxOverall, self).setup_method(test_method)
         dist = test_method.__name__.split('_')[1]
         self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
         self.distro = distro._linux.get_distribution()
@@ -1365,14 +1365,14 @@ def _bad_os_listdir(path='.'):
     raise OSError()
 
 
-class TestOverallWithEtcNotReadable(TestOverall):
+class TestLinuxOverallWithEtcNotReadable(TestLinuxOverall):
     def setup_method(self, test_method):
         self._old_listdir = os.listdir
         os.listdir = _bad_os_listdir
-        super(TestOverallWithEtcNotReadable, self).setup_method(test_method)
+        super(TestLinuxOverallWithEtcNotReadable, self).setup_method(test_method)
 
     def teardown_method(self, test_method):
-        super(TestOverallWithEtcNotReadable, self).teardown_method(test_method)
+        super(TestLinuxOverallWithEtcNotReadable, self).teardown_method(test_method)
         if os.listdir is _bad_os_listdir:
             os.listdir = self._old_listdir
 

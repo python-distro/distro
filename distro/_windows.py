@@ -7,7 +7,7 @@ class WindowsDistribution(Distribution):
         return 'windows'
 
     def codename(self):
-        return ''
+        return platform.win32_ver()[0]
 
     def name(self, pretty=False):
         name = 'Windows'
@@ -25,3 +25,7 @@ class WindowsDistribution(Distribution):
 
     def like(self):
         return ''
+
+
+def get_distribution():
+    return WindowsDistribution()
