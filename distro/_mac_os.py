@@ -18,7 +18,7 @@ _MAC_OS_CODENAMES = {('10', '0'): 'Cheetah',
 
 class MacOSDistribution(Distribution):
     def id(self):
-        return 'osx'
+        return 'macos'
 
     def codename(self):
         key = (self.major_version(), self.minor_version())
@@ -33,7 +33,14 @@ class MacOSDistribution(Distribution):
         return name or ''
 
     def version(self, pretty=False, best=False):
-        _, (version, _, _), _ = platform.mac_ver()
+        version, _, _ = platform.mac_ver()
         if pretty and version and self.codename():
             version = u'{0} ({1})'.format(version, self.codename())
         return version
+
+    def like(self):
+        return ''
+
+
+def get_distribution():
+    return MacOSDistribution()

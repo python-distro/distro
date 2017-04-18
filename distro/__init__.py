@@ -27,7 +27,27 @@ Still, there are many cases in which access to Linux distribution information
 is needed. See `Python issue 1322 <https://bugs.python.org/issue1322>`_ for
 more information.
 """
+import argparse
+import json
+import logging
 import platform
+import sys
+from . import name, info, version, codename
+
+__all__ = ['distribution',
+           'get_distribution',
+           'name',
+           'codename',
+           'id',
+           'like',
+           'linux_distribution',
+           'version',
+           'version_parts',
+           'major_version',
+           'minor_version',
+           'build_number',
+           'main',
+           'info']
 
 
 def distribution(full_distribution_name=True):
@@ -55,7 +75,7 @@ def distribution(full_distribution_name=True):
     method normalizes the distro ID string to a reliable machine-readable value
     for a number of popular Linux distributions.
     """
-    return _distro.linux_distribution(full_distribution_name)
+    return _distro.distribution(full_distribution_name)
 
 
 def linux_distribution(full_distribution_name=True):
@@ -362,21 +382,17 @@ def info(pretty=False, best=False):
 
 if platform.system() == 'Linux':
     from ._linux import get_distribution
-    _distro = get_distribution()
 elif platform.system() == 'Windows':
     from ._windows import get_distribution
-    _distro = get_distribution()
 elif platform.system() == 'Mac OS':
     from ._mac_os import get_distribution
-    _distro = get_distribution()
 else:
-    raise ImportError('Unsupported platform: {0}'.format(platform.system()))
+    from ._distribution import EmptyDistribution
 
-import argparse
-import json
-import logging
-import sys
-from . import name, info, version, codename
+    def get_distribution():
+        return EmptyDistribution()
+
+_distro = get_distribution()
 
 
 def main():

@@ -113,3 +113,22 @@ class Distribution(object):
             like=self.like(),
             codename=self.codename(),
         )
+
+
+class EmptyDistribution(Distribution):
+    """ This value is used when the OS platform is unknown
+    or when """
+    def id(self):
+        return ''
+
+    def version(self, pretty=False, best=False):
+        return ''
+
+    def codename(self):
+        return ''
+
+    def name(self, pretty=False):
+        return ''
+
+    def like(self):
+        return ''

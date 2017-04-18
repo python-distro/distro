@@ -13,17 +13,14 @@
 # limitations under the License.
 
 import os
-import sys
-import ast
 import subprocess
-import pytest
 
 try:
     from StringIO import StringIO  # Python 2.x
 except ImportError:
     from io import StringIO  # Python 3.x
 
-import distro
+import distro._linux
 
 MODULE_DISTRO = distro._distro
 
