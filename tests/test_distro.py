@@ -393,6 +393,87 @@ class TestOSRelease:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
+class TestReleaseWithExtraFile(DistroTestCase):
+    """
+    This class tests all sources.
+    It executes these tests with an extra file 'blueos=release' in the way.
+    The 'blue-release' file has no read permissions.
+    Test only on rhel7 because that is where the error was found and fix is
+    os-agnostic.
+    """
+
+    def setup_method(self, test_method):
+        super(TestReleaseWithExtraFile, self).setup_method(test_method)
+        self.test_method_name = test_method.__name__
+        dist = test_method.__name__.split('_')[1]
+        dist_dir = os.path.join(DISTROS_DIR, dist)
+        self._setup_for_distro(dist_dir)
+
+        # Create a second file with no release info and no file permissions to
+        # test ignoring unreadable files.
+        extra_file = os.path.join(distro._UNIXCONFDIR, 'blueos-release')
+        open(extra_file, 'w').close()
+        os.chmod(extra_file, 0)
+
+        self.distro = distro.LinuxDistribution()
+
+    def teardown_method(self, test_method):
+        # Remove test file after giving ourselves permissions to remove
+        dist = test_method.__name__.split('_')[1]
+        dist_dir = os.path.join(DISTROS_DIR, dist)
+        extra_file = os.path.join(distro._UNIXCONFDIR, 'blueos-release')
+        os.chmod(extra_file, 0o600)
+        os.remove(extra_file)
+        super(TestReleaseWithExtraFile, self).teardown_method(test_method)
+
+    def _test_outcome(self, outcome):
+        assert self.distro.id() == outcome.get('id', '')
+        assert self.distro.name() == outcome.get('name', '')
+        assert self.distro.name(pretty=True) == outcome.get('pretty_name', '')
+        assert self.distro.version() == outcome.get('version', '')
+        assert self.distro.version(pretty=True) == \
+            outcome.get('pretty_version', '')
+        assert self.distro.version(best=True) == \
+            outcome.get('best_version', '')
+        assert self.distro.like() == outcome.get('like', '')
+        assert self.distro.codename() == outcome.get('codename', '')
+        assert self.distro.major_version() == outcome.get('major_version', '')
+        assert self.distro.minor_version() == outcome.get('minor_version', '')
+        assert self.distro.build_number() == outcome.get('build_number', '')
+
+    def _test_release_file_info(self, filename, outcome):
+        # Test the info from the searched distro release file
+        assert os.path.basename(self.distro.distro_release_file) == filename
+        distro_info = self.distro.distro_release_info()
+        for key, value in outcome.items():
+            assert distro_info[key] == value
+        return distro_info
+
+    def test_rhel7_release(self):
+        desired_outcome = {
+            'id': 'rhel',
+            'name': 'Red Hat Enterprise Linux Server',
+            'pretty_name': 'Red Hat Enterprise Linux Server 7.0 (Maipo)',
+            'version': '7.0',
+            'pretty_version': '7.0 (Maipo)',
+            'best_version': '7.0',
+            'like': 'fedora',
+            'codename': 'Maipo',
+            'major_version': '7',
+            'minor_version': '0'
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            'id': 'redhat',
+            'name': 'Red Hat Enterprise Linux Server',
+            'version_id': '7.0',
+            'codename': 'Maipo'
+        }
+        self._test_release_file_info('redhat-release', desired_info)
+
+
+@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestLSBRelease(DistroTestCase):
 
     def setup_method(self, test_method):
