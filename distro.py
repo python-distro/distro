@@ -1086,23 +1086,27 @@ class LinuxMintDistribution(LinuxDistribution):
     from that file except `ID_LIKE`. """
     def os_release_attr(self, attribute):
         if attribute == 'id_like':
-            return super(LinuxMintDistribution, self).os_release_attr(attribute)
+            v = super(LinuxMintDistribution, self).os_release_attr(attribute)
+            return v
         return ''
 
 
 class CloudLinuxDistribution(LinuxDistribution):
     """ CloudLinux <7 doesn't provide an lsb-release or os-release file,
-    only a redhat-release file so it's id is incorrectly detected as `rhel`. """
+    only a redhat-release file so it's id is incorrectly detected as `rhel`.
+    """
     def id(self):
         return 'cloudlinux'
 
 
 class DebianDistribution(LinuxDistribution):
-    """ Starting with Debian 9 (stretch) the information inside of /etc/os-release
-    does not follow the same standards for codenames that all other distros follow
-    thus custom detection of Debian's codename is required. """
+    """ Starting with Debian 9 (stretch) the information inside of
+    /etc/os-release does not follow the same standards for codenames
+    that all other distros follow thus custom detection of Debians
+    codename is required. """
     def _parse_os_release_content(self, lines):
-        props = super(DebianDistribution, self)._parse_os_release_content(lines)
+        props = (super(DebianDistribution, self).
+                 _parse_os_release_content(lines))
         if 'codename' not in props and props.get('pretty_name', ''):
             match = re.search(r'\s([^\s\d]+)$', props['pretty_name'])
             if match:
@@ -1113,7 +1117,9 @@ class DebianDistribution(LinuxDistribution):
 def get_implementation(*args):
     ld = LinuxDistribution(*args)
     os_release_id = _normalize_id(ld.os_release_attr('id'), NORMALIZED_OS_ID)
-    lsb_release_id = _normalize_id(ld.lsb_release_attr('distributor_id'), NORMALIZED_LSB_ID)
+    lsb_release_id = _normalize_id(ld.lsb_release_attr('distributor_id'),
+                                   NORMALIZED_LSB_ID)
+
     if os_release_id == 'ubuntu' and lsb_release_id == 'linuxmint':
         return LinuxMintDistribution(*args)
     elif ld.id() == 'rhel' and 'CloudLinux' in ld.name():
