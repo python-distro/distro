@@ -581,6 +581,18 @@ class TestSpecialRelease(DistroTestCase):
         }
         self._test_outcome(desired_outcome)
 
+    def test_debian_stretch_docker_release(self):
+        self._setup_for_distro(os.path.join(SPECIAL, 'debian_stretch_docker'))
+        self.distro = distro.LinuxDistribution()
+
+        desired_outcome = {
+            'id': 'debian',
+            'name': 'Debian GNU/Linux',
+            'pretty_name': 'Debian GNU/Linux stretch/sid',
+            'codename': 'stretch/sid',
+        }
+        self._test_outcome(desired_outcome)
+
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestDistroRelease:
@@ -1076,16 +1088,16 @@ class TestOverall(DistroTestCase):
 
     def test_linuxmint17_release(self):
         desired_outcome = {
-            'id': 'ubuntu',
-            'name': 'Ubuntu',
-            'pretty_name': 'Ubuntu 14.04.3 LTS',
-            'version': '14.04',
-            'pretty_version': '14.04 (Trusty Tahr)',
-            'best_version': '14.04.3',
+            'id': 'linuxmint',
+            'name': 'LinuxMint',
+            'pretty_name': 'Linux Mint 17.3 Rosa',
+            'version': '17.3',
+            'pretty_version': '17.3 (rosa)',
+            'best_version': '17.3',
             'like': 'debian',
-            'codename': 'Trusty Tahr',
-            'major_version': '14',
-            'minor_version': '04'
+            'codename': 'rosa',
+            'major_version': '17',
+            'minor_version': '3'
         }
         self._test_outcome(desired_outcome)
         self._test_non_existing_release_file()
@@ -1943,4 +1955,6 @@ class TestRepr:
         repr_str = repr(distro._distro)
         assert "LinuxDistribution" in repr_str
         for attr in MODULE_DISTRO.__dict__.keys():
+            if attr == '_preferred_source_order':
+                continue
             assert attr + '=' in repr_str
