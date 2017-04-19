@@ -35,7 +35,10 @@ DISTROS = [dist for dist in os.listdir(DISTROS_DIR) if dist != '__shared__']
 RELATIVE_UNIXCONFDIR = 'etc'
 
 
-@pytest.mark.skipif(platform.system() != 'Linux', reason='Only run these tests on Linux.')
+linux_only = pytest.mark.skipif(platform.system() != 'Linux', reason='Only run these tests on Linux.')
+
+
+@linux_only
 class DistroTestCase(object):
     """A base class for any testcase classes that test the distributions
     represented in the `DISTROS` subtree.
@@ -60,11 +63,15 @@ class DistroTestCase(object):
         distro._linux._UNIXCONFDIR = os.path.join(distro_root, RELATIVE_UNIXCONFDIR)
 
 
-class TestOSRelease(DistroTestCase):
+@linux_only
+class TestOSRelease(object):
     def setup_method(self, test_method):
         dist = '_'.join(test_method.__name__.split('_')[1:-2])
         os_release = os.path.join(DISTROS_DIR, dist, 'etc', 'os-release')
         self.distro = distro._linux.get_distribution(False, os_release, 'non')
+
+    def teardown_method(self, test_method):
+        pass
 
     def _test_outcome(self, outcome):
         assert self.distro.id() == outcome.get('id', '')
@@ -333,6 +340,7 @@ class TestOSRelease(DistroTestCase):
         self._test_outcome(desired_outcome)
 
 
+@linux_only
 class TestLSBRelease(DistroTestCase):
     def setup_method(self, test_method):
         super(TestLSBRelease, self).setup_method(test_method)
@@ -461,6 +469,7 @@ class TestLSBRelease(DistroTestCase):
         self._test_lsb_release_error_level(errnum)
 
 
+@linux_only
 class TestSpecialRelease(DistroTestCase):
     def _test_outcome(self, outcome):
         assert self.distro.id() == outcome.get('id', '')
@@ -506,7 +515,8 @@ class TestSpecialRelease(DistroTestCase):
         self._test_outcome(desired_outcome)
 
 
-class TestDistroRelease(DistroTestCase):
+@linux_only
+class TestDistroRelease(object):
     def _test_outcome(self,
                       outcome,
                       distro_name='',
@@ -730,6 +740,7 @@ class TestDistroRelease(DistroTestCase):
         self._test_outcome(desired_outcome, 'sles', '12', 'SuSE')
 
 
+@linux_only
 class TestLinuxOverall(DistroTestCase):
     """Test a LinuxDistribution object created with default arguments.
 
@@ -1342,6 +1353,7 @@ def _bad_os_listdir(path='.'):
     raise OSError()
 
 
+@linux_only
 class TestLinuxOverallWithEtcNotReadable(TestLinuxOverall):
     def setup_method(self, test_method):
         self._old_listdir = os.listdir
@@ -1354,6 +1366,7 @@ class TestLinuxOverallWithEtcNotReadable(TestLinuxOverall):
             os.listdir = self._old_listdir
 
 
+@linux_only
 class TestGetAttr(DistroTestCase):
     """Test the consistency between the results of
     `{source}_release_attr()` and `{source}_release_info()` for all
@@ -1381,6 +1394,7 @@ class TestGetAttr(DistroTestCase):
         self._test_attr('distro_release_info', 'distro_release_attr')
 
 
+@linux_only
 class TestInfo(DistroTestCase):
     def setup_method(self, test_method):
         super(TestInfo, self).setup_method(test_method)
@@ -1503,6 +1517,7 @@ class TestInfo(DistroTestCase):
             _test_all(info, pretty=True, best=True)
 
 
+@linux_only
 class TestOSReleaseParsing:
     """Test the parsing of os-release files.
     """
@@ -1661,64 +1676,3 @@ class TestOSReleaseParsing:
         ))
         assert props.get('key1', None) is None
         assert props.get('key2', None) == 'value  2'
-
-
-class TestGlobal:
-    """Test the global module-level functions, and default values of their
-    arguments.
-    """
-
-    def setup_method(self, test_method):
-        pass
-
-    def test_global(self):
-        # Because the module-level functions use the module-global
-        # Distribution instance, it would influence the tested
-        # code too much if we mocked that in order to use the distro
-        # specific release files. Instead, we let the functions use
-        # the release files of the distro this test runs on, and
-        # compare the result of the global functions with the result
-        # of the methods on the global LinuxDistribution object.
-
-        def _test_consistency(function, kwargs=None):
-            kwargs = kwargs or {}
-            method_result = getattr(MODULE_DISTRO, function)(**kwargs)
-            function_result = getattr(distro, function)(**kwargs)
-            assert method_result == function_result
-
-        if platform.system() == 'Linux':
-            kwargs = {'full_distribution_name': True}
-            _test_consistency('linux_distribution', kwargs)
-            kwargs = {'full_distribution_name': False}
-            _test_consistency('linux_distribution', kwargs)
-
-        kwargs = {'pretty': False}
-        _test_consistency('name', kwargs)
-        _test_consistency('version', kwargs)
-        _test_consistency('info', kwargs)
-
-        kwargs = {'pretty': True}
-        _test_consistency('name', kwargs)
-        _test_consistency('version', kwargs)
-        _test_consistency('info', kwargs)
-
-        kwargs = {'best': False}
-        _test_consistency('version', kwargs)
-        _test_consistency('version_parts', kwargs)
-        _test_consistency('major_version', kwargs)
-        _test_consistency('minor_version', kwargs)
-        _test_consistency('build_number', kwargs)
-        _test_consistency('info', kwargs)
-
-        kwargs = {'best': True}
-        _test_consistency('version', kwargs)
-        _test_consistency('version_parts', kwargs)
-        _test_consistency('major_version', kwargs)
-        _test_consistency('minor_version', kwargs)
-        _test_consistency('build_number', kwargs)
-        _test_consistency('info', kwargs)
-
-        _test_consistency('id')
-        _test_consistency('like')
-        _test_consistency('codename')
-        _test_consistency('info')

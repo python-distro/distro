@@ -75,6 +75,8 @@ def distribution(full_distribution_name=True):
 
 
 def linux_distribution(full_distribution_name=True):
+    if platform.system() != 'Linux':
+        return '', '', ''
     return distribution(full_distribution_name)
 
 
