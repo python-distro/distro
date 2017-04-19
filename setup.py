@@ -18,7 +18,7 @@ from setuptools import setup
 
 # The following version is parsed by other parts of this package.
 # Don't change the format of the line, or the variable name.
-package_version = "1.0.4"
+package_version = "2.0.0"
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -42,9 +42,9 @@ setup(
     author_email='nir36g@gmail.com',
     license='Apache License, Version 2.0',
     platforms='All',
-    description='Linux Distribution - a Linux OS platform information API',
+    description='Distro - an OS platform information API',
     long_description=read('README.rst'),
-    py_modules=['distro'],
+    packages=['distro'],
     install_requires=install_requires,
     entry_points={
         'console_scripts': [
@@ -57,6 +57,8 @@ setup(
         'Intended Audience :: System Administrators',
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: POSIX :: Linux',
+        'Operating System :: Microsoft',
+        'Operating System :: MacOS',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',

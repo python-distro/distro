@@ -13,16 +13,18 @@
 # limitations under the License.
 
 import os
-import sys
-import ast
 import subprocess
+import platform
+import pytest
+
 try:
     from StringIO import StringIO  # Python 2.x
 except ImportError:
     from io import StringIO  # Python 3.x
 
-import pytest
+import distro._linux
 
+MODULE_DISTRO = distro._distro
 
 BASE = os.path.abspath(os.path.dirname(__file__))
 RESOURCES = os.path.join(BASE, 'resources')
@@ -30,63 +32,13 @@ DISTROS_DIR = os.path.join(RESOURCES, 'distros')
 TESTDISTROS = os.path.join(RESOURCES, 'testdistros')
 SPECIAL = os.path.join(RESOURCES, 'special')
 DISTROS = [dist for dist in os.listdir(DISTROS_DIR) if dist != '__shared__']
+RELATIVE_UNIXCONFDIR = 'etc'
 
 
-IS_LINUX = sys.platform.startswith('linux')
-if IS_LINUX:
-    import distro
-
-    RELATIVE_UNIXCONFDIR = distro._UNIXCONFDIR[1:]
-    MODULE_DISTRO = distro._distro
+linux_only = pytest.mark.skipif(platform.system() != 'Linux', reason='Only run these tests on Linux.')
 
 
-class TestNonLinuxPlatform:
-    """Obviously, this only tests Windows. Will add OS X tests on Travis
-    Later
-    """
-
-    def test_cant_use_on_windows(self):
-        try:
-            import distro  # NOQA
-        except ImportError as ex:
-            assert 'Unsupported platform' in str(ex)
-
-
-@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
-class TestCli:
-
-    def _parse(self, command):
-        sys.argv = command.split()
-        distro.main()
-
-    def _run(self, command):
-        stdout, _ = subprocess.Popen(
-            command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE).communicate()
-        # Need to decode or we get bytes in Python 3.x
-        return stdout.decode('utf-8')
-
-    def test_cli_for_coverage_yuch(self):
-        self._parse('distro')
-        self._parse('distro -j')
-
-    def test_cli(self):
-        command = [sys.executable, '-m', 'distro']
-        desired_output = 'Name: ' + distro.name(pretty=True)
-        distro_version = distro.version(pretty=True)
-        distro_codename = distro.codename()
-        desired_output += '\n' + 'Version: ' + distro_version
-        desired_output += '\n' + 'Codename: ' + distro_codename
-        desired_output += '\n'
-        assert self._run(command) == desired_output
-
-    def test_cli_json(self):
-        command = [sys.executable, '-m', 'distro', '-j']
-        assert ast.literal_eval(self._run(command)) == distro.info()
-
-
-@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
+@linux_only
 class DistroTestCase(object):
     """A base class for any testcase classes that test the distributions
     represented in the `DISTROS` subtree.
@@ -97,27 +49,29 @@ class DistroTestCase(object):
         # save and restore the PATH env var in each test case that
         # changes it:
         self._saved_path = os.environ["PATH"]
-        self._saved_UNIXCONFDIR = distro._UNIXCONFDIR
+        self._saved_UNIXCONFDIR = distro._linux._UNIXCONFDIR
 
     def teardown_method(self, test_method):
         os.environ["PATH"] = self._saved_path
-        distro._UNIXCONFDIR = self._saved_UNIXCONFDIR
+        distro._linux._UNIXCONFDIR = self._saved_UNIXCONFDIR
 
     def _setup_for_distro(self, distro_root):
         distro_bin = os.path.join(distro_root, 'bin')
         # We don't want to pick up a possibly present lsb_release in the
         # distro that runs this test, so we use a PATH with only one entry:
         os.environ["PATH"] = distro_bin
-        distro._UNIXCONFDIR = os.path.join(distro_root, RELATIVE_UNIXCONFDIR)
+        distro._linux._UNIXCONFDIR = os.path.join(distro_root, RELATIVE_UNIXCONFDIR)
 
 
-@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
-class TestOSRelease:
-
+@linux_only
+class TestOSRelease(object):
     def setup_method(self, test_method):
-        dist = test_method.__name__.split('_')[1]
+        dist = '_'.join(test_method.__name__.split('_')[1:-2])
         os_release = os.path.join(DISTROS_DIR, dist, 'etc', 'os-release')
-        self.distro = distro.LinuxDistribution(False, os_release, 'non')
+        self.distro = distro._linux.get_distribution(False, os_release, 'non')
+
+    def teardown_method(self, test_method):
+        pass
 
     def _test_outcome(self, outcome):
         assert self.distro.id() == outcome.get('id', '')
@@ -125,9 +79,9 @@ class TestOSRelease:
         assert self.distro.name(pretty=True) == outcome.get('pretty_name', '')
         assert self.distro.version() == outcome.get('version', '')
         assert self.distro.version(pretty=True) == \
-            outcome.get('pretty_version', '')
+               outcome.get('pretty_version', '')
         assert self.distro.version(best=True) == \
-            outcome.get('best_version', '')
+               outcome.get('best_version', '')
         assert self.distro.like() == outcome.get('like', '')
         assert self.distro.codename() == outcome.get('codename', '')
 
@@ -172,6 +126,15 @@ class TestOSRelease:
             'pretty_version': '8 (jessie)',
             'best_version': '8',
             'codename': 'jessie'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_debian9_os_release(self):
+        desired_outcome = {
+            'id': 'debian',
+            'name': 'Debian GNU/Linux',
+            'pretty_name': 'Debian GNU/Linux stretch/sid',
+            'codename': 'stretch/sid'  # This test is for issue #152
         }
         self._test_outcome(desired_outcome)
 
@@ -377,15 +340,14 @@ class TestOSRelease:
         self._test_outcome(desired_outcome)
 
 
-@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
+@linux_only
 class TestLSBRelease(DistroTestCase):
-
     def setup_method(self, test_method):
         super(TestLSBRelease, self).setup_method(test_method)
         self.test_method_name = test_method.__name__
         dist = test_method.__name__.split('_')[1]
         self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
-        self.distro = distro.LinuxDistribution(True, 'non', 'non')
+        self.distro = distro._linux.LinuxDistribution(True, 'non', 'non')
 
     def _test_outcome(self, outcome):
         assert self.distro.id() == outcome.get('id', '')
@@ -393,9 +355,9 @@ class TestLSBRelease(DistroTestCase):
         assert self.distro.name(pretty=True) == outcome.get('pretty_name', '')
         assert self.distro.version() == outcome.get('version', '')
         assert self.distro.version(pretty=True) == \
-            outcome.get('pretty_version', '')
+               outcome.get('pretty_version', '')
         assert self.distro.version(best=True) == \
-            outcome.get('best_version', '')
+               outcome.get('best_version', '')
         assert self.distro.like() == outcome.get('like', '')
         assert self.distro.codename() == outcome.get('codename', '')
 
@@ -422,25 +384,11 @@ class TestLSBRelease(DistroTestCase):
             'codename': 'Capella'
         })
 
-    # @pytest.mark.xfail
-    # def test_openelec6_lsb_release(self):
-    #     # TODO: This should be fixed as part of #109 when dealing
-    #     # with distro inconsistencies
-    #     desired_outcome = {
-    #         'id': 'openelec',
-    #         'name': 'OpenELEC',
-    #         'pretty_name': 'OpenELEC (official) - Version: 6.0.3',
-    #         'version': '6.0.3',
-    #         'pretty_version': '6.0.3',
-    #         'best_version': '6.0.3',
-    #     }
-    #     self._test_outcome(desired_outcome)
-
     def test_ubuntu14normal_lsb_release(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb',
                                             'ubuntu14_normal'))
 
-        self.distro = distro.LinuxDistribution(True, 'non', 'non')
+        self.distro = distro._linux.LinuxDistribution(True, 'non', 'non')
 
         desired_outcome = {
             'id': 'ubuntu',
@@ -457,7 +405,7 @@ class TestLSBRelease(DistroTestCase):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb',
                                             'ubuntu14_nomodules'))
 
-        self.distro = distro.LinuxDistribution(True, 'non', 'non')
+        self.distro = distro._linux.LinuxDistribution(True, 'non', 'non')
 
         desired_outcome = {
             'id': 'ubuntu',
@@ -474,7 +422,7 @@ class TestLSBRelease(DistroTestCase):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb',
                                             'ubuntu14_trailingblanks'))
 
-        self.distro = distro.LinuxDistribution(True, 'non', 'non')
+        self.distro = distro._linux.LinuxDistribution(True, 'non', 'non')
 
         desired_outcome = {
             'id': 'ubuntu',
@@ -492,7 +440,7 @@ class TestLSBRelease(DistroTestCase):
         self._setup_for_distro(os.path.join(
             TESTDISTROS, 'lsb', 'lsb_rc{0}'.format(errnum)))
         try:
-            distro.LinuxDistribution(True, 'non', 'non')  # NOQA
+            distro._linux.LinuxDistribution(True, 'non', 'non')  # NOQA
         except Exception as _exc:
             exc = _exc
         else:
@@ -521,7 +469,7 @@ class TestLSBRelease(DistroTestCase):
         self._test_lsb_release_error_level(errnum)
 
 
-@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
+@linux_only
 class TestSpecialRelease(DistroTestCase):
     def _test_outcome(self, outcome):
         assert self.distro.id() == outcome.get('id', '')
@@ -529,9 +477,9 @@ class TestSpecialRelease(DistroTestCase):
         assert self.distro.name(pretty=True) == outcome.get('pretty_name', '')
         assert self.distro.version() == outcome.get('version', '')
         assert self.distro.version(pretty=True) == \
-            outcome.get('pretty_version', '')
+               outcome.get('pretty_version', '')
         assert self.distro.version(best=True) == \
-            outcome.get('best_version', '')
+               outcome.get('best_version', '')
         assert self.distro.like() == outcome.get('like', '')
         assert self.distro.codename() == outcome.get('codename', '')
         assert self.distro.major_version() == outcome.get('major_version', '')
@@ -540,7 +488,7 @@ class TestSpecialRelease(DistroTestCase):
 
     def test_empty_release(self):
         distro_release = os.path.join(SPECIAL, 'empty-release')
-        self.distro = distro.LinuxDistribution(False, 'non', distro_release)
+        self.distro = distro._linux.LinuxDistribution(False, 'non', distro_release)
 
         desired_outcome = {
             'id': 'empty'
@@ -551,7 +499,7 @@ class TestSpecialRelease(DistroTestCase):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'distro',
                                             'unknowndistro'))
 
-        self.distro = distro.LinuxDistribution()
+        self.distro = distro._linux.LinuxDistribution()
 
         desired_outcome = {
             'id': 'unknowndistro',
@@ -567,9 +515,8 @@ class TestSpecialRelease(DistroTestCase):
         self._test_outcome(desired_outcome)
 
 
-@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
-class TestDistroRelease:
-
+@linux_only
+class TestDistroRelease(object):
     def _test_outcome(self,
                       outcome,
                       distro_name='',
@@ -580,16 +527,16 @@ class TestDistroRelease:
         distro_release = os.path.join(
             DISTROS_DIR, distro_name + version, 'etc', '{0}-{1}'.format(
                 release_file_id, release_file_suffix))
-        self.distro = distro.LinuxDistribution(False, 'non', distro_release)
+        self.distro = distro._linux.LinuxDistribution(False, 'non', distro_release)
 
         assert self.distro.id() == outcome.get('id', '')
         assert self.distro.name() == outcome.get('name', '')
         assert self.distro.name(pretty=True) == outcome.get('pretty_name', '')
         assert self.distro.version() == outcome.get('version', '')
         assert self.distro.version(pretty=True) == \
-            outcome.get('pretty_version', '')
+               outcome.get('pretty_version', '')
         assert self.distro.version(best=True) == \
-            outcome.get('best_version', '')
+               outcome.get('best_version', '')
         assert self.distro.like() == outcome.get('like', '')
         assert self.distro.codename() == outcome.get('codename', '')
         assert self.distro.major_version() == outcome.get('major_version', '')
@@ -793,8 +740,8 @@ class TestDistroRelease:
         self._test_outcome(desired_outcome, 'sles', '12', 'SuSE')
 
 
-@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
-class TestOverall(DistroTestCase):
+@linux_only
+class TestLinuxOverall(DistroTestCase):
     """Test a LinuxDistribution object created with default arguments.
 
     The direct accessor functions on that object are tested (e.g. `id()`); they
@@ -821,10 +768,10 @@ class TestOverall(DistroTestCase):
     """
 
     def setup_method(self, test_method):
-        super(TestOverall, self).setup_method(test_method)
+        super(TestLinuxOverall, self).setup_method(test_method)
         dist = test_method.__name__.split('_')[1]
         self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
-        self.distro = distro.LinuxDistribution()
+        self.distro = distro._linux.get_distribution()
 
     def _test_outcome(self, outcome):
         assert self.distro.id() == outcome.get('id', '')
@@ -832,9 +779,9 @@ class TestOverall(DistroTestCase):
         assert self.distro.name(pretty=True) == outcome.get('pretty_name', '')
         assert self.distro.version() == outcome.get('version', '')
         assert self.distro.version(pretty=True) == \
-            outcome.get('pretty_version', '')
+               outcome.get('pretty_version', '')
         assert self.distro.version(best=True) == \
-            outcome.get('best_version', '')
+               outcome.get('best_version', '')
         assert self.distro.like() == outcome.get('like', '')
         assert self.distro.codename() == outcome.get('codename', '')
         assert self.distro.major_version() == outcome.get('major_version', '')
@@ -1017,16 +964,16 @@ class TestOverall(DistroTestCase):
 
     def test_linuxmint17_release(self):
         desired_outcome = {
-            'id': 'ubuntu',
-            'name': 'Ubuntu',
-            'pretty_name': 'Ubuntu 14.04.3 LTS',
-            'version': '14.04',
-            'pretty_version': '14.04 (Trusty Tahr)',
-            'best_version': '14.04.3',
+            'id': 'linuxmint',
+            'name': 'LinuxMint',
+            'pretty_name': 'Linux Mint 17.3 Rosa',
+            'version': '17.3',
+            'pretty_version': '17.3 (rosa)',
+            'best_version': '17.3',
             'like': 'debian',
-            'codename': 'Trusty Tahr',
-            'major_version': '14',
-            'minor_version': '04'
+            'codename': 'rosa',
+            'major_version': '17',
+            'minor_version': '3'
         }
         self._test_outcome(desired_outcome)
         self._test_non_existing_release_file()
@@ -1406,20 +1353,20 @@ def _bad_os_listdir(path='.'):
     raise OSError()
 
 
-@pytest.mark.skipIf(not IS_LINUX, reason='Irrelevant on non-linx')
-class TestOverallWithEtcNotReadable(TestOverall):
+@linux_only
+class TestLinuxOverallWithEtcNotReadable(TestLinuxOverall):
     def setup_method(self, test_method):
         self._old_listdir = os.listdir
         os.listdir = _bad_os_listdir
-        super(TestOverallWithEtcNotReadable, self).setup_method(test_method)
-        
+        super(TestLinuxOverallWithEtcNotReadable, self).setup_method(test_method)
+
     def teardown_method(self, test_method):
-        super(TestOverallWithEtcNotReadable, self).teardown_method(test_method)
+        super(TestLinuxOverallWithEtcNotReadable, self).teardown_method(test_method)
         if os.listdir is _bad_os_listdir:
             os.listdir = self._old_listdir
 
 
-@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
+@linux_only
 class TestGetAttr(DistroTestCase):
     """Test the consistency between the results of
     `{source}_release_attr()` and `{source}_release_info()` for all
@@ -1429,7 +1376,7 @@ class TestGetAttr(DistroTestCase):
     def _test_attr(self, info_method, attr_method):
         for dist in DISTROS:
             self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
-            _distro = distro.LinuxDistribution()
+            _distro = distro._linux.LinuxDistribution()
             info = getattr(_distro, info_method)()
             for key in info.keys():
                 try:
@@ -1447,16 +1394,15 @@ class TestGetAttr(DistroTestCase):
         self._test_attr('distro_release_info', 'distro_release_attr')
 
 
-@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
+@linux_only
 class TestInfo(DistroTestCase):
-
     def setup_method(self, test_method):
         super(TestInfo, self).setup_method(test_method)
         self.ubuntu14_os_release = os.path.join(
             DISTROS_DIR, 'ubuntu14', 'etc', 'os-release')
 
     def test_info(self):
-        _distro = distro.LinuxDistribution(
+        _distro = distro._linux.LinuxDistribution(
             False, self.ubuntu14_os_release, 'non')
 
         desired_info = {
@@ -1501,7 +1447,6 @@ class TestInfo(DistroTestCase):
         assert info == desired_info
 
     def test_none(self):
-
         def _test_none(info):
             assert info['id'] == ''
             assert info['version'] == ''
@@ -1511,7 +1456,7 @@ class TestInfo(DistroTestCase):
             assert info['version_parts']['build_number'] == ''
             assert info['codename'] == ''
 
-        _distro = distro.LinuxDistribution(False, 'non', 'non')
+        _distro = distro._linux.LinuxDistribution(False, 'non', 'non')
 
         info = _distro.info()
         _test_none(info)
@@ -1526,12 +1471,12 @@ class TestInfo(DistroTestCase):
         _test_none(info)
 
     def test_linux_disribution(self):
-        _distro = distro.LinuxDistribution(False, self.ubuntu14_os_release)
+        _distro = distro._linux.LinuxDistribution(False, self.ubuntu14_os_release)
         i = _distro.linux_distribution()
         assert i == ('Ubuntu', '14.04', 'Trusty Tahr')
 
     def test_linux_disribution_full_false(self):
-        _distro = distro.LinuxDistribution(False, self.ubuntu14_os_release)
+        _distro = distro._linux.LinuxDistribution(False, self.ubuntu14_os_release)
         i = _distro.linux_distribution(full_distribution_name=False)
         assert i == ('ubuntu', '14.04', 'Trusty Tahr')
 
@@ -1539,15 +1484,16 @@ class TestInfo(DistroTestCase):
         """Test info() by comparing its results with the results of specific
         consolidated accessor functions.
         """
+
         def _test_all(info, best=False, pretty=False):
             assert info['id'] == _distro.id()
             assert info['version'] == _distro.version(pretty=pretty, best=best)
             assert info['version_parts']['major'] == \
-                _distro.major_version(best=best)
+                   _distro.major_version(best=best)
             assert info['version_parts']['minor'] == \
-                _distro.minor_version(best=best)
+                   _distro.minor_version(best=best)
             assert info['version_parts']['build_number'] == \
-                _distro.build_number(best=best)
+                   _distro.build_number(best=best)
             assert info['like'] == _distro.like()
             assert info['codename'] == _distro.codename()
             assert len(info['version_parts']) == 3
@@ -1556,7 +1502,7 @@ class TestInfo(DistroTestCase):
         for dist in DISTROS:
             self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
 
-            _distro = distro.LinuxDistribution()
+            _distro = distro._linux.LinuxDistribution()
 
             info = _distro.info()
             _test_all(info)
@@ -1571,13 +1517,13 @@ class TestInfo(DistroTestCase):
             _test_all(info, pretty=True, best=True)
 
 
-@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
+@linux_only
 class TestOSReleaseParsing:
     """Test the parsing of os-release files.
     """
 
     def setup_method(self, test_method):
-        self.distro = distro.LinuxDistribution(False, None, None)
+        self.distro = distro._linux.LinuxDistribution(False, None, None)
         self.distro.debug = True
 
     def _get_props(self, input):
@@ -1730,112 +1676,3 @@ class TestOSReleaseParsing:
         ))
         assert props.get('key1', None) is None
         assert props.get('key2', None) == 'value  2'
-
-
-@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
-class TestGlobal:
-    """Test the global module-level functions, and default values of their
-    arguments.
-    """
-
-    def setup_method(self, test_method):
-        pass
-
-    def test_global(self):
-        # Because the module-level functions use the module-global
-        # LinuxDistribution instance, it would influence the tested
-        # code too much if we mocked that in order to use the distro
-        # specific release files. Instead, we let the functions use
-        # the release files of the distro this test runs on, and
-        # compare the result of the global functions with the result
-        # of the methods on the global LinuxDistribution object.
-
-        def _test_consistency(function, kwargs=None):
-            kwargs = kwargs or {}
-            method_result = getattr(MODULE_DISTRO, function)(**kwargs)
-            function_result = getattr(distro, function)(**kwargs)
-            assert method_result == function_result
-
-        kwargs = {'full_distribution_name': True}
-        _test_consistency('linux_distribution', kwargs)
-        kwargs = {'full_distribution_name': False}
-        _test_consistency('linux_distribution', kwargs)
-
-        kwargs = {'pretty': False}
-        _test_consistency('name', kwargs)
-        _test_consistency('version', kwargs)
-        _test_consistency('info', kwargs)
-
-        kwargs = {'pretty': True}
-        _test_consistency('name', kwargs)
-        _test_consistency('version', kwargs)
-        _test_consistency('info', kwargs)
-
-        kwargs = {'best': False}
-        _test_consistency('version', kwargs)
-        _test_consistency('version_parts', kwargs)
-        _test_consistency('major_version', kwargs)
-        _test_consistency('minor_version', kwargs)
-        _test_consistency('build_number', kwargs)
-        _test_consistency('info', kwargs)
-
-        kwargs = {'best': True}
-        _test_consistency('version', kwargs)
-        _test_consistency('version_parts', kwargs)
-        _test_consistency('major_version', kwargs)
-        _test_consistency('minor_version', kwargs)
-        _test_consistency('build_number', kwargs)
-        _test_consistency('info', kwargs)
-
-        _test_consistency('id')
-        _test_consistency('like')
-        _test_consistency('codename')
-        _test_consistency('info')
-
-        _test_consistency('os_release_info')
-        _test_consistency('lsb_release_info')
-        _test_consistency('distro_release_info')
-
-        os_release_keys = [
-            'name',
-            'version',
-            'id',
-            'id_like',
-            'pretty_name',
-            'version_id',
-            'codename',
-        ]
-        for key in os_release_keys:
-            _test_consistency('os_release_attr', {'attribute': key})
-
-        lsb_release_keys = [
-            'distributor_id',
-            'description',
-            'release',
-            'codename',
-        ]
-        for key in lsb_release_keys:
-            _test_consistency('lsb_release_attr', {'attribute': key})
-
-        distro_release_keys = [
-            'id',
-            'name',
-            'version_id',
-            'codename',
-        ]
-        for key in distro_release_keys:
-            _test_consistency('distro_release_attr', {'attribute': key})
-
-
-@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
-class TestRepr:
-    """Test the __repr__() method.
-    """
-
-    def test_repr(self):
-        # We test that the class name and the names of all instance attributes
-        # show up in the repr() string.
-        repr_str = repr(distro._distro)
-        assert "LinuxDistribution" in repr_str
-        for attr in MODULE_DISTRO.__dict__.keys():
-            assert attr + '=' in repr_str
