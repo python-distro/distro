@@ -1,3 +1,8 @@
+**2.0.0 (dev)**
+
+* Added framework for distro to detect and correct reported information in the case of a Linux distro inconsistency.
+* Added `get_implementation` which should be used to get a `LinuxDistribution` object.
+
 **1.0.4 (2017.04.01)**
 
 * Fix not being able to read `/etc/` and yet able to read release files inside it.

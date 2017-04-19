@@ -590,6 +590,19 @@ class TestSpecialRelease(DistroTestCase):
         }
         self._test_outcome(desired_outcome)
 
+    def test_debian_distribution_pretty_name_has_no_codename(self):
+        self._setup_for_distro(os.path.join(SPECIAL, 'debian_no_codename'))
+
+        self.distro = distro.get_implementation()
+
+        desired_outcome = {
+            'id': 'debian',
+            'name': 'Debian GNU/Linux',
+            'pretty_name': 'Debian GNU/Linux',
+            'codename': '',
+        }
+        self._test_outcome(desired_outcome)
+
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestDistroRelease:

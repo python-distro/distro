@@ -1108,13 +1108,22 @@ class DebianDistribution(LinuxDistribution):
         props = (super(DebianDistribution, self).
                  _parse_os_release_content(lines))
         if 'codename' not in props and props.get('pretty_name', ''):
-            match = re.search(r'\s([^\s\d]+)$', props['pretty_name'])
+            pretty_name = props['pretty_name']
+
+            # Remove the NAME from the PRETTY_NAME entry to prevent getting
+            # a codename of 'GNU/Linux'.
+            pretty_name = pretty_name.replace(props.get('name', ''), '')
+
+            match = re.search(r'\s([^\s\d]+)$', pretty_name)
             if match:
                 props['codename'] = match.group(1)
         return props
 
 
 def get_implementation(*args):
+    """ Gets the proper implementation of LinuxDistribution after attempting
+    to detect distro inconsistencies. Passes all args through to the resulting
+    LinuxDistribution object. """
     ld = LinuxDistribution(*args)
     os_release_id = _normalize_id(ld.os_release_attr('id'), NORMALIZED_OS_ID)
     lsb_release_id = _normalize_id(ld.lsb_release_attr('distributor_id'),
@@ -1124,7 +1133,7 @@ def get_implementation(*args):
         return LinuxMintDistribution(*args)
     elif ld.id() == 'rhel' and 'CloudLinux' in ld.name():
         return CloudLinuxDistribution(*args)
-    elif ld.id() == 'debian' and ld.codename() == '':
+    elif ld.id() == 'debian':
         return DebianDistribution(*args)
     else:
         return ld
