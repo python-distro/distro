@@ -6,10 +6,11 @@ class TestWindowsOverall(object):
     """Test a WindowsDistribution object created with default arguments."""
 
     def setup_method(self, test_method):
-        self.distro = distro._windows.get_distribution()
         self.win32_ver = ('', '', '', '')
         self.old_win32_ver = platform.win32_ver
         platform.win32_ver = lambda *_: self.win32_ver
+
+        self.distro = distro._windows.get_distribution()
 
     def teardown_method(self, test_method):
         platform.win32_ver = self.old_win32_ver

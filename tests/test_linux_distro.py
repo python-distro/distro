@@ -14,6 +14,8 @@
 
 import os
 import subprocess
+import platform
+import pytest
 
 try:
     from StringIO import StringIO  # Python 2.x
@@ -33,6 +35,7 @@ DISTROS = [dist for dist in os.listdir(DISTROS_DIR) if dist != '__shared__']
 RELATIVE_UNIXCONFDIR = 'etc'
 
 
+@pytest.mark.skipif(platform.system() != 'Linux', reason='Only run these tests on Linux.')
 class DistroTestCase(object):
     """A base class for any testcase classes that test the distributions
     represented in the `DISTROS` subtree.
@@ -57,7 +60,7 @@ class DistroTestCase(object):
         distro._linux._UNIXCONFDIR = os.path.join(distro_root, RELATIVE_UNIXCONFDIR)
 
 
-class TestOSRelease:
+class TestOSRelease(DistroTestCase):
     def setup_method(self, test_method):
         dist = '_'.join(test_method.__name__.split('_')[1:-2])
         os_release = os.path.join(DISTROS_DIR, dist, 'etc', 'os-release')
@@ -503,7 +506,7 @@ class TestSpecialRelease(DistroTestCase):
         self._test_outcome(desired_outcome)
 
 
-class TestDistroRelease:
+class TestDistroRelease(DistroTestCase):
     def _test_outcome(self,
                       outcome,
                       distro_name='',
@@ -1670,7 +1673,7 @@ class TestGlobal:
 
     def test_global(self):
         # Because the module-level functions use the module-global
-        # LinuxDistribution instance, it would influence the tested
+        # Distribution instance, it would influence the tested
         # code too much if we mocked that in order to use the distro
         # specific release files. Instead, we let the functions use
         # the release files of the distro this test runs on, and
@@ -1683,10 +1686,11 @@ class TestGlobal:
             function_result = getattr(distro, function)(**kwargs)
             assert method_result == function_result
 
-        kwargs = {'full_distribution_name': True}
-        _test_consistency('linux_distribution', kwargs)
-        kwargs = {'full_distribution_name': False}
-        _test_consistency('linux_distribution', kwargs)
+        if platform.system() == 'Linux':
+            kwargs = {'full_distribution_name': True}
+            _test_consistency('linux_distribution', kwargs)
+            kwargs = {'full_distribution_name': False}
+            _test_consistency('linux_distribution', kwargs)
 
         kwargs = {'pretty': False}
         _test_consistency('name', kwargs)
@@ -1718,16 +1722,3 @@ class TestGlobal:
         _test_consistency('like')
         _test_consistency('codename')
         _test_consistency('info')
-
-
-class TestRepr:
-    """Test the __repr__() method.
-    """
-
-    def test_repr(self):
-        # We test that the class name and the names of all instance attributes
-        # show up in the repr() string.
-        repr_str = repr(distro._distro)
-        assert "LinuxDistribution" in repr_str
-        for attr in MODULE_DISTRO.__dict__.keys():
-            assert attr + '=' in repr_str
