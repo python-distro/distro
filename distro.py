@@ -1090,12 +1090,21 @@ class LinuxMintDistribution(LinuxDistribution):
         return ''
 
 
+class CloudLinuxDistribution(LinuxDistribution):
+    """ CloudLinux <7 doesn't provide an lsb-release or os-release file,
+    only a redhat-release file so it's id is incorrectly detected as `rhel`. """
+    def id(self):
+        return 'cloudlinux'
+
+
 def get_implementation(*args):
     ld = LinuxDistribution(*args)
     os_release_id = _normalize_id(ld.os_release_attr('id'), NORMALIZED_OS_ID)
     lsb_release_id = _normalize_id(ld.lsb_release_attr('distributor_id'), NORMALIZED_LSB_ID)
     if os_release_id == 'ubuntu' and lsb_release_id == 'linuxmint':
         return LinuxMintDistribution(*args)
+    elif ld.id() == 'rhel' and 'CloudLinux' in ld.name():
+        return CloudLinuxDistribution()
     else:
         return ld
 
