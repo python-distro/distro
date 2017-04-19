@@ -842,13 +842,13 @@ class LinuxDistribution(object):
         Returns:
             A dictionary containing all information items.
         """
-        if os.path.isfile(self.os_release_file):
+        try:
             with open(self.os_release_file) as release_file:
                 return self._parse_os_release_content(release_file)
-        return {}
+        except (OSError, IOError):
+            return {}
 
-    @staticmethod
-    def _parse_os_release_content(lines):
+    def _parse_os_release_content(self, lines):
         """
         Parse the lines of an os-release file.
 
@@ -1097,6 +1097,19 @@ class CloudLinuxDistribution(LinuxDistribution):
         return 'cloudlinux'
 
 
+class DebianDistribution(LinuxDistribution):
+    """ Starting with Debian 9 (stretch) the information inside of /etc/os-release
+    does not follow the same standards for codenames that all other distros follow
+    thus custom detection of Debian's codename is required. """
+    def _parse_os_release_content(self, lines):
+        props = super(DebianDistribution, self)._parse_os_release_content(lines)
+        if 'codename' not in props and props.get('pretty_name', ''):
+            match = re.search(r'\s([^\s\d]+)$', props['pretty_name'])
+            if match:
+                props['codename'] = match.group(1)
+        return props
+
+
 def get_implementation(*args):
     ld = LinuxDistribution(*args)
     os_release_id = _normalize_id(ld.os_release_attr('id'), NORMALIZED_OS_ID)
@@ -1104,7 +1117,9 @@ def get_implementation(*args):
     if os_release_id == 'ubuntu' and lsb_release_id == 'linuxmint':
         return LinuxMintDistribution(*args)
     elif ld.id() == 'rhel' and 'CloudLinux' in ld.name():
-        return CloudLinuxDistribution()
+        return CloudLinuxDistribution(*args)
+    elif ld.id() == 'debian' and ld.codename() == '':
+        return DebianDistribution(*args)
     else:
         return ld
 
