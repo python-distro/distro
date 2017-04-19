@@ -1074,7 +1074,33 @@ class LinuxDistribution(object):
         return distro_info
 
 
-_distro = LinuxDistribution()
+def _normalize_id(distro_id, table):
+    """ Helper function which normalizes a distro id value. """
+    distro_id = distro_id.lower().replace(' ', '_')
+    return table.get(distro_id, distro_id)
+
+
+class LinuxMintDistribution(LinuxDistribution):
+    """ LinuxMint will have the same /etc/os-release file
+    as it's upstream Ubuntu so we should not use any info
+    from that file except `ID_LIKE`. """
+    def os_release_attr(self, attribute):
+        if attribute == 'id_like':
+            return super(LinuxMintDistribution, self).os_release_attr(attribute)
+        return ''
+
+
+def get_implementation(*args):
+    ld = LinuxDistribution(*args)
+    os_release_id = _normalize_id(ld.os_release_attr('id'), NORMALIZED_OS_ID)
+    lsb_release_id = _normalize_id(ld.lsb_release_attr('distributor_id'), NORMALIZED_LSB_ID)
+    if os_release_id == 'ubuntu' and lsb_release_id == 'linuxmint':
+        return LinuxMintDistribution(*args)
+    else:
+        return ld
+
+
+_distro = get_implementation()
 
 
 def main():
