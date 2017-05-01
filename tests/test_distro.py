@@ -117,7 +117,7 @@ class TestOSRelease:
     def setup_method(self, test_method):
         dist = test_method.__name__.split('_')[1]
         os_release = os.path.join(DISTROS_DIR, dist, 'etc', 'os-release')
-        self.distro = distro.get_implementation(False, os_release, 'non')
+        self.distro = distro.get_distribution(False, os_release, 'non')
 
     def _test_outcome(self, outcome):
         assert self.distro.id() == outcome.get('id', '')
@@ -175,12 +175,12 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
-    def test_debian9_release(self):
+    def test_debian9_os_release(self):
         desired_outcome = {
             'id': 'debian',
             'name': 'Debian GNU/Linux',
             'pretty_name': 'Debian GNU/Linux stretch/sid',
-            'codename': 'stretch/sid',
+            'codename': 'stretch/sid'
         }
         self._test_outcome(desired_outcome)
 
@@ -409,7 +409,7 @@ class TestLSBRelease(DistroTestCase):
         self.test_method_name = test_method.__name__
         dist = test_method.__name__.split('_')[1]
         self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
-        self.distro = distro.get_implementation(True, 'non', 'non')
+        self.distro = distro.get_distribution(True, 'non', 'non')
 
     def _test_outcome(self, outcome):
         assert self.distro.id() == outcome.get('id', '')
@@ -445,20 +445,6 @@ class TestLSBRelease(DistroTestCase):
             'best_version': '15.12',
             'codename': 'Capella'
         })
-
-    # @pytest.mark.xfail
-    # def test_openelec6_lsb_release(self):
-    #     # TODO: This should be fixed as part of #109 when dealing
-    #     # with distro inconsistencies
-    #     desired_outcome = {
-    #         'id': 'openelec',
-    #         'name': 'OpenELEC',
-    #         'pretty_name': 'OpenELEC (official) - Version: 6.0.3',
-    #         'version': '6.0.3',
-    #         'pretty_version': '6.0.3',
-    #         'best_version': '6.0.3',
-    #     }
-    #     self._test_outcome(desired_outcome)
 
     def test_ubuntu14normal_lsb_release(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb',
@@ -593,7 +579,7 @@ class TestSpecialRelease(DistroTestCase):
     def test_debian_distribution_pretty_name_has_no_codename(self):
         self._setup_for_distro(os.path.join(SPECIAL, 'debian_no_codename'))
 
-        self.distro = distro.get_implementation()
+        self.distro = distro.get_distribution()
 
         desired_outcome = {
             'id': 'debian',
@@ -617,7 +603,7 @@ class TestDistroRelease:
         distro_release = os.path.join(
             DISTROS_DIR, distro_name + version, 'etc', '{0}-{1}'.format(
                 release_file_id, release_file_suffix))
-        self.distro = distro.get_implementation(False, 'non', distro_release)
+        self.distro = distro.get_distribution(False, 'non', distro_release)
 
         assert self.distro.id() == outcome.get('id', '')
         assert self.distro.name() == outcome.get('name', '')
@@ -905,7 +891,7 @@ class TestOverall(DistroTestCase):
         super(TestOverall, self).setup_method(test_method)
         dist = test_method.__name__.split('_')[1]
         self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
-        self.distro = distro.get_implementation()
+        self.distro = distro.get_distribution()
 
     def _test_outcome(self, outcome):
         assert self.distro.id() == outcome.get('id', '')
@@ -1121,7 +1107,6 @@ class TestOverall(DistroTestCase):
             'pretty_version': '5 (thornicroft)',
             'best_version': '5',
             'like': 'mandriva fedora',
-            # TODO: Codename differs between distro release and lsb_release.
             'codename': 'thornicroft',
             'major_version': '5'
         }

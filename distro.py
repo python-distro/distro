@@ -898,7 +898,7 @@ class LinuxDistribution(object):
                         codename = codename.strip('()')
                         codename = codename.strip(',')
                         codename = codename.strip()
-                        # codename appears within paranthese.
+                        # codename appears within parenthesis.
                         props['codename'] = codename
                     else:
                         props['codename'] = ''
@@ -1092,20 +1092,19 @@ class LinuxMintDistribution(LinuxDistribution):
 
 
 class CloudLinuxDistribution(LinuxDistribution):
-    """ CloudLinux <7 doesn't provide an lsb-release or os-release file,
-    only a redhat-release file so it's id is incorrectly detected as `rhel`.
-    """
     def id(self):
+        """ CloudLinux <7 doesn't provide an lsb-release or
+        os-release file, only a redhat-release file so it's id
+        is incorrectly detected as `rhel`. """
         return 'cloudlinux'
 
 
-class DebianDistribution(LinuxDistribution):
-    """ Starting with Debian 9 (stretch) the information inside of
-    /etc/os-release does not follow the same standards for codenames
-    that all other distros follow thus custom detection of Debians
-    codename is required. """
+class DebianStretchDistribution(LinuxDistribution):
     def _parse_os_release_content(self, lines):
-        props = (super(DebianDistribution, self).
+        """ Debian 9 (stretch) does not have the codename
+        in parenthesis or with a comma unlike all other
+        distributions. This stub """
+        props = (super(DebianStretchDistribution, self).
                  _parse_os_release_content(lines))
         if 'codename' not in props and props.get('pretty_name', ''):
             pretty_name = props['pretty_name']
@@ -1120,7 +1119,7 @@ class DebianDistribution(LinuxDistribution):
         return props
 
 
-def get_implementation(*args):
+def get_distribution(*args):
     """ Gets the proper implementation of LinuxDistribution after attempting
     to detect distro inconsistencies. Passes all args through to the resulting
     LinuxDistribution object. """
@@ -1133,13 +1132,13 @@ def get_implementation(*args):
         return LinuxMintDistribution(*args)
     elif ld.id() == 'rhel' and 'CloudLinux' in ld.name():
         return CloudLinuxDistribution(*args)
-    elif ld.id() == 'debian':
-        return DebianDistribution(*args)
+    elif ld.id() == 'debian' and ld.codename() == '':
+        return DebianStretchDistribution(*args)
     else:
         return ld
 
 
-_distro = get_implementation()
+_distro = get_distribution()
 
 
 def main():
