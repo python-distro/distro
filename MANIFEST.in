@@ -5,6 +5,8 @@ include LICENSE
 include CHANGES
 include Makefile
 
-recursive-include tests *.py
+graft tests
+
+include docs/*
 
 global-exclude *.py[co]
