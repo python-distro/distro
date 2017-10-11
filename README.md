@@ -46,13 +46,13 @@ Codename: ISO-Rolling
 
 $ distro -j
 {
-    "codename": "ISO-Rolling", 
-    "id": "antergos", 
-    "like": "arch", 
-    "version": "16.9", 
+    "codename": "ISO-Rolling",
+    "id": "antergos",
+    "like": "arch",
+    "version": "16.9",
     "version_parts": {
-        "build_number": "", 
-        "major": "16", 
+        "build_number": "",
+        "major": "16",
         "minor": "9"
     }
 }
@@ -128,3 +128,5 @@ formats can be found here:
 * https://launchpad.net/ubuntu/+source/python-distro
 * https://packages.debian.org/sid/python-distro
 * https://packages.gentoo.org/packages/dev-python/distro
+* https://pkgs.org/download/python2-distro
+* https://slackbuilds.org/repository/14.2/python/python-distro/
