@@ -1,6 +1,12 @@
-**1.0.5 (unreleased)**
+**1.1.0 (2017.11.28)**
 
-* Include resources needed for tests and docs in source tarballs
+Note: This version removes official support for Python 2.6. If you need a version that is tested on Python 2.6, please use `distro<=1.0.4`.
+
+In addition:
+
+* Add tests for MandrivaLinux, CloudLinux 5,6,7
+* Modify MANIFEST to include resources for tests and docs in source tarballs (https://github.com/nir0s/distro/pull/189/files#diff-97c91a104c431d0c365565d3ac03ac13)
+
 
 **1.0.4 (2017.04.01)**
 
