@@ -91,7 +91,7 @@ namely from these data sources (from high to low precedence):
 
 ## Python and Distribution Support
 
-`distro` is supported and tested on Python 2.6, 2.7, 3.3+ and PyPy and on
+`distro` is supported and tested on Python 2.7, 3.3+ and PyPy and on
 any Linux distribution that provides one or more of the data sources
 covered.
 

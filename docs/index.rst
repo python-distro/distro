@@ -20,11 +20,11 @@ If you want to jump into the API description right away, read about the
 Compatibility
 =============
 
-The ``distro`` package is supported on Python 2.6, 2.7, 3.3+ and PyPy, and on
+The ``distro`` package is supported on Python 2.7, 3.3+ and PyPy, and on
 any Linux distribution that provides one or more of the `data sources`_
 used by this package.
 
-This package is tested on Python 2.6, 2.7, 3.3+ and PyPy, with test data that
+This package is tested on Python 2.7, 3.3+ and PyPy, with test data that
 mimics the exact behavior of the data sources of
 `a number of Linux distributions <https://github.com/nir0s/distro/tree/master/tests/resources/distros>`_.
 
