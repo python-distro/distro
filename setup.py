@@ -22,12 +22,6 @@ package_version = "1.0.4"
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-try:
-    import argparse  # NOQA
-    install_requires = []
-except ImportError:
-    install_requires = ['argparse']
-
 
 def read(*parts):
     # intentionally *not* adding an encoding option to open
@@ -45,7 +39,6 @@ setup(
     description='Linux Distribution - a Linux OS platform information API',
     long_description=read('README.rst'),
     py_modules=['distro'],
-    install_requires=install_requires,
     entry_points={
         'console_scripts': [
             'distro = distro:main',
@@ -57,7 +50,7 @@ setup(
         'Intended Audience :: System Administrators',
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
