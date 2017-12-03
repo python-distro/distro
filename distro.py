@@ -914,27 +914,14 @@ class LinuxDistribution(object):
         Returns:
             A dictionary containing all information items.
         """
-        cmd = 'lsb_release -a'
-        process = subprocess.Popen(
-            cmd,
-            shell=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
-        stdout, stderr = stdout.decode('utf-8'), stderr.decode('utf-8')
-        code = process.returncode
-        if code == 0:
-            content = stdout.splitlines()
-            return self._parse_lsb_release_content(content)
-        elif code == 127:  # Command not found
-            return {}
-        else:
-            if sys.version_info[:2] >= (3, 5):
-                raise subprocess.CalledProcessError(code, cmd, stdout, stderr)
-            elif sys.version_info[:2] >= (2, 7):
-                raise subprocess.CalledProcessError(code, cmd, stdout)
-            elif sys.version_info[:2] == (2, 6):
-                raise subprocess.CalledProcessError(code, cmd)
+        with open(os.devnull, 'w') as devnull:
+            try:
+                cmd = ('lsb_release', '-a')
+                stdout = subprocess.check_output(cmd, stderr=devnull)
+            except OSError:  # Command not found
+                return {}
+        content = stdout.decode('UTF-8').splitlines()
+        return self._parse_lsb_release_content(content)
 
     @staticmethod
     def _parse_lsb_release_content(lines):
