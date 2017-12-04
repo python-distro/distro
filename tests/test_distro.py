@@ -397,7 +397,6 @@ class TestLSBRelease(DistroTestCase):
 
     def setup_method(self, test_method):
         super(TestLSBRelease, self).setup_method(test_method)
-        self.test_method_name = test_method.__name__
         dist = test_method.__name__.split('_')[1]
         self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
         self.distro = distro.LinuxDistribution(True, 'non', 'non')
@@ -502,38 +501,13 @@ class TestLSBRelease(DistroTestCase):
         }
         self._test_outcome(desired_outcome)
 
-    def _test_lsb_release_error_level(self, errnum):
-
+    @pytest.mark.parametrize('errnum', ('001', '002', '126', '130', '255'))
+    def test_lsb_release_error_level(self, errnum):
         self._setup_for_distro(os.path.join(
             TESTDISTROS, 'lsb', 'lsb_rc{0}'.format(errnum)))
-        try:
-            distro.LinuxDistribution(True, 'non', 'non')  # NOQA
-        except Exception as _exc:
-            exc = _exc
-        else:
-            exc = None
-        assert isinstance(exc, subprocess.CalledProcessError)
-        assert exc.returncode == int(errnum)
-
-    def test_lsb_release_rc001(self):
-        errnum = self.test_method_name[-3:]
-        self._test_lsb_release_error_level(errnum)
-
-    def test_lsb_release_rc002(self):
-        errnum = self.test_method_name[-3:]
-        self._test_lsb_release_error_level(errnum)
-
-    def test_lsb_release_rc126(self):
-        errnum = self.test_method_name[-3:]
-        self._test_lsb_release_error_level(errnum)
-
-    def test_lsb_release_rc130(self):
-        errnum = self.test_method_name[-3:]
-        self._test_lsb_release_error_level(errnum)
-
-    def test_lsb_release_rc255(self):
-        errnum = self.test_method_name[-3:]
-        self._test_lsb_release_error_level(errnum)
+        with pytest.raises(subprocess.CalledProcessError) as excinfo:
+            distro.LinuxDistribution(True, 'non', 'non')._lsb_release_info
+        assert excinfo.value.returncode == int(errnum)
 
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
