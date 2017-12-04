@@ -94,6 +94,14 @@ _DISTRO_RELEASE_IGNORE_BASENAMES = (
     'system-release'
 )
 
+_DISTRO = None
+
+
+def init():
+    global _DISTRO
+    _DISTRO = _DISTRO or LinuxDistribution()
+    return _DISTRO
+
 
 def linux_distribution(full_distribution_name=True):
     """
@@ -120,7 +128,7 @@ def linux_distribution(full_distribution_name=True):
     method normalizes the distro ID string to a reliable machine-readable value
     for a number of popular Linux distributions.
     """
-    return _distro.linux_distribution(full_distribution_name)
+    return init().linux_distribution(full_distribution_name)
 
 
 def id():
@@ -195,7 +203,7 @@ def id():
       command, with ID values that differ from what was previously determined
       from the distro release file name.
     """
-    return _distro.id()
+    return init().id()
 
 
 def name(pretty=False):
@@ -234,7 +242,7 @@ def name(pretty=False):
         with the value of the pretty version ("<version_id>" and "<codename>"
         fields) of the distro release file, if available.
     """
-    return _distro.name(pretty)
+    return init().name(pretty)
 
 
 def version(pretty=False, best=False):
@@ -278,7 +286,7 @@ def version(pretty=False, best=False):
       the lsb_release command, if it follows the format of the distro release
       files.
     """
-    return _distro.version(pretty, best)
+    return init().version(pretty, best)
 
 
 def version_parts(best=False):
@@ -295,7 +303,7 @@ def version_parts(best=False):
     For a description of the *best* parameter, see the :func:`distro.version`
     method.
     """
-    return _distro.version_parts(best)
+    return init().version_parts(best)
 
 
 def major_version(best=False):
@@ -308,7 +316,7 @@ def major_version(best=False):
     For a description of the *best* parameter, see the :func:`distro.version`
     method.
     """
-    return _distro.major_version(best)
+    return init().major_version(best)
 
 
 def minor_version(best=False):
@@ -321,7 +329,7 @@ def minor_version(best=False):
     For a description of the *best* parameter, see the :func:`distro.version`
     method.
     """
-    return _distro.minor_version(best)
+    return init().minor_version(best)
 
 
 def build_number(best=False):
@@ -334,7 +342,7 @@ def build_number(best=False):
     For a description of the *best* parameter, see the :func:`distro.version`
     method.
     """
-    return _distro.build_number(best)
+    return init().build_number(best)
 
 
 def like():
@@ -351,7 +359,7 @@ def like():
     `os-release man page
     <http://www.freedesktop.org/software/systemd/man/os-release.html>`_.
     """
-    return _distro.like()
+    return init().like()
 
 
 def codename():
@@ -375,7 +383,7 @@ def codename():
 
     * the value of the "<codename>" field of the distro release file.
     """
-    return _distro.codename()
+    return init().codename()
 
 
 def info(pretty=False, best=False):
@@ -419,7 +427,7 @@ def info(pretty=False, best=False):
     For a description of the *pretty* and *best* parameters, see the
     :func:`distro.version` method.
     """
-    return _distro.info(pretty, best)
+    return init().info(pretty, best)
 
 
 def os_release_info():
@@ -429,7 +437,7 @@ def os_release_info():
 
     See `os-release file`_ for details about these information items.
     """
-    return _distro.os_release_info()
+    return init().os_release_info()
 
 
 def lsb_release_info():
@@ -440,7 +448,7 @@ def lsb_release_info():
     See `lsb_release command output`_ for details about these information
     items.
     """
-    return _distro.lsb_release_info()
+    return init().lsb_release_info()
 
 
 def distro_release_info():
@@ -450,7 +458,7 @@ def distro_release_info():
 
     See `distro release file`_ for details about these information items.
     """
-    return _distro.distro_release_info()
+    return init().distro_release_info()
 
 
 def os_release_attr(attribute):
@@ -469,7 +477,7 @@ def os_release_attr(attribute):
 
     See `os-release file`_ for details about these information items.
     """
-    return _distro.os_release_attr(attribute)
+    return init().os_release_attr(attribute)
 
 
 def lsb_release_attr(attribute):
@@ -489,7 +497,7 @@ def lsb_release_attr(attribute):
     See `lsb_release command output`_ for details about these information
     items.
     """
-    return _distro.lsb_release_attr(attribute)
+    return init().lsb_release_attr(attribute)
 
 
 def distro_release_attr(attribute):
@@ -508,7 +516,7 @@ def distro_release_attr(attribute):
 
     See `distro release file`_ for details about these information items.
     """
-    return _distro.distro_release_attr(attribute)
+    return init().distro_release_attr(attribute)
 
 
 class LinuxDistribution(object):
@@ -1059,9 +1067,6 @@ class LinuxDistribution(object):
         elif line:
             distro_info['name'] = line.strip()
         return distro_info
-
-
-_distro = LinuxDistribution()
 
 
 def main():

@@ -37,7 +37,7 @@ if IS_LINUX:
     import distro
 
     RELATIVE_UNIXCONFDIR = distro._UNIXCONFDIR[1:]
-    MODULE_DISTRO = distro._distro
+    MODULE_DISTRO = distro.init()
 
 
 class TestNonLinuxPlatform:
@@ -1517,7 +1517,7 @@ class TestOverallWithEtcNotReadable(TestOverall):
         self._old_listdir = os.listdir
         os.listdir = _bad_os_listdir
         super(TestOverallWithEtcNotReadable, self).setup_method(test_method)
-        
+
     def teardown_method(self, test_method):
         super(TestOverallWithEtcNotReadable, self).teardown_method(test_method)
         if os.listdir is _bad_os_listdir:
@@ -1940,7 +1940,7 @@ class TestRepr:
     def test_repr(self):
         # We test that the class name and the names of all instance attributes
         # show up in the repr() string.
-        repr_str = repr(distro._distro)
+        repr_str = repr(distro.LinuxDistribution())
         assert "LinuxDistribution" in repr_str
         for attr in MODULE_DISTRO.__dict__.keys():
             assert attr + '=' in repr_str
