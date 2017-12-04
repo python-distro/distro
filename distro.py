@@ -98,13 +98,14 @@ _DISTRO = None
 
 
 def init():
-    """Lazily load LinuxDistribution
+    """Return a LinuxDistribution object.
 
-    LinuxDistrubtion takes time to load, which is why it isn't instantiated
+    LinuxDistrubtion takes time to evaluate, which is why it isn't instantiated
     on import.
     Additionally, there's no reason to reinstantiate it everytime
-    a distro method is called. This will make sure it is only instantiated
-    once.
+    a distro method is called.
+
+    This will make sure it is only instantiated once, lazily.
     """
     global _DISTRO
     _DISTRO = _DISTRO or LinuxDistribution()
