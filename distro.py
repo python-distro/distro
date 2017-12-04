@@ -38,9 +38,6 @@ import argparse
 import subprocess
 
 
-if not sys.platform.startswith('linux'):
-    raise ImportError('Unsupported platform: {0}'.format(sys.platform))
-
 _UNIXCONFDIR = os.environ.get('UNIXCONFDIR', '/etc')
 _OS_RELEASE_BASENAME = 'os-release'
 
