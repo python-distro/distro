@@ -920,7 +920,7 @@ class LinuxDistribution(object):
                 stdout = subprocess.check_output(cmd, stderr=devnull)
             except OSError:  # Command not found
                 return {}
-        content = stdout.decode('UTF-8').splitlines()
+        content = stdout.decode(sys.getfilesystemencoding()).splitlines()
         return self._parse_lsb_release_content(content)
 
     @staticmethod
@@ -939,7 +939,6 @@ class LinuxDistribution(object):
         """
         props = {}
         for line in lines:
-            line = line.decode('utf-8') if isinstance(line, bytes) else line
             kv = line.strip('\n').split(':', 1)
             if len(kv) != 2:
                 # Ignore lines without colon.
