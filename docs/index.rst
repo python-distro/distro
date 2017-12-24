@@ -117,12 +117,22 @@ distribution:
   the default algorithm uses the wrong one.
 
 
+Initialization
+==============
+
+.. autofunction:: distro.init
+
+
 Consolidated accessor functions
 ===============================
 
 This section describes the consolidated accessor functions.
 See `access to the information`_ for a discussion of the different kinds of
 accessor functions.
+
+Note that there's no need to run `distro.init()` prior to running the below functions.
+Distro will lazily instantiate a LinuxDistribution object only once when executing one
+of the below functions.
 
 .. autofunction:: distro.linux_distribution
 .. autofunction:: distro.id
