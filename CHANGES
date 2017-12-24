@@ -1,3 +1,11 @@
+**1.2.0 (2017.12.24)**
+
+* Lazily load parsers to speed up import time.
+* Don't raise import error on non-linux os.
+* Decode stdout of shell sys.getfilesystemencoding().
+* Explicitly set Python versions for flake8 tests.
+
+
 **1.1.0 (2017.11.28)**
 
 Note: This version removes official support for Python 2.6. If you need a version that is tested on Python 2.6, please use `distro<=1.0.4`.
