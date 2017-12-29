@@ -938,7 +938,7 @@ class LinuxDistribution(object):
         with open(os.devnull, 'w') as devnull:
             try:
                 cmd = ('lsb_release', '-a')
-                stdout = check_output(cmd, stderr=devnull)
+                stdout = self.check_output(cmd, stderr=devnull)
             except OSError:  # Command not found
                 return {}
         content = stdout.decode(sys.getfilesystemencoding()).splitlines()
