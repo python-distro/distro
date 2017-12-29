@@ -546,7 +546,7 @@ class cached_property(object):
         self._f = f
 
     def __get__(self, obj, owner):
-        assert obj is not None, 'call {} on an instance'.format(self._fname)
+        assert obj is not None, 'call {0} on an instance'.format(self._fname)
         ret = obj.__dict__[self._fname] = self._f(obj)
         return ret
 
@@ -982,6 +982,14 @@ class LinuxDistribution(object):
                 pass
         return props
 
+    def check_output(*args, **kwargs):
+        """Run command with arguments and return its output as a byte string.
+
+        Same as subprocess.check_output(), but works before Python 2.7."""
+
+        p = subprocess.Popen(stdout=subprocess.PIPE, *args, **kwargs)
+        return p.communicate()[0].strip()
+
     @cached_property
     def _lsb_release_info(self):
         """
@@ -995,7 +1003,7 @@ class LinuxDistribution(object):
         with open(os.devnull, 'w') as devnull:
             try:
                 cmd = ('lsb_release', '-a')
-                stdout = subprocess.check_output(cmd, stderr=devnull)
+                stdout = check_output(cmd, stderr=devnull)
             except OSError:  # Command not found
                 return {}
         content = stdout.decode(sys.getfilesystemencoding()).splitlines()
