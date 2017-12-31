@@ -450,6 +450,16 @@ class TestLSBRelease(DistroTestCase):
     #     }
     #     self._test_outcome(desired_outcome)
 
+    def test_openbsd62_uname(self):
+        self._test_outcome({
+            'id': 'openbsd',
+            'name': 'OpenBSD',
+            'version': '6.2',
+            'pretty_name': 'OpenBSD 6.2',
+            'pretty_version': '6.2',
+            'best_version': '6.2'
+        })
+
     def test_ubuntu14normal_lsb_release(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb',
                                             'ubuntu14_normal'))
