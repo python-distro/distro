@@ -971,7 +971,6 @@ class LinuxDistribution(object):
     def _parse_uname_content(lines):
         props = {}
         match = re.match(r'^([^\s]+)\s+([\d\.]+)$', lines[0].strip())
-        print(lines)
         if match:
             print(match.groups())
             name, version = match.groups()

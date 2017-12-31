@@ -460,6 +460,16 @@ class TestLSBRelease(DistroTestCase):
             'best_version': '6.2'
         })
 
+    def test_netbsd711_uname(self):
+        self._test_outcome({
+            'id': 'netbsd',
+            'name': 'NetBSD',
+            'version': '7.1.1',
+            'pretty_name': 'NetBSD 7.1.1',
+            'pretty_version': '7.1.1',
+            'best_version': '7.1.1'
+        })
+
     def test_ubuntu14normal_lsb_release(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb',
                                             'ubuntu14_normal'))
