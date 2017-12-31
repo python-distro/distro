@@ -450,6 +450,14 @@ def distro_release_info():
     return _distro.distro_release_info()
 
 
+def uname_info():
+    """
+    Return a dictionary containing key-value pairs for the information items
+    from the distro release file data source of the current Linux distribution.
+    """
+    return _distro.uname_info()
+
+
 def os_release_attr(attribute):
     """
     Return a single named information item from the os-release file data source
@@ -508,6 +516,23 @@ def distro_release_attr(attribute):
     return _distro.distro_release_attr(attribute)
 
 
+def uname_attr(attribute):
+    """
+    Return a single named information item from the distro release file
+    data source of the current Linux distribution.
+
+    Parameters:
+
+    * ``attribute`` (string): Key of the information item.
+
+    Returns:
+
+    * (string): Value of the information item, if the item exists.
+                The empty string, if the item does not exist.
+    """
+    return _distro.uname_attr(attribute)
+
+
 class cached_property(object):
     """A version of @property which caches the value.  On access, it calls the
     underlying function and sets the value in `__dict__` so future accesses
@@ -544,7 +569,8 @@ class LinuxDistribution(object):
     def __init__(self,
                  include_lsb=True,
                  os_release_file='',
-                 distro_release_file=''):
+                 distro_release_file='',
+                 include_uname=True):
         """
         The initialization method of this class gathers information from the
         available data sources, and stores that in private instance attributes.
@@ -578,6 +604,11 @@ class LinuxDistribution(object):
           distro release file can be found, the data source for the distro
           release file will be empty.
 
+        * ``include_name`` (bool): Controls whether uname command output is
+          included as a data source. If the uname command is not available in
+          the program execution path the data source for the uname command will
+          be empty.
+
         Public instance attributes:
 
         * ``os_release_file`` (string): The path name of the
@@ -590,6 +621,9 @@ class LinuxDistribution(object):
 
         * ``include_lsb`` (bool): The result of the ``include_lsb`` parameter.
           This controls whether the lsb information will be loaded.
+
+        * ``include_uname`` (bool): The result of the ``include_uname`` parameter.
+          This controls whether the uname information will be loaded.
 
         Raises:
 
@@ -607,6 +641,7 @@ class LinuxDistribution(object):
             os.path.join(_UNIXCONFDIR, _OS_RELEASE_BASENAME)
         self.distro_release_file = distro_release_file or ''  # updated later
         self.include_lsb = include_lsb
+        self.include_uname = include_uname
 
     def __repr__(self):
         """Return repr of all info
@@ -616,9 +651,11 @@ class LinuxDistribution(object):
             "os_release_file={self.os_release_file!r}, " \
             "distro_release_file={self.distro_release_file!r}, " \
             "include_lsb={self.include_lsb!r}, " \
+            "include_uname={self.include_uname!r}, " \
             "_os_release_info={self._os_release_info!r}, " \
             "_lsb_release_info={self._lsb_release_info!r}, " \
-            "_distro_release_info={self._distro_release_info!r})".format(
+            "_distro_release_info={self._distro_release_info!r}, " \
+            "_uname_info={self._uname_info!r})".format(
                 self=self)
 
     def linux_distribution(self, full_distribution_name=True):
@@ -656,6 +693,10 @@ class LinuxDistribution(object):
         if distro_id:
             return normalize(distro_id, NORMALIZED_DISTRO_ID)
 
+        distro_id = self.uname_attr('id')
+        if distro_id:
+            return normalize(distro_id, NORMALIZED_DISTRO_ID)
+
         return ''
 
     def name(self, pretty=False):
@@ -666,12 +707,14 @@ class LinuxDistribution(object):
         """
         name = self.os_release_attr('name') \
             or self.lsb_release_attr('distributor_id') \
-            or self.distro_release_attr('name')
+            or self.distro_release_attr('name') \
+            or self.uname_attr('name')
         if pretty:
             name = self.os_release_attr('pretty_name') \
                 or self.lsb_release_attr('description')
             if not name:
-                name = self.distro_release_attr('name')
+                name = self.distro_release_attr('name') \
+                       or self.uname_attr('name')
                 version = self.version(pretty=True)
                 if version:
                     name = name + ' ' + version
@@ -690,7 +733,8 @@ class LinuxDistribution(object):
             self._parse_distro_release_content(
                 self.os_release_attr('pretty_name')).get('version_id', ''),
             self._parse_distro_release_content(
-                self.lsb_release_attr('description')).get('version_id', '')
+                self.lsb_release_attr('description')).get('version_id', ''),
+            self.uname_attr('release')
         ]
         version = ''
         if best:
@@ -817,6 +861,14 @@ class LinuxDistribution(object):
         """
         return self._distro_release_info
 
+    def uname_info(self):
+        """
+        Return a dictionary containing key-value pairs for the information
+        items from the uname command data source of the Linux distribution.
+
+        For details, see :func:`distro.uname_info`.
+        """
+
     def os_release_attr(self, attribute):
         """
         Return a single named information item from the os-release file data
@@ -843,6 +895,15 @@ class LinuxDistribution(object):
         For details, see :func:`distro.distro_release_attr`.
         """
         return self._distro_release_info.get(attribute, '')
+
+    def uname_attr(self, attribute):
+        """
+        Return a single named information item from the uname command
+        output data source of the Linux distribution.
+
+        For details, see :func:`distro.uname_release_attr`.
+        """
+        return self._uname_info.get(attribute, '')
 
     @cached_property
     def _os_release_info(self):
@@ -932,16 +993,9 @@ class LinuxDistribution(object):
                 cmd = ('lsb_release', '-a')
                 stdout = subprocess.check_output(cmd, stderr=devnull)
             except OSError:  # Command not found
-                try:
-                    cmd = ('uname', '-rs')
-                    stdout = subprocess.check_output(cmd, stderr=devnull)
-                except OSError:
-                    return {}
+                return {}
         content = stdout.decode(sys.getfilesystemencoding()).splitlines()
-        if cmd[0] == 'lsb_release':
-            return self._parse_lsb_release_content(content)
-        else:
-            return self._parse_uname_content(content)
+        return self._parse_lsb_release_content(content)
 
     @staticmethod
     def _parse_lsb_release_content(lines):
@@ -967,16 +1021,33 @@ class LinuxDistribution(object):
             props.update({k.replace(' ', '_').lower(): v.strip()})
         return props
 
+    @cached_property
+    def _uname_info(self):
+        with open(os.devnull, 'w') as devnull:
+            try:
+                cmd = ('uname', '-rs')
+                stdout = subprocess.check_output(cmd, stderr=devnull)
+            except OSError:
+                return {}
+        content = stdout.decode(sys.getfilesystemencoding()).splitlines()
+        return self._parse_uname_content(content)
+
     @staticmethod
     def _parse_uname_content(lines):
         props = {}
         match = re.search(r'^([^\s]+)\s+([\d\.]+)', lines[0].strip())
         if match:
             name, version = match.groups()
+
+            # This is to prevent the Linux kernel version from
+            # appearing as the 'best' version on otherwise
+            # identifiable distributions.
+            if name == 'Linux':
+                return {}
             props['id'] = name.lower()
-            props['distributor_id'] = name
+            props['name'] = name
             props['release'] = version
-            props['description'] = name + ' ' + version
+            props['pretty_name'] = name + ' ' + version
         return props
 
     @cached_property
