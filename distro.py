@@ -1,4 +1,4 @@
-# Copyright 2015,2016 Nir Cohen
+# Copyright 2015,2016,2017 Nir Cohen
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -932,9 +932,16 @@ class LinuxDistribution(object):
                 cmd = ('lsb_release', '-a')
                 stdout = subprocess.check_output(cmd, stderr=devnull)
             except OSError:  # Command not found
-                return {}
+                try:
+                    cmd = ('uname', '-rs')
+                    stdout = subprocess.check_output(cmd, stderr=devnull)
+                except OSError:
+                    return {}
         content = stdout.decode(sys.getfilesystemencoding()).splitlines()
-        return self._parse_lsb_release_content(content)
+        if cmd[0] == 'lsb_release':
+            return self._parse_lsb_release_content(content)
+        else:
+            return self._parse_uname_content(content)
 
     @staticmethod
     def _parse_lsb_release_content(lines):
@@ -958,6 +965,20 @@ class LinuxDistribution(object):
                 continue
             k, v = kv
             props.update({k.replace(' ', '_').lower(): v.strip()})
+        return props
+
+    @staticmethod
+    def _parse_uname_content(lines):
+        props = {}
+        match = re.match(r'^([^\s]+)\s+([\d\.]+)$', lines[0].strip())
+        print(lines)
+        if match:
+            print(match.groups())
+            name, version = match.groups()
+            props['id'] = name.lower()
+            props['distributor_id'] = name
+            props['release'] = version
+            props['description'] = name + ' ' + version
         return props
 
     @cached_property
