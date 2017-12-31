@@ -970,9 +970,8 @@ class LinuxDistribution(object):
     @staticmethod
     def _parse_uname_content(lines):
         props = {}
-        match = re.match(r'^([^\s]+)\s+([\d\.]+)$', lines[0].strip())
+        match = re.search(r'^([^\s]+)\s+([\d\.]+)', lines[0].strip())
         if match:
-            print(match.groups())
             name, version = match.groups()
             props['id'] = name.lower()
             props['distributor_id'] = name

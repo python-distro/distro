@@ -470,6 +470,16 @@ class TestLSBRelease(DistroTestCase):
             'best_version': '7.1.1'
         })
 
+    def test_freebsd111_uname(self):
+        self._test_outcome({
+            'id': 'freebsd',
+            'name': 'FreeBSD',
+            'version': '11.1',
+            'pretty_name': 'FreeBSD 11.1',
+            'pretty_version': '11.1',
+            'best_version': '11.1'
+        })
+
     def test_ubuntu14normal_lsb_release(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb',
                                             'ubuntu14_normal'))
