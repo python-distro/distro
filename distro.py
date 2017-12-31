@@ -1047,7 +1047,6 @@ class LinuxDistribution(object):
             props['id'] = name.lower()
             props['name'] = name
             props['release'] = version
-            props['pretty_name'] = name + ' ' + version
         return props
 
     @cached_property
