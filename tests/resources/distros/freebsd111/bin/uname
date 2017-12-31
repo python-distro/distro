@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "FreeBSD 11.1-RELEASE"
+
