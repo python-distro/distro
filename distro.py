@@ -622,8 +622,9 @@ class LinuxDistribution(object):
         * ``include_lsb`` (bool): The result of the ``include_lsb`` parameter.
           This controls whether the lsb information will be loaded.
 
-        * ``include_uname`` (bool): The result of the ``include_uname`` parameter.
-          This controls whether the uname information will be loaded.
+        * ``include_uname`` (bool): The result of the ``include_uname``
+          parameter. This controls whether the uname information will
+          be loaded.
 
         Raises:
 
