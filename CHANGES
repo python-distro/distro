@@ -1,3 +1,7 @@
+**Unreleased**
+
+* Added support for OpenBSD, FreeBSD, and NetBSD
+
 **1.2.0 (2017.12.24)**
 
 * Lazily load parsers to speed up import time.
