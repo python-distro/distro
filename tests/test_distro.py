@@ -584,6 +584,15 @@ class TestSpecialRelease(DistroTestCase):
             'minor_version': '0'
         }
         self._test_outcome(desired_outcome)
+        
+    def test_bad_uname(self):
+        self._setup_for_distro(os.path.join(TESTDISTROS, 'distro',
+                                            'baduname'))
+        self.distro = distro.LinuxDistribution()
+        
+        assert self.distro.uname_attr('id') == ''
+        assert self.distro.uname_attr('name') == ''
+        assert self.distro.uname_attr('release') == ''
 
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
