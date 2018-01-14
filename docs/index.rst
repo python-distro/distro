@@ -21,7 +21,7 @@ Compatibility
 =============
 
 The ``distro`` package is supported on Python 2.7, 3.4+ and PyPy, and on
-any Linux distribution that provides one or more of the `data sources`_
+any Linux or *BSD distribution that provides one or more of the `data sources`_
 used by this package.
 
 This package is tested on Python 2.7, 3.4+ and PyPy, with test data that
@@ -53,6 +53,8 @@ namely from these data sources:
 * The `lsb_release command output`_, if the lsb_release command is available.
 
 * The `distro release file`_, if present.
+
+* The uname command output, if present.
 
 
 Access to the information
