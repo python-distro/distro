@@ -1904,6 +1904,7 @@ class TestGlobal:
         _test_consistency('os_release_info')
         _test_consistency('lsb_release_info')
         _test_consistency('distro_release_info')
+        _test_consistency('uname_info')
 
         os_release_keys = [
             'name',
@@ -1934,6 +1935,14 @@ class TestGlobal:
         ]
         for key in distro_release_keys:
             _test_consistency('distro_release_attr', {'attribute': key})
+            
+        uname_keys = [
+            'id',
+            'name',
+            'release'   
+        ]
+        for key in uname_keys:
+            _test_consistency('uname_attr', {'attribute': key})
 
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
