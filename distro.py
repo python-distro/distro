@@ -546,7 +546,7 @@ class cached_property(object):
         self._f = f
 
     def __get__(self, obj, owner):
-        assert obj is not None, 'call {} on an instance'.format(self._fname)
+        assert obj is not None, 'call {0} on an instance'.format(self._fname)
         ret = obj.__dict__[self._fname] = self._f(obj)
         return ret
 
@@ -990,16 +990,26 @@ class LinuxDistribution(object):
         Returns:
             A dictionary containing all information items.
         """
-        if not self.include_lsb:
+        cmd = ['lsb_release', '-a']
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        stdout, stderr = stdout.decode('utf-8'), stderr.decode('utf-8')
+        code = process.returncode
+        if code == 0:
+            content = stdout.splitlines()
+            return self._parse_lsb_release_content(content)
+        elif code == 127:  # Command not found
             return {}
-        with open(os.devnull, 'w') as devnull:
-            try:
-                cmd = ('lsb_release', '-a')
-                stdout = subprocess.check_output(cmd, stderr=devnull)
-            except OSError:  # Command not found
-                return {}
-        content = stdout.decode(sys.getfilesystemencoding()).splitlines()
-        return self._parse_lsb_release_content(content)
+        else:
+            if sys.version_info[:2] >= (3, 5):
+                raise subprocess.CalledProcessError(code, cmd, stdout, stderr)
+            elif sys.version_info[:2] >= (2, 7):
+                raise subprocess.CalledProcessError(code, cmd, stdout)
+            elif sys.version_info[:2] == (2, 6):
+                raise subprocess.CalledProcessError(code, cmd)
 
     @staticmethod
     def _parse_lsb_release_content(lines):
