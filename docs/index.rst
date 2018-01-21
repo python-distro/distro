@@ -54,7 +54,7 @@ namely from these data sources:
 
 * The `distro release file`_, if present.
 
-* The uname command output, if present.
+* The `uname command output`_, if present.
 
 
 Access to the information
@@ -114,7 +114,7 @@ distribution:
   A user-defined instance of the :class:`distro.LinuxDistribution` class allows
   specifying the path names of the os-release file and distro release file and
   whether the lsb_release command should be used or not. That is useful for
-  example when the Linux distribution information from a chrooted environment
+  example when the distribution information from a chrooted environment
   is to be retrieved, or when a distro has multiple distro release files and
   the default algorithm uses the wrong one.
 
@@ -387,7 +387,7 @@ and where the first line within the file has the expected format.
 
 The algorithm to sort the files alphabetically is far from perfect, but the
 distro release file has the least priority as a data source, and it is expected
-that Linux distributions provide one of the other data sources.
+that distributions provide one of the other data sources.
 
 The distro release file is expected to be encoded in UTF-8.
 
