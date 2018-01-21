@@ -12,14 +12,15 @@ Distro - an OS platform information API
 [![Latest Github Release](https://readthedocs.org/projects/distro/badge/?version=stable)](http://distro.readthedocs.io/en/latest/)
 [![Join the chat at https://gitter.im/nir0s/distro](https://badges.gitter.im/nir0s/distro.svg)](https://gitter.im/nir0s/distro?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-`distro` (for: Linux Distribution) provides information about the
-Linux distribution it runs on, such as a reliable machine-readable ID, or
+`distro` provides information about the
+OS distribution it runs on, such as a reliable machine-readable ID, or
 version information.
 
 It is a renewed alternative implementation for Python's
 original `platform.linux_distribution` function, but it also provides much more
 functionality which isn't necessarily Python bound like a command-line interface.
 
+Distro currently supports Linux and BSD based systems but [Windows and OS X support](https://github.com/nir0s/distro/issues/177) is also planned.
 
 ## Installation
 
@@ -81,18 +82,19 @@ See [Python issue 1322](https://bugs.python.org/issue1322) for more
 information.
 
 The `distro` package implements a robust and inclusive way of retrieving the
-information about a Linux distribution based on new standards and old methods,
+information about a distribution based on new standards and old methods,
 namely from these data sources (from high to low precedence):
 
 * The os-release file `/etc/os-release`, if present.
 * The output of the `lsb_release` command, if available.
 * The distro release file (`/etc/*(-|_)(release|version)`), if present.
+* The `uname` command for BSD based distrubtions.
 
 
 ## Python and Distribution Support
 
 `distro` is supported and tested on Python 2.7, 3.4+ and PyPy and on
-any Linux distribution that provides one or more of the data sources
+any distribution that provides one or more of the data sources
 covered.
 
 This package is tested with test data that mimics the exact behavior of the data sources of [a number of Linux distributions](https://github.com/nir0s/distro/tree/master/tests/resources/distros).
