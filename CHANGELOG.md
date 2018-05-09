@@ -1,4 +1,4 @@
-## Unreleased
+## 1.3.0 (2018.05.09)
 
 ENHANCEMENTS:
 * Added support for OpenBSD, FreeBSD, and NetBSD [[#207](https://github.com/nir0s/distro/issues/207)]
