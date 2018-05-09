@@ -139,6 +139,18 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
+    def test_kali_os_release(self):
+        desired_outcome = {
+            'id': 'kali',
+            'name': 'Kali GNU/Linux',
+            'pretty_name': 'Kali GNU/Linux Rolling',
+            'version': '2017.1',
+            'pretty_version': '2017.1',
+            'best_version': '2017.1',
+            'like': 'debian'
+        }
+        self._test_outcome(desired_outcome)
+
     def test_centos7_os_release(self):
         desired_outcome = {
             'id': 'centos',
@@ -584,12 +596,12 @@ class TestSpecialRelease(DistroTestCase):
             'minor_version': '0'
         }
         self._test_outcome(desired_outcome)
-        
+
     def test_bad_uname(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'distro',
                                             'baduname'))
         self.distro = distro.LinuxDistribution()
-        
+
         assert self.distro.uname_attr('id') == ''
         assert self.distro.uname_attr('name') == ''
         assert self.distro.uname_attr('release') == ''
@@ -1530,7 +1542,7 @@ class TestOverallWithEtcNotReadable(TestOverall):
         self._old_listdir = os.listdir
         os.listdir = _bad_os_listdir
         super(TestOverallWithEtcNotReadable, self).setup_method(test_method)
-        
+
     def teardown_method(self, test_method):
         super(TestOverallWithEtcNotReadable, self).teardown_method(test_method)
         if os.listdir is _bad_os_listdir:
@@ -1944,11 +1956,11 @@ class TestGlobal:
         ]
         for key in distro_release_keys:
             _test_consistency('distro_release_attr', {'attribute': key})
-            
+
         uname_keys = [
             'id',
             'name',
-            'release'   
+            'release'
         ]
         for key in uname_keys:
             _test_consistency('uname_attr', {'attribute': key})
