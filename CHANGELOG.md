@@ -9,6 +9,7 @@ TESTS:
 DOCS:
 * Update docs with regards to #207 [[#209](https://github.com/nir0s/distro/issues/209)]
 * Add Ansible reference implementation and fix arch-linux link [[#213](https://github.com/nir0s/distro/issues/213)]
+* Add facter reference implementation [[#213](https://github.com/nir0s/distro/issues/213)]
 
 ## 1.2.0 (2017.12.24)
 

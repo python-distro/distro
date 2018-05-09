@@ -123,6 +123,7 @@ formats can be found here:
 * https://github.com/saltstack/salt/blob/develop/salt/grains/core.py#L1172
 * https://github.com/chef/ohai/blob/master/lib/ohai/plugins/linux/platform.rb
 * https://github.com/ansible/ansible/blob/devel/lib/ansible/module_utils/facts/system/distribution.py
+* https://github.com/puppetlabs/facter/blob/master/lib/src/facts/linux/os_linux.cc
 
 ## Package manager distributions
 
