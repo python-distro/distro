@@ -122,11 +122,12 @@ formats can be found here:
 
 * https://github.com/saltstack/salt/blob/develop/salt/grains/core.py#L1172
 * https://github.com/chef/ohai/blob/master/lib/ohai/plugins/linux/platform.rb
+* https://github.com/ansible/ansible/blob/devel/lib/ansible/module_utils/facts/system/distribution.py
 
 ## Package manager distributions
 
 * https://admin.fedoraproject.org/pkgdb/package/rpms/python-distro/
-* https://aur.archlinux.org/packages/python-distro/
+* https://www.archlinux.org/packages/community/any/python-distro/
 * https://launchpad.net/ubuntu/+source/python-distro
 * https://packages.debian.org/sid/python-distro
 * https://packages.gentoo.org/packages/dev-python/distro
