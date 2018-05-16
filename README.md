@@ -16,9 +16,11 @@ Distro - an OS platform information API
 OS distribution it runs on, such as a reliable machine-readable ID, or
 version information.
 
-It is a renewed alternative implementation for Python's
-original `platform.linux_distribution` function, but it also provides much more
-functionality which isn't necessarily Python bound like a command-line interface.
+It is the recommended replacement for Python's original
+[`platform.linux_distribution`](https://docs.python.org/3.7/library/platform.html#platform.linux_distribution)
+function (which will be removed in Python 3.8).
+It also provides much more functionality which isn't necessarily Python bound,
+like a command-line interface.
 
 Distro currently supports Linux and BSD based systems but [Windows and OS X support](https://github.com/nir0s/distro/issues/177) is also planned.
 
@@ -74,9 +76,9 @@ API, see the [latest API documentation](http://distro.readthedocs.org/en/latest/
 ## Background
 
 An alternative implementation became necessary because Python 3.5 deprecated
-this function, and Python 3.7 is expected to remove it altogether.
+this function, and Python 3.8 will remove it altogether.
 Its predecessor function `platform.dist` was already deprecated since
-Python 2.6 and is also expected to be removed in Python 3.7.
+Python 2.6 and will also be removed in Python 3.8.
 Still, there are many cases in which access to that information is needed.
 See [Python issue 1322](https://bugs.python.org/issue1322) for more
 information.
