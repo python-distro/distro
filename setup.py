@@ -37,7 +37,8 @@ setup(
     license='Apache License, Version 2.0',
     platforms='All',
     description='Distro - an OS platform information API',
-    long_description=read('README.rst'),
+    long_description=read('README.md'),
+    long_description_content_type='text/markdown',
     py_modules=['distro'],
     entry_points={
         'console_scripts': [
