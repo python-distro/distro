@@ -48,7 +48,9 @@ _OS_RELEASE_BASENAME = 'os-release'
 #:   with blanks translated to underscores.
 #:
 #: * Value: Normalized value.
-NORMALIZED_OS_ID = {}
+NORMALIZED_OS_ID = {
+    'ol': 'oracle',  # Oracle Enterprise Linux
+}
 
 #: Translation table for normalizing the "Distributor ID" attribute returned by
 #: the lsb_release command, for use by the :func:`distro.id` method.
