@@ -765,12 +765,12 @@ class TestDistroRelease:
         desired_outcome = {
             'id': 'oracle',
             'name': 'Oracle Linux Server',
-            'pretty_name': 'Oracle Linux Server 7.1',
-            'version': '7.1',
-            'pretty_version': '7.1',
-            'best_version': '7.1',
+            'pretty_name': 'Oracle Linux Server 7.5',
+            'version': '7.5',
+            'pretty_version': '7.5',
+            'best_version': '7.5',
             'major_version': '7',
-            'minor_version': '1'
+            'minor_version': '5'
         }
         self._test_outcome(desired_outcome, 'oracle', '7')
 
@@ -1183,19 +1183,19 @@ class TestOverall(DistroTestCase):
         desired_outcome = {
             'id': 'oracle',
             'name': 'Oracle Linux Server',
-            'pretty_name': 'Oracle Linux Server 7.1',
-            'version': '7.1',
-            'pretty_version': '7.1',
-            'best_version': '7.1',
+            'pretty_name': 'Oracle Linux Server 7.5',
+            'version': '7.5',
+            'pretty_version': '7.5',
+            'best_version': '7.5',
             'major_version': '7',
-            'minor_version': '1'
+            'minor_version': '5'
         }
         self._test_outcome(desired_outcome)
 
         desired_info = {
             'id': 'oracle',
             'name': 'Oracle Linux Server',
-            'version_id': '7.1',
+            'version_id': '7.5',
         }
         distro_info = self._test_release_file_info(
             'oracle-release', desired_info)
