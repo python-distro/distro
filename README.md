@@ -129,7 +129,7 @@ formats can be found here:
 
 ## Package manager distributions
 
-* https://admin.fedoraproject.org/pkgdb/package/rpms/python-distro/
+* https://src.fedoraproject.org/rpms/python-distro
 * https://www.archlinux.org/packages/community/any/python-distro/
 * https://launchpad.net/ubuntu/+source/python-distro
 * https://packages.debian.org/sid/python-distro
