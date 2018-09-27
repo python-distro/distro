@@ -161,6 +161,7 @@ def id():
     "openbsd"       OpenBSD
     "netbsd"        NetBSD
     "freebsd"       FreeBSD
+    "openmandriva"  OpenMandriva Lx
     ==============  =========================================
 
     If you have a need to get distros for reliable IDs added into this set,
@@ -1101,7 +1102,8 @@ class LinuxDistribution(object):
                              'oracle-release',
                              'redhat-release',
                              'sl-release',
-                             'slackware-version']
+                             'slackware-version',
+							 'openmandriva-release']
             for basename in basenames:
                 if basename in _DISTRO_RELEASE_IGNORE_BASENAMES:
                     continue

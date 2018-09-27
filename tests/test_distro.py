@@ -403,6 +403,17 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
+		def test_openmandrivalx3_os_release(self):
+        desired_outcome = {
+            'id': 'openmandriva',
+            'name': 'Openmandriva Lx',
+            'pretty_name': 'OpenMandriva Lx 3.0 (Einsteinium)',
+            'version': '3.0 (Einsteinium)',
+            'pretty_version': '3.0',
+            'best_version': '3.0',
+            'like': 'mandriva fedora mageia',
+        }
+        self._test_outcome(desired_outcome)
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestLSBRelease(DistroTestCase):
@@ -877,6 +888,18 @@ class TestDistroRelease:
         }
         self._test_outcome(desired_outcome, 'cloudlinux', '7', 'redhat')
 
+	def test_openmandrivalx3_dist_release(self):
+        desired_outcome = {
+            'id': 'openmandriva',
+            'name': 'OpenMandriva Lx',
+            'pretty_name': 'OpenMandriva Lx 3.0 (Einsteinium)',
+            'version': '3.0 (Einsteinium)',
+            'pretty_version': '3.0 (Einsteinium)',
+            'best_version': '3.0',
+            'codename': '(Einsteinium)',
+            'major_version': '3.0'
+        }
+        self._test_outcome(desired_outcome, 'openmandrivalx', '3')
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestOverall(DistroTestCase):
@@ -1528,6 +1551,27 @@ class TestOverall(DistroTestCase):
         }
         self._test_outcome(desired_outcome)
 
+    def test_openmandrivalx3_release(self):
+        desired_outcome = {
+            'id': 'openmandriva',
+            'name': 'OpenMandriva Lx',
+            'pretty_name': 'OpenMandriva Lx 3.0 (Einsteinium)',
+            'version': '3.0 (Einsteinium)',
+            'pretty_version': '3.0 (Einsteinium)',
+            'best_version': '3.0',
+            'like': 'mandriva fedora mageia',
+            'codename': 'Einsteinium',
+            'major_version': '3.0'
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            'id': 'openmandriva',
+            'name': 'OpenMandriva Lx',
+            'version_id': '3.0',
+            'codename': 'Einsteinium'
+        }
+        self._test_release_file_info('openmandriva-release', desired_info)
 
 def _bad_os_listdir(path='.'):
     """ This function is used by TestOverallWithEtcNotReadable to simulate
