@@ -403,7 +403,7 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
-		def test_openmandrivalx3_os_release(self):
+    def test_openmandrivalx3_os_release(self):
         desired_outcome = {
             'id': 'openmandriva',
             'name': 'Openmandriva Lx',
@@ -888,7 +888,7 @@ class TestDistroRelease:
         }
         self._test_outcome(desired_outcome, 'cloudlinux', '7', 'redhat')
 
-	def test_openmandrivalx3_dist_release(self):
+    def test_openmandrivalx3_dist_release(self):
         desired_outcome = {
             'id': 'openmandriva',
             'name': 'OpenMandriva Lx',
