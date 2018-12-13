@@ -1,3 +1,5 @@
 pytest
 pytest-cov
-sphinx>=1.1
+# Pin an older version of sphinx for Python-2.6 compat.  We could also drop building of hte sphinx
+# docs in this branch (People can either use the raw rst or build docs on a more recent Python)
+sphinx>=1.1,<1.5
