@@ -1978,3 +1978,17 @@ class TestRepr:
         assert "LinuxDistribution" in repr_str
         for attr in MODULE_DISTRO.__dict__.keys():
             assert attr + '=' in repr_str
+
+
+#
+# For testing 2.6 compat code
+#
+
+@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
+class TestCheckOutput:
+    def test_stdout_disallowed(self):
+        with pytest.raises(ValueError) as exc_info:
+            distro._my_check_output(['echo', 'hello'], stdout=None)
+
+        assert exc_info.value.args[0] == 'stdout argument not allowed,' \
+            ' it will be overridden.'

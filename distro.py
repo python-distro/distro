@@ -92,6 +92,56 @@ _DISTRO_RELEASE_IGNORE_BASENAMES = (
 )
 
 
+#
+# Python 2.6 does not have subprocess.check_output so replicate it here
+#
+def _my_check_output(*popenargs, **kwargs):
+    r"""Run command with arguments and return its output as a byte string.
+
+    If the exit code was non-zero it raises a CalledProcessError.  The
+    CalledProcessError object will have the return code in the returncode
+    attribute and output in the output attribute.
+
+    The arguments are the same as for the Popen constructor.  Example:
+
+    >>> check_output(["ls", "-l", "/dev/null"])
+    'crw-rw-rw- 1 root root 1, 3 Oct 18  2007 /dev/null\n'
+
+    The stdout argument is not allowed as it is used internally.
+    To capture standard error in the result, use stderr=STDOUT.
+
+    >>> check_output(["/bin/sh", "-c",
+    ...               "ls -l non_existent_file ; exit 0"],
+    ...              stderr=STDOUT)
+    'ls: non_existent_file: No such file or directory\n'
+
+    This is a backport of Python-2.7's check output to Python-2.6
+    """
+    if 'stdout' in kwargs:
+        raise ValueError(
+            'stdout argument not allowed, it will be overridden.'
+        )
+    process = subprocess.Popen(
+        stdout=subprocess.PIPE, *popenargs, **kwargs
+    )
+    output, unused_err = process.communicate()
+    retcode = process.poll()
+    if retcode:
+        cmd = kwargs.get("args")
+        if cmd is None:
+            cmd = popenargs[0]
+        # Deviation from Python-2.7: Python-2.6's CalledProcessError does not
+        # have an argument for the stdout so simply omit it.
+        raise subprocess.CalledProcessError(retcode, cmd)
+    return output
+
+
+try:
+    _check_output = subprocess.check_output
+except AttributeError:
+    _check_output = _my_check_output
+
+
 def linux_distribution(full_distribution_name=True):
     """
     Return information about the current OS distribution as a tuple
@@ -982,42 +1032,6 @@ class LinuxDistribution(object):
                 pass
         return props
 
-    def _check_output(*popenargs, **kwargs):
-        r"""Run command with arguments and return its output as a byte string.
-
-        If the exit code was non-zero it raises a CalledProcessError.  The
-        CalledProcessError object will have the return code in the returncode
-        attribute and output in the output attribute.
-
-        The arguments are the same as for the Popen constructor.  Example:
-
-        >>> check_output(["ls", "-l", "/dev/null"])
-        'crw-rw-rw- 1 root root 1, 3 Oct 18  2007 /dev/null\n'
-
-        The stdout argument is not allowed as it is used internally.
-        To capture standard error in the result, use stderr=STDOUT.
-
-        >>> check_output(["/bin/sh", "-c",
-        ...               "ls -l non_existent_file ; exit 0"],
-        ...              stderr=STDOUT)
-        'ls: non_existent_file: No such file or directory\n'
-        """
-        if 'stdout' in kwargs:
-            raise ValueError(
-                'stdout argument not allowed, it will be overridden.'
-            )
-        process = subprocess.Popen(
-            stdout=subprocess.PIPE, *popenargs, **kwargs
-        )
-        output, unused_err = process.communicate()
-        retcode = process.poll()
-        if retcode:
-            cmd = kwargs.get("args")
-            if cmd is None:
-                cmd = popenargs[0]
-            raise subprocess.CalledProcessError(retcode, cmd, output=output)
-        return output
-
     @cached_property
     def _lsb_release_info(self):
         """
@@ -1031,7 +1045,7 @@ class LinuxDistribution(object):
         with open(os.devnull, 'w') as devnull:
             try:
                 cmd = ('lsb_release', '-a')
-                stdout = self._check_output(cmd, stderr=devnull)
+                stdout = _check_output(cmd, stderr=devnull)
             except OSError:  # Command not found
                 return {}
         content = stdout.decode(sys.getfilesystemencoding()).splitlines()
@@ -1066,7 +1080,7 @@ class LinuxDistribution(object):
         with open(os.devnull, 'w') as devnull:
             try:
                 cmd = ('uname', '-rs')
-                stdout = subprocess.check_output(cmd, stderr=devnull)
+                stdout = _check_output(cmd, stderr=devnull)
             except OSError:
                 return {}
         content = stdout.decode(sys.getfilesystemencoding()).splitlines()
