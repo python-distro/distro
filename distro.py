@@ -34,7 +34,7 @@ import sys
 import json
 import shlex
 import logging
-import argparse
+import optparse
 import subprocess
 
 
@@ -1225,13 +1225,13 @@ def main():
     logger.setLevel(logging.DEBUG)
     logger.addHandler(logging.StreamHandler(sys.stdout))
 
-    parser = argparse.ArgumentParser(description="OS distro info tool")
-    parser.add_argument(
+    parser = optparse.OptionParser(description="OS distro info tool")
+    parser.add_option(
         '--json',
         '-j',
         help="Output in machine readable format",
         action="store_true")
-    args = parser.parse_args()
+    args, opts = parser.parse_args()
 
     if args.json:
         logger.info(json.dumps(info(), indent=4, sort_keys=True))
