@@ -872,6 +872,7 @@ class LinuxDistribution(object):
 
         For details, see :func:`distro.uname_info`.
         """
+        return self._uname_info
 
     def os_release_attr(self, attribute):
         """
