@@ -836,7 +836,7 @@ class TestDistroRelease:
         # Uses redhat-release only to get information.
         # The id of 'rhel' can only be fixed with issue #109.
         desired_outcome = {
-            'id': 'rhel',
+            'id': 'cloudlinux',
             'codename': 'Vladislav Volkov',
             'name': 'CloudLinux Server',
             'pretty_name': 'CloudLinux Server 5.11 (Vladislav Volkov)',
@@ -851,7 +851,7 @@ class TestDistroRelease:
     def test_cloudlinux6_dist_release(self):
         # Same as above, only has redhat-release.
         desired_outcome = {
-            'id': 'rhel',
+            'id': 'cloudlinux',
             'codename': 'Oleg Makarov',
             'name': 'CloudLinux Server',
             'pretty_name': 'CloudLinux Server 6.8 (Oleg Makarov)',
@@ -865,7 +865,7 @@ class TestDistroRelease:
 
     def test_cloudlinux7_dist_release(self):
         desired_outcome = {
-            'id': 'rhel',
+            'id': 'cloudlinux',
             'codename': 'Yury Malyshev',
             'name': 'CloudLinux',
             'pretty_name': 'CloudLinux 7.3 (Yury Malyshev)',
@@ -1486,7 +1486,7 @@ class TestOverall(DistroTestCase):
         # Uses redhat-release only to get information.
         # The id of 'rhel' can only be fixed with issue #109.
         desired_outcome = {
-            'id': 'rhel',
+            'id': 'cloudlinux',
             'codename': 'Vladislav Volkov',
             'name': 'CloudLinux Server',
             'pretty_name': 'CloudLinux Server 5.11 (Vladislav Volkov)',
@@ -1501,7 +1501,7 @@ class TestOverall(DistroTestCase):
     def test_cloudlinux6_release(self):
         # Same as above, only has redhat-release.
         desired_outcome = {
-            'id': 'rhel',
+            'id': 'cloudlinux',
             'codename': 'Oleg Makarov',
             'name': 'CloudLinux Server',
             'pretty_name': 'CloudLinux Server 6.8 (Oleg Makarov)',
