@@ -1086,7 +1086,10 @@ class LinuxDistribution(object):
             # file), because we want to use what was specified as best as
             # possible.
             match = _DISTRO_RELEASE_BASENAME_PATTERN.match(basename)
-            if match:
+            if 'name' in distro_info \
+               and 'cloudlinux' in distro_info['name'].lower():
+                distro_info['id'] = 'cloudlinux'
+            elif match:
                 distro_info['id'] = match.group(1)
             return distro_info
         else:
@@ -1127,6 +1130,8 @@ class LinuxDistribution(object):
                         # The name is always present if the pattern matches
                         self.distro_release_file = filepath
                         distro_info['id'] = match.group(1)
+                        if 'cloudlinux' in distro_info['name'].lower():
+                            distro_info['id'] = 'cloudlinux'
                         return distro_info
             return {}
 
