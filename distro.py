@@ -34,7 +34,7 @@ import sys
 import json
 import shlex
 import logging
-import argparse
+import optparse
 import subprocess
 
 
@@ -90,6 +90,56 @@ _DISTRO_RELEASE_IGNORE_BASENAMES = (
     _OS_RELEASE_BASENAME,
     'system-release'
 )
+
+
+#
+# Python 2.6 does not have subprocess.check_output so replicate it here
+#
+def _my_check_output(*popenargs, **kwargs):
+    r"""Run command with arguments and return its output as a byte string.
+
+    If the exit code was non-zero it raises a CalledProcessError.  The
+    CalledProcessError object will have the return code in the returncode
+    attribute and output in the output attribute.
+
+    The arguments are the same as for the Popen constructor.  Example:
+
+    >>> check_output(["ls", "-l", "/dev/null"])
+    'crw-rw-rw- 1 root root 1, 3 Oct 18  2007 /dev/null\n'
+
+    The stdout argument is not allowed as it is used internally.
+    To capture standard error in the result, use stderr=STDOUT.
+
+    >>> check_output(["/bin/sh", "-c",
+    ...               "ls -l non_existent_file ; exit 0"],
+    ...              stderr=STDOUT)
+    'ls: non_existent_file: No such file or directory\n'
+
+    This is a backport of Python-2.7's check output to Python-2.6
+    """
+    if 'stdout' in kwargs:
+        raise ValueError(
+            'stdout argument not allowed, it will be overridden.'
+        )
+    process = subprocess.Popen(
+        stdout=subprocess.PIPE, *popenargs, **kwargs
+    )
+    output, unused_err = process.communicate()
+    retcode = process.poll()
+    if retcode:
+        cmd = kwargs.get("args")
+        if cmd is None:
+            cmd = popenargs[0]
+        # Deviation from Python-2.7: Python-2.6's CalledProcessError does not
+        # have an argument for the stdout so simply omit it.
+        raise subprocess.CalledProcessError(retcode, cmd)
+    return output
+
+
+try:
+    _check_output = subprocess.check_output
+except AttributeError:
+    _check_output = _my_check_output
 
 
 def linux_distribution(full_distribution_name=True):
@@ -546,7 +596,7 @@ class cached_property(object):
         self._f = f
 
     def __get__(self, obj, owner):
-        assert obj is not None, 'call {} on an instance'.format(self._fname)
+        assert obj is not None, 'call {0} on an instance'.format(self._fname)
         ret = obj.__dict__[self._fname] = self._f(obj)
         return ret
 
@@ -995,7 +1045,7 @@ class LinuxDistribution(object):
         with open(os.devnull, 'w') as devnull:
             try:
                 cmd = ('lsb_release', '-a')
-                stdout = subprocess.check_output(cmd, stderr=devnull)
+                stdout = _check_output(cmd, stderr=devnull)
             except OSError:  # Command not found
                 return {}
         content = stdout.decode(sys.getfilesystemencoding()).splitlines()
@@ -1030,7 +1080,7 @@ class LinuxDistribution(object):
         with open(os.devnull, 'w') as devnull:
             try:
                 cmd = ('uname', '-rs')
-                stdout = subprocess.check_output(cmd, stderr=devnull)
+                stdout = _check_output(cmd, stderr=devnull)
             except OSError:
                 return {}
         content = stdout.decode(sys.getfilesystemencoding()).splitlines()
@@ -1175,13 +1225,13 @@ def main():
     logger.setLevel(logging.DEBUG)
     logger.addHandler(logging.StreamHandler(sys.stdout))
 
-    parser = argparse.ArgumentParser(description="OS distro info tool")
-    parser.add_argument(
+    parser = optparse.OptionParser(description="OS distro info tool")
+    parser.add_option(
         '--json',
         '-j',
         help="Output in machine readable format",
         action="store_true")
-    args = parser.parse_args()
+    args, opts = parser.parse_args()
 
     if args.json:
         logger.info(json.dumps(info(), indent=4, sort_keys=True))
