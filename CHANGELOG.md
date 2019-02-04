@@ -9,7 +9,7 @@ BUG FIXES:
 * Update Oracle matching [[#224](https://github.com/nir0s/distro/pull/224)]
 
 DOCS:
-* Update Fedora package link [[#255](https://github.com/nir0s/distro/pull/225)]
+* Update Fedora package link [[#225](https://github.com/nir0s/distro/pull/225)]
 * Distro is the recommended replacement for platform.linux_distribution [[#220](https://github.com/nir0s/distro/pull/220)]
 
 RELEASE:
