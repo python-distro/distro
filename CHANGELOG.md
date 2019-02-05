@@ -1,3 +1,22 @@
+## 1.4.0 (2019.2.4)
+
+BACKWARD COMPATIBILITY:
+* Prefer the VERSION_CODENAME field of os-release to parsing it from VERSION [[#230](https://github.com/nir0s/distro/pull/230)]
+
+BUG FIXES:
+* Return _uname_info from the uname_info() method [[#233](https://github.com/nir0s/distro/pull/233)]
+* Fixed CloudLinux id discovery [[#234](https://github.com/nir0s/distro/pull/234)]
+* Update Oracle matching [[#224](https://github.com/nir0s/distro/pull/224)]
+
+DOCS:
+* Update Fedora package link [[#225](https://github.com/nir0s/distro/pull/225)]
+* Distro is the recommended replacement for platform.linux_distribution [[#220](https://github.com/nir0s/distro/pull/220)]
+
+RELEASE:
+* Use Markdown for long description in setup.py [[#219](https://github.com/nir0s/distro/pull/219)]
+
+Additionally, The Python2.6 branch was fixed and rebased on top of master. It is now passing all tests. Thanks [abadger](https://github.com/abadger)!
+
 ## 1.3.0 (2018.05.09)
 
 ENHANCEMENTS:
