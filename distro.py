@@ -609,7 +609,7 @@ class LinuxDistribution(object):
           distro release file can be found, the data source for the distro
           release file will be empty.
 
-        * ``include_name`` (bool): Controls whether uname command output is
+        * ``include_uname`` (bool): Controls whether uname command output is
           included as a data source. If the uname command is not available in
           the program execution path the data source for the uname command will
           be empty.
