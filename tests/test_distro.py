@@ -1618,7 +1618,7 @@ def _bad_os_listdir(path='.'):
     raise OSError()
 
 
-@pytest.mark.skipIf(not IS_LINUX, reason='Irrelevant on non-linx')
+@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestOverallWithEtcNotReadable(TestOverall):
     def setup_method(self, test_method):
         self._old_listdir = os.listdir
