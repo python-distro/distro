@@ -575,7 +575,8 @@ class LinuxDistribution(object):
                  include_lsb=True,
                  os_release_file='',
                  distro_release_file='',
-                 include_uname=True):
+                 include_uname=True,
+                 root_dir=None):
         """
         The initialization method of this class gathers information from the
         available data sources, and stores that in private instance attributes.
@@ -614,6 +615,9 @@ class LinuxDistribution(object):
           the program execution path the data source for the uname command will
           be empty.
 
+        * ``root_dir`` (string): The absolute path to the root directory to use
+          to find distro-related information files.
+
         Public instance attributes:
 
         * ``os_release_file`` (string): The path name of the
@@ -643,8 +647,9 @@ class LinuxDistribution(object):
         * :py:exc:`UnicodeError`: A data source has unexpected characters or
           uses an unexpected encoding.
         """
+        self.root_dir = root_dir
         self.os_release_file = os_release_file or \
-            os.path.join(_UNIXCONFDIR, _OS_RELEASE_BASENAME)
+            os.path.join(self.root_dir or _UNIXCONFDIR, _OS_RELEASE_BASENAME)
         self.distro_release_file = distro_release_file or ''  # updated later
         self.include_lsb = include_lsb
         self.include_uname = include_uname
@@ -1094,7 +1099,7 @@ class LinuxDistribution(object):
             return distro_info
         else:
             try:
-                basenames = os.listdir(_UNIXCONFDIR)
+                basenames = os.listdir(self.root_dir or _UNIXCONFDIR)
                 # We sort for repeatability in cases where there are multiple
                 # distro specific files; e.g. CentOS, Oracle, Enterprise all
                 # containing `redhat-release` on top of their own.
@@ -1124,7 +1129,8 @@ class LinuxDistribution(object):
                     continue
                 match = _DISTRO_RELEASE_BASENAME_PATTERN.match(basename)
                 if match:
-                    filepath = os.path.join(_UNIXCONFDIR, basename)
+                    filepath = os.path.join(
+                        self.root_dir or _UNIXCONFDIR, basename)
                     distro_info = self._parse_distro_release_file(filepath)
                     if 'name' in distro_info:
                         # The name is always present if the pattern matches

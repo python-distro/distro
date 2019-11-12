@@ -432,6 +432,22 @@ class TestOSRelease:
         self._test_outcome(desired_outcome)
 
 
+class TestWithRootDir(TestOSRelease):
+    """Test that a LinuxDistribution can be created using an arbitrary root_dir
+    on all OSes.
+    """
+
+    def setup_method(self, test_method):
+        dist = test_method.__name__.split('_')[1]
+        root_dir = os.path.join(DISTROS_DIR, dist, 'etc')
+        self.distro = distro.LinuxDistribution(
+            os_release_file='',
+            distro_release_file='non',
+            include_lsb=False,
+            include_uname=False,
+            root_dir=root_dir)
+
+
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestLSBRelease(DistroTestCase):
 
@@ -2059,4 +2075,6 @@ class TestRepr:
         repr_str = repr(distro._distro)
         assert "LinuxDistribution" in repr_str
         for attr in MODULE_DISTRO.__dict__.keys():
+            if attr == 'root_dir':
+                continue
             assert attr + '=' in repr_str
