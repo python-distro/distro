@@ -90,7 +90,8 @@ _DISTRO_RELEASE_IGNORE_BASENAMES = (
     'lsb-release',
     'oem-release',
     _OS_RELEASE_BASENAME,
-    'system-release'
+    'system-release',
+    'plesk-release'
 )
 
 
