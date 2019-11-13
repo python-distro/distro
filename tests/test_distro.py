@@ -71,6 +71,10 @@ class TestCli:
         self._parse('distro')
         self._parse('distro -j')
 
+    def test_cli_can_parse_root_dir_args(self):
+        root_dir = os.path.join(RESOURCES, 'cli', 'fedora30')
+        self._parse('distro --root-dir {}'.format(root_dir))
+
     def test_cli(self):
         command = [sys.executable, '-m', 'distro']
         desired_output = 'Name: ' + distro.name(pretty=True)
@@ -84,6 +88,33 @@ class TestCli:
     def test_cli_json(self):
         command = [sys.executable, '-m', 'distro', '-j']
         assert ast.literal_eval(self._run(command)) == distro.info()
+
+    def test_cli_with_root_dir(self):
+        root_dir = os.path.join(RESOURCES, 'cli', 'fedora30')
+        command = [sys.executable, '-m', 'distro', '--root-dir', root_dir]
+        desired_output = 'Name: Fedora 30 (Thirty)\nVersion: 30\nCodename: \n'
+        assert desired_output == self._run(command)
+
+    def test_cli_with_root_dir_as_json(self):
+        import json
+        root_dir = os.path.join(RESOURCES, 'cli', 'fedora30')
+        command = [sys.executable, '-m', 'distro', '-j', '--root-dir', root_dir]
+        desired_output = '''
+        {
+            "codename": "",
+            "id": "fedora",
+            "like": "",
+            "version": "30",
+            "version_parts": {
+                "build_number": "",
+                "major": "30",
+                "minor": ""
+            }
+        }
+        '''
+        desired_output = json.loads(desired_output)
+        results = json.loads(self._run(command))
+        assert desired_output == results
 
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
@@ -439,7 +470,7 @@ class TestWithRootDir(TestOSRelease):
 
     def setup_method(self, test_method):
         dist = test_method.__name__.split('_')[1]
-        root_dir = os.path.join(DISTROS_DIR, dist, 'etc')
+        root_dir = os.path.join(DISTROS_DIR, dist)
         self.distro = distro.LinuxDistribution(
             os_release_file='',
             distro_release_file='non',
@@ -2075,6 +2106,6 @@ class TestRepr:
         repr_str = repr(distro._distro)
         assert "LinuxDistribution" in repr_str
         for attr in MODULE_DISTRO.__dict__.keys():
-            if attr == 'root_dir':
+            if attr in ('root_dir', 'etc_dir'):
                 continue
             assert attr + '=' in repr_str
