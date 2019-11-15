@@ -99,20 +99,18 @@ class TestCli:
         import json
         root_dir = os.path.join(RESOURCES, 'cli', 'fedora30')
         command = [sys.executable, '-m', 'distro', '-j', '--root-dir', root_dir]
-        desired_output = '''
-        {
-            "codename": "",
-            "id": "fedora",
-            "like": "",
-            "version": "30",
-            "version_parts": {
-                "build_number": "",
-                "major": "30",
-                "minor": ""
+        desired_output = {
+            'codename': '',
+            'id': 'fedora',
+            'like': '',
+            'version': '30',
+            'version_parts': {
+                'build_number': '',
+                'major': '30',
+                'minor': '',
             }
         }
-        '''
-        desired_output = json.loads(desired_output)
+
         results = json.loads(self._run(command))
         assert desired_output == results
 
