@@ -49,7 +49,7 @@ _OS_RELEASE_BASENAME = 'os-release'
 #:
 #: * Value: Normalized value.
 NORMALIZED_OS_ID = {
-    'ol': 'oracle',  # Oracle Enterprise Linux
+    'ol': 'oracle',  # Oracle Linux
 }
 
 #: Translation table for normalizing the "Distributor ID" attribute returned by
@@ -60,7 +60,7 @@ NORMALIZED_OS_ID = {
 #:
 #: * Value: Normalized value.
 NORMALIZED_LSB_ID = {
-    'enterpriseenterprise': 'oracle',  # Oracle Enterprise Linux
+    'enterpriseenterprise': 'oracle',  # Oracle Linux
     'redhatenterpriseworkstation': 'rhel',  # RHEL 6, 7 Workstation
     'redhatenterpriseserver': 'rhel',  # RHEL 6, 7 Server
 }
