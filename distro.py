@@ -90,7 +90,8 @@ _DISTRO_RELEASE_IGNORE_BASENAMES = (
     'lsb-release',
     'oem-release',
     _OS_RELEASE_BASENAME,
-    'system-release'
+    'system-release',
+    'plesk-release',
 )
 
 
@@ -764,7 +765,7 @@ class LinuxDistribution(object):
                     version = v
                     break
         if pretty and version and self.codename():
-            version = u'{0} ({1})'.format(version, self.codename())
+            version = '{0} ({1})'.format(version, self.codename())
         return version
 
     def version_parts(self, best=False):
@@ -974,8 +975,6 @@ class LinuxDistribution(object):
             # * commands or their arguments (not allowed in os-release)
             if '=' in token:
                 k, v = token.split('=', 1)
-                if isinstance(v, bytes):
-                    v = v.decode('utf-8')
                 props[k.lower()] = v
             else:
                 # Ignore any tokens that are not variable assignments
@@ -1019,7 +1018,7 @@ class LinuxDistribution(object):
                 stdout = subprocess.check_output(cmd, stderr=devnull)
             except OSError:  # Command not found
                 return {}
-        content = stdout.decode(sys.getfilesystemencoding()).splitlines()
+        content = self._to_str(stdout).splitlines()
         return self._parse_lsb_release_content(content)
 
     @staticmethod
@@ -1054,7 +1053,7 @@ class LinuxDistribution(object):
                 stdout = subprocess.check_output(cmd, stderr=devnull)
             except OSError:
                 return {}
-        content = stdout.decode(sys.getfilesystemencoding()).splitlines()
+        content = self._to_str(stdout).splitlines()
         return self._parse_uname_content(content)
 
     @staticmethod
@@ -1073,6 +1072,20 @@ class LinuxDistribution(object):
             props['name'] = name
             props['release'] = version
         return props
+
+    @staticmethod
+    def _to_str(text):
+        encoding = sys.getfilesystemencoding()
+        encoding = 'utf-8' if encoding == 'ascii' else encoding
+
+        if sys.version_info[0] >= 3:
+            if isinstance(text, bytes):
+                return text.decode(encoding)
+        else:
+            if isinstance(text, unicode):  # noqa
+                return text.encode(encoding)
+
+        return text
 
     @cached_property
     def _distro_release_info(self):
@@ -1176,8 +1189,6 @@ class LinuxDistribution(object):
         Returns:
             A dictionary containing all information items.
         """
-        if isinstance(line, bytes):
-            line = line.decode('utf-8')
         matches = _DISTRO_RELEASE_CONTENT_REVERSED_PATTERN.match(
             line.strip()[::-1])
         distro_info = {}
