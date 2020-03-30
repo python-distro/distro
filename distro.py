@@ -164,6 +164,7 @@ def id():
     "openbsd"       OpenBSD
     "netbsd"        NetBSD
     "freebsd"       FreeBSD
+    "midnightbsd"   MidnightBSD
     ==============  =========================================
 
     If you have a need to get distros for reliable IDs added into this set,
