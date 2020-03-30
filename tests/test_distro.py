@@ -1,3 +1,4 @@
+# coding=utf-8
 # Copyright 2015,2016 Nir Cohen
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -191,11 +192,11 @@ class TestOSRelease:
         desired_outcome = {
             'id': 'fedora',
             'name': 'Fedora',
-            'pretty_name': u'Fedora 19 (Schr\u00F6dinger\u2019s Cat)',
+            'pretty_name': 'Fedora 19 (Schrödinger’s Cat)',
             'version': '19',
-            'pretty_version': u'19 (Schr\u00F6dinger\u2019s Cat)',
+            'pretty_version': '19 (Schrödinger’s Cat)',
             'best_version': '19',
-            'codename': u'Schr\u00F6dinger\u2019s Cat'
+            'codename': 'Schrödinger’s Cat'
         }
         self._test_outcome(desired_outcome)
 
@@ -703,11 +704,11 @@ class TestDistroRelease:
         desired_outcome = {
             'id': 'fedora',
             'name': 'Fedora',
-            'pretty_name': u'Fedora 19 (Schr\u00F6dinger\u2019s Cat)',
+            'pretty_name': 'Fedora 19 (Schrödinger’s Cat)',
             'version': '19',
-            'pretty_version': u'19 (Schr\u00F6dinger\u2019s Cat)',
+            'pretty_version': '19 (Schrödinger’s Cat)',
             'best_version': '19',
-            'codename': u'Schr\u00F6dinger\u2019s Cat',
+            'codename': 'Schrödinger’s Cat',
             'major_version': '19'
         }
         self._test_outcome(desired_outcome, 'fedora', '19')
@@ -1078,11 +1079,11 @@ class TestOverall(DistroTestCase):
         desired_outcome = {
             'id': 'fedora',
             'name': 'Fedora',
-            'pretty_name': u'Fedora 19 (Schr\u00F6dinger\u2019s Cat)',
+            'pretty_name': 'Fedora 19 (Schrödinger’s Cat)',
             'version': '19',
-            'pretty_version': u'19 (Schr\u00F6dinger\u2019s Cat)',
+            'pretty_version': '19 (Schrödinger’s Cat)',
             'best_version': '19',
-            'codename': u'Schr\u00F6dinger\u2019s Cat',
+            'codename': 'Schrödinger’s Cat',
             'major_version': '19'
         }
         self._test_outcome(desired_outcome)
@@ -1091,7 +1092,7 @@ class TestOverall(DistroTestCase):
             'id': 'fedora',
             'name': 'Fedora',
             'version_id': '19',
-            'codename': u'Schr\u00F6dinger\u2019s Cat'
+            'codename': 'Schrödinger’s Cat'
         }
         self._test_release_file_info('fedora-release', desired_info)
 
@@ -1618,7 +1619,7 @@ def _bad_os_listdir(path='.'):
     raise OSError()
 
 
-@pytest.mark.skipIf(not IS_LINUX, reason='Irrelevant on non-linx')
+@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestOverallWithEtcNotReadable(TestOverall):
     def setup_method(self, test_method):
         self._old_listdir = os.listdir
@@ -2060,3 +2061,20 @@ class TestRepr:
         assert "LinuxDistribution" in repr_str
         for attr in MODULE_DISTRO.__dict__.keys():
             assert attr + '=' in repr_str
+
+
+@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
+class TestToStr:
+    """Test the _to_str() method.
+    """
+
+    def test_to_str(self):
+        ret = distro.LinuxDistribution._to_str(b'bytes')
+        assert isinstance(ret, str)
+        assert ret == 'bytes'
+
+        ret = distro.LinuxDistribution._to_str(u'bytes')
+        assert isinstance(ret, str)
+
+        ret = distro.LinuxDistribution._to_str('bytes')
+        assert isinstance(ret, str)
