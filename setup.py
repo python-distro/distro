@@ -18,7 +18,7 @@ from setuptools import setup
 
 # The following version is parsed by other parts of this package.
 # Don't change the format of the line, or the variable name.
-package_version = "1.3.0"
+package_version = "1.4.0"
 
 here = os.path.abspath(os.path.dirname(__file__))
 

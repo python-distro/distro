@@ -24,6 +24,8 @@ like a command-line interface.
 
 Distro currently supports Linux and BSD based systems but [Windows and OS X support](https://github.com/nir0s/distro/issues/177) is also planned.
 
+For Python 2.6 support, see https://github.com/nir0s/distro/tree/python2.6-support
+
 ## Installation
 
 Installation of the latest released version from PyPI:

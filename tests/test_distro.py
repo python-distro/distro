@@ -211,6 +211,21 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
+    def test_fedora30_os_release(self):
+        # Fedora 21 and above no longer have code names but the metadata in os-release was only
+        # changed in a detectable way in Fedora 30+.  The piece in parenthesis in the pretty_name
+        # field contains the VARIANT and differs depending on the variant which was installed.
+        desired_outcome = {
+            'id': 'fedora',
+            'name': 'Fedora',
+            'pretty_name': 'Fedora 30 (Thirty)',
+            'version': '30',
+            'pretty_version': '30',
+            'best_version': '30',
+            'codename': ''
+        }
+        self._test_outcome(desired_outcome)
+
     def test_kvmibm1_os_release(self):
         desired_outcome = {
             'id': 'kvmibm',
@@ -341,6 +356,19 @@ class TestOSRelease:
             'best_version': '14.04.3',
             'like': 'debian',
             'codename': 'Trusty Tahr'
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_ubuntu16_os_release(self):
+        desired_outcome = {
+            'id': 'ubuntu',
+            'name': 'Ubuntu',
+            'pretty_name': 'Ubuntu 16.04.1 LTS',
+            'version': '16.04',
+            'pretty_version': '16.04 (xenial)',
+            'best_version': '16.04.1',
+            'like': 'debian',
+            'codename': 'xenial'
         }
         self._test_outcome(desired_outcome)
 
@@ -697,6 +725,19 @@ class TestDistroRelease:
         }
         self._test_outcome(desired_outcome, 'fedora', '23')
 
+    def test_fedora30_dist_release(self):
+        desired_outcome = {
+            'id': 'fedora',
+            'name': 'Fedora',
+            'pretty_name': 'Fedora 30 (Thirty)',
+            'version': '30',
+            'pretty_version': '30 (Thirty)',
+            'best_version': '30',
+            'codename': 'Thirty',
+            'major_version': '30'
+        }
+        self._test_outcome(desired_outcome, 'fedora', '30')
+
     def test_gentoo_dist_release(self):
         desired_outcome = {
             'id': 'gentoo',
@@ -765,12 +806,12 @@ class TestDistroRelease:
         desired_outcome = {
             'id': 'oracle',
             'name': 'Oracle Linux Server',
-            'pretty_name': 'Oracle Linux Server 7.1',
-            'version': '7.1',
-            'pretty_version': '7.1',
-            'best_version': '7.1',
+            'pretty_name': 'Oracle Linux Server 7.5',
+            'version': '7.5',
+            'pretty_version': '7.5',
+            'best_version': '7.5',
             'major_version': '7',
-            'minor_version': '1'
+            'minor_version': '5'
         }
         self._test_outcome(desired_outcome, 'oracle', '7')
 
@@ -836,7 +877,7 @@ class TestDistroRelease:
         # Uses redhat-release only to get information.
         # The id of 'rhel' can only be fixed with issue #109.
         desired_outcome = {
-            'id': 'rhel',
+            'id': 'cloudlinux',
             'codename': 'Vladislav Volkov',
             'name': 'CloudLinux Server',
             'pretty_name': 'CloudLinux Server 5.11 (Vladislav Volkov)',
@@ -851,7 +892,7 @@ class TestDistroRelease:
     def test_cloudlinux6_dist_release(self):
         # Same as above, only has redhat-release.
         desired_outcome = {
-            'id': 'rhel',
+            'id': 'cloudlinux',
             'codename': 'Oleg Makarov',
             'name': 'CloudLinux Server',
             'pretty_name': 'CloudLinux Server 6.8 (Oleg Makarov)',
@@ -865,7 +906,7 @@ class TestDistroRelease:
 
     def test_cloudlinux7_dist_release(self):
         desired_outcome = {
-            'id': 'rhel',
+            'id': 'cloudlinux',
             'codename': 'Yury Malyshev',
             'name': 'CloudLinux',
             'pretty_name': 'CloudLinux 7.3 (Yury Malyshev)',
@@ -1075,6 +1116,27 @@ class TestOverall(DistroTestCase):
         }
         self._test_release_file_info('fedora-release', desired_info)
 
+    def test_fedora30_release(self):
+        desired_outcome = {
+            'id': 'fedora',
+            'name': 'Fedora',
+            'pretty_name': 'Fedora 30 (Thirty)',
+            'version': '30',
+            'pretty_version': '30',
+            'best_version': '30',
+            'codename': '',
+            'major_version': '30'
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            'id': 'fedora',
+            'name': 'Fedora',
+            'version_id': '30',
+            'codename': 'Thirty'
+        }
+        self._test_release_file_info('fedora-release', desired_info)
+
     def test_kvmibm1_release(self):
         desired_outcome = {
             'id': 'kvmibm',
@@ -1183,19 +1245,19 @@ class TestOverall(DistroTestCase):
         desired_outcome = {
             'id': 'oracle',
             'name': 'Oracle Linux Server',
-            'pretty_name': 'Oracle Linux Server 7.1',
-            'version': '7.1',
-            'pretty_version': '7.1',
-            'best_version': '7.1',
+            'pretty_name': 'Oracle Linux Server 7.5',
+            'version': '7.5',
+            'pretty_version': '7.5',
+            'best_version': '7.5',
             'major_version': '7',
-            'minor_version': '1'
+            'minor_version': '5'
         }
         self._test_outcome(desired_outcome)
 
         desired_info = {
             'id': 'oracle',
             'name': 'Oracle Linux Server',
-            'version_id': '7.1',
+            'version_id': '7.5',
         }
         distro_info = self._test_release_file_info(
             'oracle-release', desired_info)
@@ -1362,6 +1424,26 @@ class TestOverall(DistroTestCase):
         # release file:
         self._test_non_existing_release_file()
 
+    def test_ubuntu16_release(self):
+        desired_outcome = {
+            'id': 'ubuntu',
+            'name': 'Ubuntu',
+            'pretty_name': 'Ubuntu 16.04.1 LTS',
+            'version': '16.04',
+            'pretty_version': '16.04 (xenial)',
+            'best_version': '16.04.1',
+            'like': 'debian',
+            'codename': 'xenial',
+            'major_version': '16',
+            'minor_version': '04'
+        }
+        self._test_outcome(desired_outcome)
+
+        # Test the info from the searched distro release file
+        # Does not have one; /etc/debian_version is not considered a distro
+        # release file:
+        self._test_non_existing_release_file()
+
     def test_amazon2016_release(self):
         desired_outcome = {
             'id': 'amzn',
@@ -1486,7 +1568,7 @@ class TestOverall(DistroTestCase):
         # Uses redhat-release only to get information.
         # The id of 'rhel' can only be fixed with issue #109.
         desired_outcome = {
-            'id': 'rhel',
+            'id': 'cloudlinux',
             'codename': 'Vladislav Volkov',
             'name': 'CloudLinux Server',
             'pretty_name': 'CloudLinux Server 5.11 (Vladislav Volkov)',
@@ -1501,7 +1583,7 @@ class TestOverall(DistroTestCase):
     def test_cloudlinux6_release(self):
         # Same as above, only has redhat-release.
         desired_outcome = {
-            'id': 'rhel',
+            'id': 'cloudlinux',
             'codename': 'Oleg Makarov',
             'name': 'CloudLinux Server',
             'pretty_name': 'CloudLinux Server 6.8 (Oleg Makarov)',
@@ -1655,12 +1737,12 @@ class TestInfo(DistroTestCase):
         info = _distro.info(pretty=True, best=True)
         _test_none(info)
 
-    def test_linux_disribution(self):
+    def test_linux_distribution(self):
         _distro = distro.LinuxDistribution(False, self.ubuntu14_os_release)
         i = _distro.linux_distribution()
         assert i == ('Ubuntu', '14.04', 'Trusty Tahr')
 
-    def test_linux_disribution_full_false(self):
+    def test_linux_distribution_full_false(self):
         _distro = distro.LinuxDistribution(False, self.ubuntu14_os_release)
         i = _distro.linux_distribution(full_distribution_name=False)
         assert i == ('ubuntu', '14.04', 'Trusty Tahr')
