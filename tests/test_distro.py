@@ -38,6 +38,7 @@ if IS_LINUX:
     import distro
 
     RELATIVE_UNIXCONFDIR = distro._UNIXCONFDIR[1:]
+    RELATIVE_UNIXLIBSDIR = distro._UNIXLIBSDIR[1:]
     MODULE_DISTRO = distro._distro
 
 
@@ -122,16 +123,18 @@ class DistroTestCase(object):
     represented in the `DISTROS` subtree.
     """
 
-    def setup_method(self, test_method):
+    def setup_method(self, _):
         # The environment stays the same across all testcases, so we
         # save and restore the PATH env var in each test case that
         # changes it:
         self._saved_path = os.environ["PATH"]
         self._saved_UNIXCONFDIR = distro._UNIXCONFDIR
+        self._saved_UNIXLIBSDIR = distro._UNIXLIBSDIR
 
-    def teardown_method(self, test_method):
+    def teardown_method(self, _):
         os.environ["PATH"] = self._saved_path
         distro._UNIXCONFDIR = self._saved_UNIXCONFDIR
+        distro._UNIXLIBSDIR = self._saved_UNIXLIBSDIR
 
     def _setup_for_distro(self, distro_root):
         distro_bin = os.path.join(distro_root, 'bin')
@@ -139,6 +142,7 @@ class DistroTestCase(object):
         # distro that runs this test, so we use a PATH with only one entry:
         os.environ["PATH"] = distro_bin
         distro._UNIXCONFDIR = os.path.join(distro_root, RELATIVE_UNIXCONFDIR)
+        distro._UNIXLIBSDIR = os.path.join(distro_root, RELATIVE_UNIXLIBSDIR)
 
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
@@ -687,7 +691,6 @@ class TestSpecialRelease(DistroTestCase):
     def test_unknowndistro_release(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'distro',
                                             'unknowndistro'))
-
         self.distro = distro.LinuxDistribution()
 
         desired_outcome = {
@@ -711,6 +714,18 @@ class TestSpecialRelease(DistroTestCase):
         assert self.distro.uname_attr('id') == ''
         assert self.distro.uname_attr('name') == ''
         assert self.distro.uname_attr('release') == ''
+
+    def test_usrlibosreleaseonly(self):
+        self._setup_for_distro(os.path.join(TESTDISTROS, 'distro',
+                                            'usrlibosreleaseonly'))
+        self.distro = distro.LinuxDistribution()
+
+        desired_outcome = {
+            'id': 'usrlibosreleaseonly',
+            'name': 'usr_lib_os-release_only',
+            'pretty_name': '/usr/lib/os-release only'
+        }
+        self._test_outcome(desired_outcome)
 
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
@@ -2153,7 +2168,7 @@ class TestRepr:
         repr_str = repr(distro._distro)
         assert "LinuxDistribution" in repr_str
         for attr in MODULE_DISTRO.__dict__.keys():
-            if attr in ('root_dir', 'etc_dir'):
+            if attr in ('root_dir', 'etc_dir', 'usr_lib_dir'):
                 continue
             assert attr + '=' in repr_str
 

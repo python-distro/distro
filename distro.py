@@ -37,8 +37,8 @@ import logging
 import argparse
 import subprocess
 
-
 _UNIXCONFDIR = os.environ.get('UNIXCONFDIR', '/etc')
+_UNIXLIBSDIR = os.environ.get('UNIXLIBSDIR', '/usr/lib')
 _OS_RELEASE_BASENAME = 'os-release'
 
 #: Translation table for normalizing the "ID" attribute defined in os-release
@@ -654,9 +654,10 @@ class LinuxDistribution(object):
         self.root_dir = root_dir
         self.etc_dir = os.path.join(root_dir, 'etc') \
             if root_dir else _UNIXCONFDIR
-        self.os_release_file = os_release_file or \
-            os.path.join(self.etc_dir, _OS_RELEASE_BASENAME)
-        self.distro_release_file = distro_release_file or ''  # updated later
+        self.usr_lib_dir = os.path.join(root_dir, 'usr/lib') \
+            if root_dir else _UNIXLIBSDIR
+        self.os_release_file = os_release_file
+        self.distro_release_file = distro_release_file
         self.include_lsb = include_lsb
         self.include_uname = include_uname
 
@@ -672,8 +673,7 @@ class LinuxDistribution(object):
             "_os_release_info={self._os_release_info!r}, " \
             "_lsb_release_info={self._lsb_release_info!r}, " \
             "_distro_release_info={self._distro_release_info!r}, " \
-            "_uname_info={self._uname_info!r})".format(
-                self=self)
+            "_uname_info={self._uname_info!r})".format(self=self)
 
     def linux_distribution(self, full_distribution_name=True):
         """
@@ -935,9 +935,23 @@ class LinuxDistribution(object):
         Returns:
             A dictionary containing all information items.
         """
-        if os.path.isfile(self.os_release_file):
-            with open(self.os_release_file) as release_file:
+        def _open_and_return_info(release_file_path):
+            """Simple closure to DRY below logic"""
+            with open(release_file_path) as release_file:
                 return self._parse_os_release_content(release_file)
+
+        # If any, try the os-release file specified at instantiation.
+        if self.os_release_file:
+            if os.path.isfile(self.os_release_file):
+                return _open_and_return_info(self.os_release_file)
+        else:
+            # If not, try known "regular" locations of os-release files.
+            for os_release_file_candidate in (
+                    os.path.join(self.etc_dir, _OS_RELEASE_BASENAME),
+                    os.path.join(self.usr_lib_dir, _OS_RELEASE_BASENAME)):
+                if os.path.isfile(os_release_file_candidate):
+                    return _open_and_return_info(os_release_file_candidate)
+
         return {}
 
     @staticmethod
