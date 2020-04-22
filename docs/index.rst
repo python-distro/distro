@@ -184,7 +184,8 @@ Os-release file
 ===============
 
 The os-release file is looked up using the path name ``/etc/os-release``. Its
-optional additional location ``/usr/lib/os-release`` is ignored.
+optional additional location ``/usr/lib/os-release`` would be looked up for if
+the former couldn't be read.
 
 The os-release file is expected to be encoded in UTF-8.
 
