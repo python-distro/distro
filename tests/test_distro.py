@@ -572,6 +572,16 @@ class TestLSBRelease(DistroTestCase):
             'best_version': '11.1'
         })
 
+    def test_midnightbsd12_uname(self):
+        self._test_outcome({
+            'id': 'midnightbsd',
+            'name': 'MidnightBSD',
+            'version': '1.2',
+            'pretty_name': 'MidnightBSD 1.2',
+            'pretty_version': '1.2',
+            'best_version': '1.2'
+        })
+
     def test_ubuntu14normal_lsb_release(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb',
                                             'ubuntu14_normal'))

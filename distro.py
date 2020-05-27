@@ -49,7 +49,7 @@ _OS_RELEASE_BASENAME = 'os-release'
 #:
 #: * Value: Normalized value.
 NORMALIZED_OS_ID = {
-    'ol': 'oracle',  # Oracle Enterprise Linux
+    'ol': 'oracle',  # Oracle Linux
 }
 
 #: Translation table for normalizing the "Distributor ID" attribute returned by
@@ -60,9 +60,11 @@ NORMALIZED_OS_ID = {
 #:
 #: * Value: Normalized value.
 NORMALIZED_LSB_ID = {
-    'enterpriseenterprise': 'oracle',  # Oracle Enterprise Linux
+    'enterpriseenterpriseas': 'oracle',  # Oracle Enterprise Linux 4
+    'enterpriseenterpriseserver': 'oracle',  # Oracle Linux 5
     'redhatenterpriseworkstation': 'rhel',  # RHEL 6, 7 Workstation
     'redhatenterpriseserver': 'rhel',  # RHEL 6, 7 Server
+    'redhatenterprisecomputenode': 'rhel',  # RHEL 6 ComputeNode
 }
 
 #: Translation table for normalizing the distro ID derived from the file name
@@ -164,6 +166,7 @@ def id():
     "openbsd"       OpenBSD
     "netbsd"        NetBSD
     "freebsd"       FreeBSD
+    "midnightbsd"   MidnightBSD
     ==============  =========================================
 
     If you have a need to get distros for reliable IDs added into this set,
