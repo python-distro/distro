@@ -579,7 +579,8 @@ class LinuxDistribution(object):
                  include_lsb=True,
                  os_release_file='',
                  distro_release_file='',
-                 include_uname=True):
+                 include_uname=True,
+                 root_dir=None):
         """
         The initialization method of this class gathers information from the
         available data sources, and stores that in private instance attributes.
@@ -618,6 +619,9 @@ class LinuxDistribution(object):
           the program execution path the data source for the uname command will
           be empty.
 
+        * ``root_dir`` (string): The absolute path to the root directory to use
+          to find distro-related information files.
+
         Public instance attributes:
 
         * ``os_release_file`` (string): The path name of the
@@ -647,8 +651,11 @@ class LinuxDistribution(object):
         * :py:exc:`UnicodeError`: A data source has unexpected characters or
           uses an unexpected encoding.
         """
+        self.root_dir = root_dir
+        self.etc_dir = os.path.join(root_dir, 'etc') \
+            if root_dir else _UNIXCONFDIR
         self.os_release_file = os_release_file or \
-            os.path.join(_UNIXCONFDIR, _OS_RELEASE_BASENAME)
+            os.path.join(self.etc_dir, _OS_RELEASE_BASENAME)
         self.distro_release_file = distro_release_file or ''  # updated later
         self.include_lsb = include_lsb
         self.include_uname = include_uname
@@ -1110,7 +1117,7 @@ class LinuxDistribution(object):
             return distro_info
         else:
             try:
-                basenames = os.listdir(_UNIXCONFDIR)
+                basenames = os.listdir(self.etc_dir)
                 # We sort for repeatability in cases where there are multiple
                 # distro specific files; e.g. CentOS, Oracle, Enterprise all
                 # containing `redhat-release` on top of their own.
@@ -1140,7 +1147,7 @@ class LinuxDistribution(object):
                     continue
                 match = _DISTRO_RELEASE_BASENAME_PATTERN.match(basename)
                 if match:
-                    filepath = os.path.join(_UNIXCONFDIR, basename)
+                    filepath = os.path.join(self.etc_dir, basename)
                     distro_info = self._parse_distro_release_file(filepath)
                     if 'name' in distro_info:
                         # The name is always present if the pattern matches
@@ -1214,15 +1221,31 @@ def main():
         '-j',
         help="Output in machine readable format",
         action="store_true")
+
+    parser.add_argument(
+        '--root-dir',
+        '-r',
+        type=str,
+        dest='root_dir',
+        help="Path to the root filesystem directory (defaults to /)")
+
     args = parser.parse_args()
 
-    if args.json:
-        logger.info(json.dumps(info(), indent=4, sort_keys=True))
+    if args.root_dir:
+        dist = LinuxDistribution(
+            include_lsb=False,
+            include_uname=False,
+            root_dir=args.root_dir)
     else:
-        logger.info('Name: %s', name(pretty=True))
-        distribution_version = version(pretty=True)
+        dist = _distro
+
+    if args.json:
+        logger.info(json.dumps(dist.info(), indent=4, sort_keys=True))
+    else:
+        logger.info('Name: %s', dist.name(pretty=True))
+        distribution_version = dist.version(pretty=True)
         logger.info('Version: %s', distribution_version)
-        distribution_codename = codename()
+        distribution_codename = dist.codename()
         logger.info('Codename: %s', distribution_codename)
 
 
