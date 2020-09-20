@@ -1,3 +1,24 @@
+## 1.5.0 (2020.3.30)
+
+BACKWARD COMPATIBILITY:
+* Keep output as native string so we can compatible with python2 interface [[#248](https://github.com/nir0s/distro/pull/248)]
+
+ENHANCEMENTS:
+
+BUG FIXES:
+* Fix detection of RHEL 6 ComputeNode [[#255](https://github.com/nir0s/distro/issues/255)]
+* Fix Oracle 4/5 lsb_release id and names [[#250](https://github.com/nir0s/distro/pull/250)]
+* Ignore /etc/plesk-release file while parsing distribution [[#246](https://github.com/nir0s/distro/pull/246)]
+
+TESTS:
+* Test on MidnightBSD [[#254](https://github.com/nir0s/distro/issues/254)]
+
+RELEASE:
+* Remove build testing on Python 3.3 and add pypy 3.5 and Python 3.7 and 3.8 [[#244](https://github.com/nir0s/distro/pull/244)]
+* Fix Windows build due to Appveyor not supporting builds on Python 2.7 anymore [[#257](https://github.com/nir0s/distro/pull/257)]
+
+Additionally, The Python2.6 branch was fixed to support distro version 1.4.0. It is now passing all tests. Thanks [abadger](https://github.com/abadger)!
+
 ## 1.4.0 (2019.2.4)
 
 BACKWARD COMPATIBILITY:

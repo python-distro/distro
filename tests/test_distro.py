@@ -1,3 +1,4 @@
+# coding=utf-8
 # Copyright 2015,2016 Nir Cohen
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -71,6 +72,10 @@ class TestCli:
         self._parse('distro')
         self._parse('distro -j')
 
+    def test_cli_can_parse_root_dir_args(self):
+        root_dir = os.path.join(RESOURCES, 'cli', 'fedora30')
+        self._parse('distro --root-dir {}'.format(root_dir))
+
     def test_cli(self):
         command = [sys.executable, '-m', 'distro']
         desired_output = 'Name: ' + distro.name(pretty=True)
@@ -84,6 +89,31 @@ class TestCli:
     def test_cli_json(self):
         command = [sys.executable, '-m', 'distro', '-j']
         assert ast.literal_eval(self._run(command)) == distro.info()
+
+    def test_cli_with_root_dir(self):
+        root_dir = os.path.join(RESOURCES, 'cli', 'fedora30')
+        command = [sys.executable, '-m', 'distro', '--root-dir', root_dir]
+        desired_output = 'Name: Fedora 30 (Thirty)\nVersion: 30\nCodename: \n'
+        assert desired_output == self._run(command)
+
+    def test_cli_with_root_dir_as_json(self):
+        import json
+        root_dir = os.path.join(RESOURCES, 'cli', 'fedora30')
+        command = [sys.executable, '-m', 'distro', '-j', '--root-dir', root_dir]
+        desired_output = {
+            'codename': '',
+            'id': 'fedora',
+            'like': '',
+            'version': '30',
+            'version_parts': {
+                'build_number': '',
+                'major': '30',
+                'minor': '',
+            }
+        }
+
+        results = json.loads(self._run(command))
+        assert desired_output == results
 
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
@@ -117,7 +147,10 @@ class TestOSRelease:
     def setup_method(self, test_method):
         dist = test_method.__name__.split('_')[1]
         os_release = os.path.join(DISTROS_DIR, dist, 'etc', 'os-release')
-        self.distro = distro.LinuxDistribution(False, os_release, 'non')
+        self.distro = distro.LinuxDistribution(
+            include_lsb=False,
+            os_release_file=os_release,
+            distro_release_file='path-to-non-existing-file')
 
     def _test_outcome(self, outcome):
         assert self.distro.id() == outcome.get('id', '')
@@ -191,11 +224,11 @@ class TestOSRelease:
         desired_outcome = {
             'id': 'fedora',
             'name': 'Fedora',
-            'pretty_name': u'Fedora 19 (Schr\u00F6dinger\u2019s Cat)',
+            'pretty_name': 'Fedora 19 (Schrödinger’s Cat)',
             'version': '19',
-            'pretty_version': u'19 (Schr\u00F6dinger\u2019s Cat)',
+            'pretty_version': '19 (Schrödinger’s Cat)',
             'best_version': '19',
-            'codename': u'Schr\u00F6dinger\u2019s Cat'
+            'codename': 'Schrödinger’s Cat'
         }
         self._test_outcome(desired_outcome)
 
@@ -432,6 +465,22 @@ class TestOSRelease:
         self._test_outcome(desired_outcome)
 
 
+class TestWithRootDir(TestOSRelease):
+    """Test that a LinuxDistribution can be created using an arbitrary root_dir
+    on all OSes.
+    """
+
+    def setup_method(self, test_method):
+        dist = test_method.__name__.split('_')[1]
+        root_dir = os.path.join(DISTROS_DIR, dist)
+        self.distro = distro.LinuxDistribution(
+            include_lsb=False,
+            os_release_file='',
+            distro_release_file='path-to-non-existing-file',
+            include_uname=False,
+            root_dir=root_dir)
+
+
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestLSBRelease(DistroTestCase):
 
@@ -439,7 +488,10 @@ class TestLSBRelease(DistroTestCase):
         super(TestLSBRelease, self).setup_method(test_method)
         dist = test_method.__name__.split('_')[1]
         self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
-        self.distro = distro.LinuxDistribution(True, 'non', 'non')
+        self.distro = distro.LinuxDistribution(
+            include_lsb=True,
+            os_release_file='path-to-non-existing-file',
+            distro_release_file='path-to-non-existing-file')
 
     def _test_outcome(self, outcome):
         assert self.distro.id() == outcome.get('id', '')
@@ -520,11 +572,24 @@ class TestLSBRelease(DistroTestCase):
             'best_version': '11.1'
         })
 
+    def test_midnightbsd12_uname(self):
+        self._test_outcome({
+            'id': 'midnightbsd',
+            'name': 'MidnightBSD',
+            'version': '1.2',
+            'pretty_name': 'MidnightBSD 1.2',
+            'pretty_version': '1.2',
+            'best_version': '1.2'
+        })
+
     def test_ubuntu14normal_lsb_release(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb',
                                             'ubuntu14_normal'))
 
-        self.distro = distro.LinuxDistribution(True, 'non', 'non')
+        self.distro = distro.LinuxDistribution(
+            include_lsb=True,
+            os_release_file='path-to-non-existing-file',
+            distro_release_file='path-to-non-existing-file')
 
         desired_outcome = {
             'id': 'ubuntu',
@@ -541,7 +606,10 @@ class TestLSBRelease(DistroTestCase):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb',
                                             'ubuntu14_nomodules'))
 
-        self.distro = distro.LinuxDistribution(True, 'non', 'non')
+        self.distro = distro.LinuxDistribution(
+            include_lsb=True,
+            os_release_file='path-to-non-existing-file',
+            distro_release_file='path-to-non-existing-file')
 
         desired_outcome = {
             'id': 'ubuntu',
@@ -558,7 +626,10 @@ class TestLSBRelease(DistroTestCase):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'lsb',
                                             'ubuntu14_trailingblanks'))
 
-        self.distro = distro.LinuxDistribution(True, 'non', 'non')
+        self.distro = distro.LinuxDistribution(
+            include_lsb=True,
+            os_release_file='path-to-non-existing-file',
+            distro_release_file='path-to-non-existing-file')
 
         desired_outcome = {
             'id': 'ubuntu',
@@ -576,7 +647,10 @@ class TestLSBRelease(DistroTestCase):
         self._setup_for_distro(os.path.join(
             TESTDISTROS, 'lsb', 'lsb_rc{0}'.format(errnum)))
         with pytest.raises(subprocess.CalledProcessError) as excinfo:
-            distro.LinuxDistribution(True, 'non', 'non')._lsb_release_info
+            distro.LinuxDistribution(
+                include_lsb=True,
+                os_release_file='path-to-non-existing-file',
+                distro_release_file='path-to-non-existing-file')._lsb_release_info
         assert excinfo.value.returncode == int(errnum)
 
 
@@ -599,7 +673,11 @@ class TestSpecialRelease(DistroTestCase):
 
     def test_empty_release(self):
         distro_release = os.path.join(SPECIAL, 'empty-release')
-        self.distro = distro.LinuxDistribution(False, 'non', distro_release)
+
+        self.distro = distro.LinuxDistribution(
+            include_lsb=False,
+            os_release_file='path-to-non-existing-file',
+            distro_release_file=distro_release)
 
         desired_outcome = {
             'id': 'empty'
@@ -648,7 +726,10 @@ class TestDistroRelease:
         distro_release = os.path.join(
             DISTROS_DIR, distro_name + version, 'etc', '{0}-{1}'.format(
                 release_file_id, release_file_suffix))
-        self.distro = distro.LinuxDistribution(False, 'non', distro_release)
+        self.distro = distro.LinuxDistribution(
+            include_lsb=False,
+            os_release_file='path-to-non-existing-file',
+            distro_release_file=distro_release)
 
         assert self.distro.id() == outcome.get('id', '')
         assert self.distro.name() == outcome.get('name', '')
@@ -703,11 +784,11 @@ class TestDistroRelease:
         desired_outcome = {
             'id': 'fedora',
             'name': 'Fedora',
-            'pretty_name': u'Fedora 19 (Schr\u00F6dinger\u2019s Cat)',
+            'pretty_name': 'Fedora 19 (Schrödinger’s Cat)',
             'version': '19',
-            'pretty_version': u'19 (Schr\u00F6dinger\u2019s Cat)',
+            'pretty_version': '19 (Schrödinger’s Cat)',
             'best_version': '19',
-            'codename': u'Schr\u00F6dinger\u2019s Cat',
+            'codename': 'Schrödinger’s Cat',
             'major_version': '19'
         }
         self._test_outcome(desired_outcome, 'fedora', '19')
@@ -1078,11 +1159,11 @@ class TestOverall(DistroTestCase):
         desired_outcome = {
             'id': 'fedora',
             'name': 'Fedora',
-            'pretty_name': u'Fedora 19 (Schr\u00F6dinger\u2019s Cat)',
+            'pretty_name': 'Fedora 19 (Schrödinger’s Cat)',
             'version': '19',
-            'pretty_version': u'19 (Schr\u00F6dinger\u2019s Cat)',
+            'pretty_version': '19 (Schrödinger’s Cat)',
             'best_version': '19',
-            'codename': u'Schr\u00F6dinger\u2019s Cat',
+            'codename': 'Schrödinger’s Cat',
             'major_version': '19'
         }
         self._test_outcome(desired_outcome)
@@ -1091,7 +1172,7 @@ class TestOverall(DistroTestCase):
             'id': 'fedora',
             'name': 'Fedora',
             'version_id': '19',
-            'codename': u'Schr\u00F6dinger\u2019s Cat'
+            'codename': 'Schrödinger’s Cat'
         }
         self._test_release_file_info('fedora-release', desired_info)
 
@@ -1618,7 +1699,7 @@ def _bad_os_listdir(path='.'):
     raise OSError()
 
 
-@pytest.mark.skipIf(not IS_LINUX, reason='Irrelevant on non-linx')
+@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
 class TestOverallWithEtcNotReadable(TestOverall):
     def setup_method(self, test_method):
         self._old_listdir = os.listdir
@@ -1669,7 +1750,9 @@ class TestInfo(DistroTestCase):
 
     def test_info(self):
         _distro = distro.LinuxDistribution(
-            False, self.ubuntu14_os_release, 'non')
+            include_lsb=False,
+            os_release_file=self.ubuntu14_os_release,
+            distro_release_file='path-to-non-existing-file')
 
         desired_info = {
             'id': 'ubuntu',
@@ -1723,7 +1806,10 @@ class TestInfo(DistroTestCase):
             assert info['version_parts']['build_number'] == ''
             assert info['codename'] == ''
 
-        _distro = distro.LinuxDistribution(False, 'non', 'non')
+        _distro = distro.LinuxDistribution(
+            include_lsb=False,
+            os_release_file='path-to-non-existing-file',
+            distro_release_file='path-to-non-existing-file')
 
         info = _distro.info()
         _test_none(info)
@@ -1738,12 +1824,16 @@ class TestInfo(DistroTestCase):
         _test_none(info)
 
     def test_linux_distribution(self):
-        _distro = distro.LinuxDistribution(False, self.ubuntu14_os_release)
+        _distro = distro.LinuxDistribution(
+            include_lsb=False,
+            os_release_file=self.ubuntu14_os_release)
         i = _distro.linux_distribution()
         assert i == ('Ubuntu', '14.04', 'Trusty Tahr')
 
     def test_linux_distribution_full_false(self):
-        _distro = distro.LinuxDistribution(False, self.ubuntu14_os_release)
+        _distro = distro.LinuxDistribution(
+            include_lsb=False,
+            os_release_file=self.ubuntu14_os_release)
         i = _distro.linux_distribution(full_distribution_name=False)
         assert i == ('ubuntu', '14.04', 'Trusty Tahr')
 
@@ -1789,7 +1879,11 @@ class TestOSReleaseParsing:
     """
 
     def setup_method(self, test_method):
-        self.distro = distro.LinuxDistribution(False, None, None)
+        self.distro = distro.LinuxDistribution(
+            include_lsb=False,
+            os_release_file=None,
+            distro_release_file=None)
+
         self.distro.debug = True
 
     def _get_props(self, input):
@@ -2059,4 +2153,23 @@ class TestRepr:
         repr_str = repr(distro._distro)
         assert "LinuxDistribution" in repr_str
         for attr in MODULE_DISTRO.__dict__.keys():
+            if attr in ('root_dir', 'etc_dir'):
+                continue
             assert attr + '=' in repr_str
+
+
+@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
+class TestToStr:
+    """Test the _to_str() method.
+    """
+
+    def test_to_str(self):
+        ret = distro.LinuxDistribution._to_str(b'bytes')
+        assert isinstance(ret, str)
+        assert ret == 'bytes'
+
+        ret = distro.LinuxDistribution._to_str(u'bytes')
+        assert isinstance(ret, str)
+
+        ret = distro.LinuxDistribution._to_str('bytes')
+        assert isinstance(ret, str)

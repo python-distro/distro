@@ -1,8 +1,8 @@
 environment:
   matrix:
-    - PYTHON: C:\Python27
-      PYTHON_VERSION: 2.7.8
-      PYTHON_ARCH: 32
+    - PYTHON: C:\Python38
+      PYTHON_VERSION: 3.8
+      PYTHON_ARCH: 64
 
 install:
 
@@ -10,8 +10,8 @@ install:
   # Change Python Registry
   #################################
 
-  - reg ADD HKCU\Software\Python\PythonCore\2.7\InstallPath /ve /d "C:\Python27" /t REG_SZ /f
-  - reg ADD HKLM\Software\Python\PythonCore\2.7\InstallPath /ve /d "C:\Python27" /t REG_SZ /f
+  - reg ADD HKCU\Software\Python\PythonCore\2.8\InstallPath /ve /d "C:\Python38" /t REG_SZ /f
+  - reg ADD HKLM\Software\Python\PythonCore\2.8\InstallPath /ve /d "C:\Python38" /t REG_SZ /f
 
   #################################
   # Installing Inno Setup

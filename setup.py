@@ -1,4 +1,4 @@
-# Copyright 2015,2016 Nir Cohen
+# Copyright 2015-2020 Nir Cohen
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ from setuptools import setup
 
 # The following version is parsed by other parts of this package.
 # Don't change the format of the line, or the variable name.
-package_version = "1.4.0"
+package_version = "1.5.0"
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -53,6 +53,7 @@ setup(
         'Operating System :: POSIX :: Linux',
         'Operating System :: POSIX :: BSD',
         'Operating System :: POSIX :: BSD :: FreeBSD',
+        'Operating System :: POSIX :: BSD :: MidnightBSD',
         'Operating System :: POSIX :: BSD :: NetBSD',
         'Operating System :: POSIX :: BSD :: OpenBSD',
         'Programming Language :: Python :: 2',
@@ -61,6 +62,8 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: System :: Operating System',
     ]
