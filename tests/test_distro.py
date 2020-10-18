@@ -2173,3 +2173,31 @@ class TestToStr:
 
         ret = distro.LinuxDistribution._to_str('bytes')
         assert isinstance(ret, str)
+
+
+@pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
+class TestVersionOptions:
+    """
+    Test the pretty_version and best_version options for
+    distro.linux_distribution().
+    """
+    def _linux_distribution(self, pretty_version=False, best_version=False):
+        cent7_etc = os.path.join(DISTROS_DIR, 'centos7', 'etc')
+        _distro = distro.LinuxDistribution(
+            os_release_file=os.path.join(cent7_etc, 'os-release'),
+            distro_release_file=os.path.join(cent7_etc, 'centos-release'),
+        )
+        return _distro.linux_distribution(pretty_version=pretty_version,
+                                          best_version=best_version)
+
+    def test_pretty_version(self):
+        ret = self._linux_distribution(pretty_version=True)
+        assert ret == ('CentOS Linux', '7 (Core)', 'Core')
+
+    def test_best_version(self):
+        ret = self._linux_distribution(best_version=True)
+        assert ret == ('CentOS Linux', '7.1.1503', 'Core')
+
+    def test_pretty_best_version(self):
+        ret = self._linux_distribution(pretty_version=True, best_version=True)
+        assert ret == ('CentOS Linux', '7.1.1503 (Core)', 'Core')

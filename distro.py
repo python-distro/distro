@@ -97,7 +97,9 @@ _DISTRO_RELEASE_IGNORE_BASENAMES = (
 )
 
 
-def linux_distribution(full_distribution_name=True):
+def linux_distribution(full_distribution_name=True,
+                       pretty_version=False,
+                       best_version=False):
     """
     Return information about the current OS distribution as a tuple
     ``(id_name, version, codename)`` with items as follows:
@@ -105,7 +107,12 @@ def linux_distribution(full_distribution_name=True):
     * ``id_name``:  If *full_distribution_name* is false, the result of
       :func:`distro.id`. Otherwise, the result of :func:`distro.name`.
 
-    * ``version``:  The result of :func:`distro.version`.
+    * ``version``:  The result of :func:`distro.version`. If *pretty_version*
+      is true, the version will contain the codename of the distro in
+      parenthesis, if a release codename can be found for the distro. If
+      best_version is true, the most precise version out of all examined
+      sources (``/etc/os-release``, ``/etc/lsb-release``,
+      ``/etc/<distro>-release``, etc.) will be chosen.
 
     * ``codename``:  The result of :func:`distro.codename`.
 
@@ -122,7 +129,9 @@ def linux_distribution(full_distribution_name=True):
     method normalizes the distro ID string to a reliable machine-readable value
     for a number of popular OS distributions.
     """
-    return _distro.linux_distribution(full_distribution_name)
+    return _distro.linux_distribution(full_distribution_name,
+                                      pretty_version,
+                                      best_version)
 
 
 def id():
@@ -675,7 +684,10 @@ class LinuxDistribution(object):
             "_uname_info={self._uname_info!r})".format(
                 self=self)
 
-    def linux_distribution(self, full_distribution_name=True):
+    def linux_distribution(self,
+                           full_distribution_name=True,
+                           pretty_version=False,
+                           best_version=False):
         """
         Return information about the OS distribution that is compatible
         with Python's :func:`platform.linux_distribution`, supporting a subset
@@ -685,7 +697,7 @@ class LinuxDistribution(object):
         """
         return (
             self.name() if full_distribution_name else self.id(),
-            self.version(),
+            self.version(pretty=pretty_version, best=best_version),
             self.codename()
         )
 

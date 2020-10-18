@@ -65,8 +65,16 @@ $ distro -j
 
 $ python
 >>> import distro
+>>> distro.linux_distribution()
+('CentOS Linux', '7', 'Core')
 >>> distro.linux_distribution(full_distribution_name=False)
-('centos', '7.1.1503', 'Core')
+('centos', '7', 'Core')
+>>> distro.linux_distribution(pretty_version=True)
+('CentOS Linux', '7 (Core)', 'Core')
+>>> distro.linux_distribution(best_version=True)
+('CentOS Linux', '7.7.1908', 'Core')
+>>> distro.linux_distribution(pretty_version=True, best_version=True)
+('CentOS Linux', '7.7.1908 (Core)', 'Core')
 ```
 
 
