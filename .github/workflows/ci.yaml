@@ -16,6 +16,8 @@ jobs:
             toxenv: flake8
           - python: 3.8
             toxenv: py3flake8
+          - python: 3.8
+            toxenv: mypy
 
     steps:
       - uses: actions/checkout@v2
