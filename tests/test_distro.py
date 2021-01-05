@@ -123,7 +123,7 @@ class DistroTestCase(object):
     represented in the `DISTROS` subtree.
     """
 
-    def setup_method(self, _):
+    def setup_method(self, test_method):
         # The environment stays the same across all testcases, so we
         # save and restore the PATH env var in each test case that
         # changes it:
@@ -131,7 +131,7 @@ class DistroTestCase(object):
         self._saved_UNIXCONFDIR = distro._UNIXCONFDIR
         self._saved_UNIXLIBSDIR = distro._UNIXLIBSDIR
 
-    def teardown_method(self, _):
+    def teardown_method(self, test_method):
         os.environ["PATH"] = self._saved_path
         distro._UNIXCONFDIR = self._saved_UNIXCONFDIR
         distro._UNIXLIBSDIR = self._saved_UNIXLIBSDIR
@@ -691,6 +691,7 @@ class TestSpecialRelease(DistroTestCase):
     def test_unknowndistro_release(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, 'distro',
                                             'unknowndistro'))
+
         self.distro = distro.LinuxDistribution()
 
         desired_outcome = {

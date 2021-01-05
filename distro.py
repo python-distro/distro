@@ -673,7 +673,8 @@ class LinuxDistribution(object):
             "_os_release_info={self._os_release_info!r}, " \
             "_lsb_release_info={self._lsb_release_info!r}, " \
             "_distro_release_info={self._distro_release_info!r}, " \
-            "_uname_info={self._uname_info!r})".format(self=self)
+            "_uname_info={self._uname_info!r})".format(
+                self=self)
 
     def linux_distribution(self, full_distribution_name=True):
         """
