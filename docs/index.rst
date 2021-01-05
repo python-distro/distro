@@ -32,7 +32,7 @@ If you want to add test data for more distributions, please
 create an issue in the `distro issue tracker`_
 and provide the following information in the issue:
 
-* The content of the `/etc/os-release` file, if any.
+* The os-release file `/etc/os-release` if present, with a fall-back on `/usr/lib/os-release` if needed.
 * The file names and content of the `/etc/*release` and `/etc/*version` files, if any.
 * The output of the command: `lsb_release -a`, if available.
 * The file names and content of any other files you are aware of that provide
