@@ -38,7 +38,7 @@ import argparse
 import subprocess
 
 _UNIXCONFDIR = os.environ.get('UNIXCONFDIR', '/etc')
-_UNIXLIBSDIR = os.environ.get('UNIXLIBSDIR', '/usr/lib')
+_UNIXUSRLIBDIR = os.environ.get('UNIXUSRLIBDIR', '/usr/lib')
 _OS_RELEASE_BASENAME = 'os-release'
 
 #: Translation table for normalizing the "ID" attribute defined in os-release
@@ -655,7 +655,7 @@ class LinuxDistribution(object):
         self.etc_dir = os.path.join(root_dir, 'etc') \
             if root_dir else _UNIXCONFDIR
         self.usr_lib_dir = os.path.join(root_dir, 'usr/lib') \
-            if root_dir else _UNIXLIBSDIR
+            if root_dir else _UNIXUSRLIBDIR
         self.os_release_file = os_release_file
         self.distro_release_file = distro_release_file
         self.include_lsb = include_lsb

@@ -38,7 +38,7 @@ if IS_LINUX:
     import distro
 
     RELATIVE_UNIXCONFDIR = distro._UNIXCONFDIR[1:]
-    RELATIVE_UNIXLIBSDIR = distro._UNIXLIBSDIR[1:]
+    RELATIVE_UNIXUSRLIBDIR = distro._UNIXUSRLIBDIR[1:]
     MODULE_DISTRO = distro._distro
 
 
@@ -129,12 +129,12 @@ class DistroTestCase(object):
         # changes it:
         self._saved_path = os.environ["PATH"]
         self._saved_UNIXCONFDIR = distro._UNIXCONFDIR
-        self._saved_UNIXLIBSDIR = distro._UNIXLIBSDIR
+        self._saved_UNIXUSRLIBDIR = distro._UNIXUSRLIBDIR
 
     def teardown_method(self, test_method):
         os.environ["PATH"] = self._saved_path
         distro._UNIXCONFDIR = self._saved_UNIXCONFDIR
-        distro._UNIXLIBSDIR = self._saved_UNIXLIBSDIR
+        distro._UNIXUSRLIBDIR = self._saved_UNIXUSRLIBDIR
 
     def _setup_for_distro(self, distro_root):
         distro_bin = os.path.join(distro_root, 'bin')
@@ -142,7 +142,7 @@ class DistroTestCase(object):
         # distro that runs this test, so we use a PATH with only one entry:
         os.environ["PATH"] = distro_bin
         distro._UNIXCONFDIR = os.path.join(distro_root, RELATIVE_UNIXCONFDIR)
-        distro._UNIXLIBSDIR = os.path.join(distro_root, RELATIVE_UNIXLIBSDIR)
+        distro._UNIXUSRLIBDIR = os.path.join(distro_root, RELATIVE_UNIXUSRLIBDIR)
 
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
