@@ -676,7 +676,7 @@ class LinuxDistribution(object):
             else:
                 self.os_release_file = usr_lib_os_release_file
 
-        self.distro_release_file = distro_release_file
+        self.distro_release_file = distro_release_file or ''  # updated later
         self.include_lsb = include_lsb
         self.include_uname = include_uname
 
@@ -956,8 +956,8 @@ class LinuxDistribution(object):
             A dictionary containing all information items.
         """
         if os.path.isfile(self.os_release_file):
-            with open(self.os_release_file) as f_os_release_file:
-                return self._parse_os_release_content(f_os_release_file)
+            with open(self.os_release_file) as release_file:
+                return self._parse_os_release_content(release_file)
 
         return {}
 
