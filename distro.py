@@ -958,7 +958,6 @@ class LinuxDistribution(object):
         if os.path.isfile(self.os_release_file):
             with open(self.os_release_file) as release_file:
                 return self._parse_os_release_content(release_file)
-
         return {}
 
     @staticmethod
