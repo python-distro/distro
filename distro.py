@@ -656,7 +656,25 @@ class LinuxDistribution(object):
             if root_dir else _UNIXCONFDIR
         self.usr_lib_dir = os.path.join(root_dir, 'usr/lib') \
             if root_dir else _UNIXUSRLIBDIR
-        self.os_release_file = os_release_file
+
+        if os_release_file:
+            self.os_release_file = os_release_file
+        else:
+            etc_dir_os_release_file = os.path.join(
+                self.etc_dir, _OS_RELEASE_BASENAME
+            )
+            usr_lib_os_release_file = os.path.join(
+                self.usr_lib_dir, _OS_RELEASE_BASENAME
+            )
+
+            # NOTE: The idea is to respect order **and** have it set
+            #       at all times for API backwards compatibility.
+            if os.path.isfile(etc_dir_os_release_file) \
+                    or not os.path.isfile(usr_lib_os_release_file):
+                self.os_release_file = etc_dir_os_release_file
+            else:
+                self.os_release_file = usr_lib_os_release_file
+
         self.distro_release_file = distro_release_file
         self.include_lsb = include_lsb
         self.include_uname = include_uname
@@ -936,22 +954,9 @@ class LinuxDistribution(object):
         Returns:
             A dictionary containing all information items.
         """
-        def _open_and_return_info(release_file_path):
-            """Simple closure to DRY below logic"""
-            with open(release_file_path) as release_file:
-                return self._parse_os_release_content(release_file)
-
-        # If any, try the os-release file specified at instantiation.
-        if self.os_release_file:
-            if os.path.isfile(self.os_release_file):
-                return _open_and_return_info(self.os_release_file)
-        else:
-            # If not, try known "regular" locations of os-release files.
-            for os_release_file_candidate in (
-                    os.path.join(self.etc_dir, _OS_RELEASE_BASENAME),
-                    os.path.join(self.usr_lib_dir, _OS_RELEASE_BASENAME)):
-                if os.path.isfile(os_release_file_candidate):
-                    return _open_and_return_info(os_release_file_candidate)
+        if os.path.isfile(self.os_release_file):
+            with open(self.os_release_file) as f_os_release_file:
+                return self._parse_os_release_content(f_os_release_file)
 
         return {}
 
