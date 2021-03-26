@@ -650,12 +650,13 @@ class TestLSBRelease(DistroTestCase):
     def test_lsb_release_error_level(self, errnum):
         self._setup_for_distro(os.path.join(
             TESTDISTROS, 'lsb', 'lsb_rc{0}'.format(errnum)))
-        with pytest.raises(subprocess.CalledProcessError) as excinfo:
-            distro.LinuxDistribution(
-                include_lsb=True,
-                os_release_file='path-to-non-existing-file',
-                distro_release_file='path-to-non-existing-file')._lsb_release_info
-        assert excinfo.value.returncode == int(errnum)
+
+        lsb_release_info = distro.LinuxDistribution(
+            include_lsb=True,
+            os_release_file='path-to-non-existing-file',
+            distro_release_file='path-to-non-existing-file')._lsb_release_info
+
+        assert lsb_release_info == {}
 
 
 @pytest.mark.skipif(not IS_LINUX, reason='Irrelevant on non-linux')
