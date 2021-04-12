@@ -45,7 +45,7 @@ _OS_RELEASE_BASENAME = 'os-release'
 #: files, for use by the :func:`distro.id` method.
 #:
 #: * Key: Value as defined in the os-release file, translated to lower case,
-#:   with blanks translated to underscores.
+#:   with blanks translated to underscores. 
 #:
 #: * Value: Normalized value.
 NORMALIZED_OS_ID = {
