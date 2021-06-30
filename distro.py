@@ -1178,7 +1178,7 @@ class LinuxDistribution(object):
         except (OSError, IOError):
             # Ignore not being able to read a specific, seemingly version
             # related file.
-            # See https://github.com/nir0s/distro/issues/162
+            # See https://github.com/python-distro/distro/issues/162
             return {}
 
     @staticmethod

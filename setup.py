@@ -31,7 +31,7 @@ def read(*parts):
 setup(
     name='distro',
     version=package_version,
-    url='https://github.com/nir0s/distro',
+    url='https://github.com/python-distro/distro',
     author='Nir Cohen',
     author_email='nir36g@gmail.com',
     license='Apache License, Version 2.0',
