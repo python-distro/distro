@@ -12,12 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     environment: Deploy
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
         with:
           ref: ${{ github.event.inputs.tag }}
       - uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version: 3.x
       - shell: bash
         run: |
           python -m pip install --disable-pip-version-check -U pip
