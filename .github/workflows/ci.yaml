@@ -17,6 +17,8 @@ jobs:
           - python: 3.x
             toxenv: py3flake8
           - python: 3.x
+            toxenv: isort
+          - python: 3.x
             toxenv: mypy
 
     steps:

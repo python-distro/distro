@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import codecs
+import os
+
 from setuptools import setup
 
 # The following version is parsed by other parts of this package.

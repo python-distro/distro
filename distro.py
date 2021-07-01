@@ -28,14 +28,14 @@ is needed. See `Python issue 1322 <https://bugs.python.org/issue1322>`_ for
 more information.
 """
 
+import argparse
+import json
+import logging
 import os
 import re
-import sys
-import json
 import shlex
-import logging
-import argparse
 import subprocess
+import sys
 
 # Use `if False` to avoid an ImportError on Python 2. After dropping Python 2
 # support, can use typing.TYPE_CHECKING instead. See:

@@ -13,17 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import sys
 import ast
+import os
 import subprocess
+import sys
+
 try:
     from StringIO import StringIO  # Python 2.x
 except ImportError:
     from io import StringIO  # Python 3.x
 
 import pytest
-
 
 BASE = os.path.abspath(os.path.dirname(__file__))
 RESOURCES = os.path.join(BASE, 'resources')
