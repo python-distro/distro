@@ -1,7 +1,7 @@
 
-.. _distro official repo: https://github.com/nir0s/distro
-.. _distro issue tracker: https://github.com/nir0s/distro/issues
-.. _open issues on missing test data: https://github.com/nir0s/distro/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22>
+.. _distro official repo: https://github.com/python-distro/distro
+.. _distro issue tracker: https://github.com/python-distro/distro/issues
+.. _open issues on missing test data: https://github.com/python-distro/distro/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22>
 
 
 **distro** package (Linux Distribution) version |version|
@@ -26,7 +26,7 @@ used by this package.
 
 This package is tested on Python 2.7, 3.4+ and PyPy, with test data that
 mimics the exact behavior of the data sources of
-`a number of Linux distributions <https://github.com/nir0s/distro/tree/master/tests/resources/distros>`_.
+`a number of Linux distributions <https://github.com/python-distro/distro/tree/master/tests/resources/distros>`_.
 
 If you want to add test data for more distributions, please
 create an issue in the `distro issue tracker`_

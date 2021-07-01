@@ -1,16 +1,15 @@
 Distro - an OS platform information API
 =======================================
 
-[![Build Status](https://travis-ci.org/nir0s/distro.svg?branch=master)](https://travis-ci.org/nir0s/distro)
-[![Build status](https://ci.appveyor.com/api/projects/status/e812qjk1gf0f74r5/branch/master?svg=true)](https://ci.appveyor.com/project/nir0s/distro/branch/master)
+[![CI Status](https://github.com/python-distro/distro/workflows/CI/badge.svg)](https://github.com/python-distro/distro/actions/workflows/ci.yaml)
 [![PyPI version](http://img.shields.io/pypi/v/distro.svg)](https://pypi.python.org/pypi/distro)
 [![Supported Python Versions](https://img.shields.io/pypi/pyversions/distro.svg)](https://img.shields.io/pypi/pyversions/distro.svg)
-[![Requirements Status](https://requires.io/github/nir0s/distro/requirements.svg?branch=master)](https://requires.io/github/nir0s/distro/requirements/?branch=master)
-[![Code Coverage](https://codecov.io/github/nir0s/distro/coverage.svg?branch=master)](https://codecov.io/github/nir0s/distro?branch=master)
-[![Code Quality](https://landscape.io/github/nir0s/distro/master/landscape.svg?style=flat)](https://landscape.io/github/nir0s/distro)
+[![Requirements Status](https://requires.io/github/python-distro/distro/requirements.svg?branch=master)](https://requires.io/github/python-distro/distro/requirements/?branch=master)
+[![Code Coverage](https://codecov.io/github/python-distro/distro/coverage.svg?branch=master)](https://codecov.io/github/python-distro/distro?branch=master)
+[![Code Quality](https://landscape.io/github/python-distro/distro/master/landscape.svg?style=flat)](https://landscape.io/github/python-distro/distro)
 [![Is Wheel](https://img.shields.io/pypi/wheel/distro.svg?style=flat)](https://pypi.python.org/pypi/distro)
 [![Latest Github Release](https://readthedocs.org/projects/distro/badge/?version=stable)](http://distro.readthedocs.io/en/latest/)
-[![Join the chat at https://gitter.im/nir0s/distro](https://badges.gitter.im/nir0s/distro.svg)](https://gitter.im/nir0s/distro?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/python-distro/distro](https://badges.gitter.im/python-distro/distro.svg)](https://gitter.im/python-distro/distro?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 `distro` provides information about the
 OS distribution it runs on, such as a reliable machine-readable ID, or
@@ -18,13 +17,12 @@ version information.
 
 It is the recommended replacement for Python's original
 [`platform.linux_distribution`](https://docs.python.org/3.7/library/platform.html#platform.linux_distribution)
-function (which will be removed in Python 3.8).
-It also provides much more functionality which isn't necessarily Python bound,
-like a command-line interface.
+function (removed in Python 3.8). It also provides much more functionality
+which isn't necessarily Python bound, like a command-line interface.
 
-Distro currently supports Linux and BSD based systems but [Windows and OS X support](https://github.com/nir0s/distro/issues/177) is also planned.
+Distro currently supports Linux and BSD based systems but [Windows and OS X support](https://github.com/python-distro/distro/issues/177) is also planned.
 
-For Python 2.6 support, see https://github.com/nir0s/distro/tree/python2.6-support
+For Python 2.6 support, see https://github.com/python-distro/distro/tree/python2.6-support
 
 ## Installation
 
@@ -37,7 +35,7 @@ pip install distro
 Installation of the latest development version:
 
 ```shell
-pip install https://github.com/nir0s/distro/archive/master.tar.gz
+pip install https://github.com/python-distro/distro/archive/master.tar.gz
 ```
 
 
@@ -78,10 +76,9 @@ API, see the [latest API documentation](http://distro.readthedocs.org/en/latest/
 ## Background
 
 An alternative implementation became necessary because Python 3.5 deprecated
-this function, and Python 3.8 will remove it altogether.
-Its predecessor function `platform.dist` was already deprecated since
-Python 2.6 and will also be removed in Python 3.8.
-Still, there are many cases in which access to that information is needed.
+this function, and Python 3.8 removed it altogether. Its predecessor function
+`platform.dist` was already deprecated since Python 2.6 and removed in Python
+3.8. Still, there are many cases in which access to that information is needed.
 See [Python issue 1322](https://bugs.python.org/issue1322) for more
 information.
 
@@ -101,13 +98,13 @@ namely from these data sources (from high to low precedence):
 any distribution that provides one or more of the data sources
 covered.
 
-This package is tested with test data that mimics the exact behavior of the data sources of [a number of Linux distributions](https://github.com/nir0s/distro/tree/master/tests/resources/distros).
+This package is tested with test data that mimics the exact behavior of the data sources of [a number of Linux distributions](https://github.com/python-distro/distro/tree/master/tests/resources/distros).
 
 
 ## Testing
 
 ```shell
-git clone git@github.com:nir0s/distro.git
+git clone git@github.com:python-distro/distro.git
 cd distro
 pip install tox
 tox
@@ -119,7 +116,7 @@ tox
 Pull requests are always welcome to deal with specific distributions or just
 for general merriment.
 
-See [CONTRIBUTIONS](https://github.com/nir0s/distro/blob/master/CONTRIBUTING.md) for contribution info.
+See [CONTRIBUTIONS](https://github.com/python-distro/distro/blob/master/CONTRIBUTING.md) for contribution info.
 
 Reference implementations for supporting additional distributions and file
 formats can be found here:
