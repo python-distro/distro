@@ -336,7 +336,7 @@ autodoc_member_order = "bysource"
 # to. Example RST source for 'py' prefix:
 #     :py:func:`platform.dist`
 intersphinx_mapping = {
-  'py': ('https://docs.python.org/3.5', None)
+  'py': ('https://docs.python.org/3', None)
 }
 
 intersphinx_cache_limit = 5
