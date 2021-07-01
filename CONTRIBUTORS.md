@@ -11,3 +11,4 @@ Thanks!
 * https://github.com/marcoceppi
 * https://github.com/tgamblin
 * https://github.com/sebix
+* https://github.com/jdufresne
