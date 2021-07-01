@@ -13,9 +13,9 @@ jobs:
       matrix:
         include:
           - python: 2.7
-            toxenv: flake8
+            toxenv: pylint27
           - python: 3.8
-            toxenv: py3flake8
+            toxenv: pylint38
 
     steps:
       - uses: actions/checkout@v2
