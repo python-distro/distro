@@ -20,12 +20,11 @@ machine-readable distro ID, or version information.
 It is the recommended replacement for Python's original
 :py:func:`platform.linux_distribution` function, but it provides much more
 functionality. An alternative implementation became necessary because Python
-3.5 deprecated this function, and Python 3.8 will remove it altogether.
-Its predecessor function :py:func:`platform.dist` was already
-deprecated since Python 2.6 and will also be removed in Python 3.8.
-Still, there are many cases in which access to OS distribution information
-is needed. See `Python issue 1322 <https://bugs.python.org/issue1322>`_ for
-more information.
+3.5 deprecated this function, and Python 3.8 removed it altogether. Its
+predecessor function :py:func:`platform.dist` was already deprecated since
+Python 2.6 and removed in Python 3.8. Still, there are many cases in which
+access to OS distribution information is needed. See `Python issue 1322
+<https://bugs.python.org/issue1322>`_ for more information.
 """
 
 import os
