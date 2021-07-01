@@ -19,49 +19,49 @@ import sys
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath(".."))
 
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-needs_sphinx = '1.1'
+needs_sphinx = "1.1"
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.todo',
-    'sphinx.ext.coverage',
-    'sphinx.ext.viewcode',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.todo",
+    "sphinx.ext.coverage",
+    "sphinx.ext.viewcode",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 # source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = ".rst"
 
 # The encoding of source files.
-source_encoding = 'utf-8'
+source_encoding = "utf-8"
 
 # The master toctree document.
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+on_rtd = os.environ.get("READTHEDOCS", None) == "True"
 if on_rtd:
-    master_doc = 'index'
+    master_doc = "index"
 else:
-    master_doc = 'docs/index'
+    master_doc = "docs/index"
 
 # General information about the project.
-project = u'distro'
-copyright = u'2015,2016, Nir Cohen, Andreas Maier'
-author = u'Nir Cohen, Andreas Maier'
+project = u"distro"
+copyright = u"2015,2016, Nir Cohen, Andreas Maier"
+author = u"Nir Cohen, Andreas Maier"
 
 # The short description of the package.
-_short_description = u'Linux Distribution - a Linux OS platform information API'
+_short_description = u"Linux Distribution - a Linux OS platform information API"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -69,7 +69,7 @@ _short_description = u'Linux Distribution - a Linux OS platform information API'
 
 
 def parse_version():
-    with open('../setup.py', 'r') as _fp:
+    with open("../setup.py", "r") as _fp:
         _lines = _fp.readlines()
         for _line in _lines:
             m = re.match(r'^package_version *= *[\'"](.+)[\'"].*$', _line)
@@ -78,7 +78,7 @@ def parse_version():
         if m:
             return m.group(1)
         else:
-            return 'unknown'
+            return "unknown"
 
 
 # The short X.Y version.
@@ -103,7 +103,7 @@ exclude_patterns = ["tests", ".tox", ".git", "build_docs", "ld.egg-info"]
 add_function_parentheses = True
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
@@ -119,21 +119,20 @@ html_theme = "classic"
 # further.
 # See http://www.sphinx-doc.org/en/stable/theming.html for the options
 # available for built-in themes.
-html_theme_options = {
-}
+html_theme_options = {}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['html_static']
+html_static_path = ["html_static"]
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
 # directly to the root of the documentation.
-html_extra_path = ['html_extra']
+html_extra_path = ["html_extra"]
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'distro_doc'
+htmlhelp_basename = "distro_doc"
 
 # -- Options for intersphinx extension ------------------------------------
 # For documentation, see
@@ -142,8 +141,6 @@ htmlhelp_basename = 'distro_doc'
 # Defines the prefixes for intersphinx links, and the targets they resolve
 # to. Example RST source for 'py' prefix:
 #     :py:func:`platform.dist`
-intersphinx_mapping = {
-  'py': ('https://docs.python.org/3', None)
-}
+intersphinx_mapping = {"py": ("https://docs.python.org/3", None)}
 
 intersphinx_cache_limit = 5
