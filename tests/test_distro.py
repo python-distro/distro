@@ -714,7 +714,7 @@ class TestSpecialRelease(DistroTestCase):
 
     def test_usrlibosreleaseonly(self):
         self._setup_for_distro(
-          os.path.join(TESTDISTROS, "distro", "usrlibosreleaseonly")
+            os.path.join(TESTDISTROS, "distro", "usrlibosreleaseonly")
         )
         self.distro = distro.LinuxDistribution()
 

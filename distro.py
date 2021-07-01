@@ -715,23 +715,23 @@ class LinuxDistribution(object):
         """
         self.root_dir = root_dir
         self.etc_dir = os.path.join(root_dir, "etc") if root_dir else _UNIXCONFDIR
-        self.usr_lib_dir = os.path.join(root_dir, "usr/lib") \
-            if root_dir else _UNIXUSRLIBDIR
+        self.usr_lib_dir = (
+            os.path.join(root_dir, "usr/lib") if root_dir else _UNIXUSRLIBDIR
+        )
 
         if os_release_file:
             self.os_release_file = os_release_file
         else:
-            etc_dir_os_release_file = os.path.join(
-                self.etc_dir, _OS_RELEASE_BASENAME
-            )
+            etc_dir_os_release_file = os.path.join(self.etc_dir, _OS_RELEASE_BASENAME)
             usr_lib_os_release_file = os.path.join(
                 self.usr_lib_dir, _OS_RELEASE_BASENAME
             )
 
             # NOTE: The idea is to respect order **and** have it set
             #       at all times for API backwards compatibility.
-            if os.path.isfile(etc_dir_os_release_file) \
-                    or not os.path.isfile(usr_lib_os_release_file):
+            if os.path.isfile(etc_dir_os_release_file) or not os.path.isfile(
+                usr_lib_os_release_file
+            ):
                 self.os_release_file = etc_dir_os_release_file
             else:
                 self.os_release_file = usr_lib_os_release_file
