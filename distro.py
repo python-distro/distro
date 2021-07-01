@@ -36,6 +36,17 @@ import shlex
 import subprocess
 import sys
 
+try:
+    import importlib.metadata
+
+    __version__ = importlib.metadata.version("distro")
+except ImportError:
+    # Python 3.7
+    import pkg_resources  # type: ignore
+
+    __version__ = pkg_resources.get_distribution("distro").version
+
+
 # Use `if False` to avoid an ImportError on Python 2. After dropping Python 2
 # support, can use typing.TYPE_CHECKING instead. See:
 # https://docs.python.org/3/library/typing.html#typing.TYPE_CHECKING

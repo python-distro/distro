@@ -16,6 +16,7 @@
 import ast
 import json
 import os
+import re
 import subprocess
 import sys
 
@@ -2132,3 +2133,8 @@ class TestToStr:
 
         ret = distro.LinuxDistribution._to_str("bytes")
         assert isinstance(ret, str)
+
+
+@pytest.mark.skipif(not IS_LINUX, reason="Irrelevant on non-linux")
+def test_version():
+    assert re.match(r"^\d+\.\d+\.\d+$", distro.__version__) is not None
