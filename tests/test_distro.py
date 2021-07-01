@@ -42,10 +42,6 @@ if IS_LINUX:
 
 
 class TestNonLinuxPlatform:
-    """Obviously, this only tests Windows. Will add OS X tests on Travis
-    Later
-    """
-
     def test_cant_use_on_windows(self):
         try:
             import distro  # NOQA
