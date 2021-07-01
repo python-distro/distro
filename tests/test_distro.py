@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import ast
+import json
 import os
 import subprocess
 import sys
@@ -93,7 +94,6 @@ class TestCli:
         assert desired_output == self._run(command)
 
     def test_cli_with_root_dir_as_json(self):
-        import json
         root_dir = os.path.join(RESOURCES, 'cli', 'fedora30')
         command = [sys.executable, '-m', 'distro', '-j', '--root-dir', root_dir]
         desired_output = {
