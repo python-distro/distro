@@ -36,6 +36,8 @@ import shlex
 import subprocess
 import sys
 
+__version__ = "1.5.0"
+
 # Use `if False` to avoid an ImportError on Python 2. After dropping Python 2
 # support, can use typing.TYPE_CHECKING instead. See:
 # https://docs.python.org/3/library/typing.html#typing.TYPE_CHECKING
