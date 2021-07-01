@@ -36,13 +36,11 @@ import shlex
 import subprocess
 import sys
 import warnings
+from typing import TYPE_CHECKING
 
 __version__ = "1.6.0"
 
-# Use `if False` to avoid an ImportError on Python 2. After dropping Python 2
-# support, can use typing.TYPE_CHECKING instead. See:
-# https://docs.python.org/3/library/typing.html#typing.TYPE_CHECKING
-if False:  # pragma: nocover
+if TYPE_CHECKING:  # pragma: nocover
     from typing import (
         Any,
         Callable,
@@ -54,22 +52,19 @@ if False:  # pragma: nocover
         Tuple,
         Type,
         TypedDict,
-        Union,
     )
 
-    VersionDict = TypedDict(
-        "VersionDict", {"major": str, "minor": str, "build_number": str}
-    )
-    InfoDict = TypedDict(
-        "InfoDict",
-        {
-            "id": str,
-            "version": str,
-            "version_parts": VersionDict,
-            "like": str,
-            "codename": str,
-        },
-    )
+    class VersionDict(TypedDict):
+        major: str
+        minor: str
+        build_number: str
+
+    class InfoDict(TypedDict):
+        id: str
+        version: str
+        version_parts: VersionDict
+        like: str
+        codename: str
 
 
 _UNIXCONFDIR = os.environ.get("UNIXCONFDIR", "/etc")
@@ -615,7 +610,7 @@ try:
     from functools import cached_property
 except ImportError:
     # Python < 3.8
-    class cached_property(object):  # type: ignore
+    class cached_property:  # type: ignore
         """A version of @property which caches the value.  On access, it calls the
         underlying function and sets the value in `__dict__` so future accesses
         will not re-call the property.
@@ -628,12 +623,12 @@ except ImportError:
 
         def __get__(self, obj, owner):
             # type: (Any, Type[Any]) -> Any
-            assert obj is not None, "call {} on an instance".format(self._fname)
+            assert obj is not None, f"call {self._fname} on an instance"
             ret = obj.__dict__[self._fname] = self._f(obj)
             return ret
 
 
-class LinuxDistribution(object):
+class LinuxDistribution:
     """
     Provides information about a OS distribution.
 
@@ -720,7 +715,7 @@ class LinuxDistribution(object):
 
         Raises:
 
-        * :py:exc:`IOError`: Some I/O issue with an os-release file or distro
+        * :py:exc:`OSError`: Some I/O issue with an os-release file or distro
           release file.
 
         * :py:exc:`subprocess.CalledProcessError`: The lsb_release command had
@@ -875,7 +870,7 @@ class LinuxDistribution(object):
                     version = v
                     break
         if pretty and version and self.codename():
-            version = "{0} ({1})".format(version, self.codename())
+            version = f"{version} ({self.codename()})"
         return version
 
     def version_parts(self, best=False):
@@ -1084,16 +1079,6 @@ class LinuxDistribution(object):
         lexer = shlex.shlex(lines, posix=True)
         lexer.whitespace_split = True
 
-        # The shlex module defines its `wordchars` variable using literals,
-        # making it dependent on the encoding of the Python source file.
-        # In Python 2.6 and 2.7, the shlex source file is encoded in
-        # 'iso-8859-1', and the `wordchars` variable is defined as a byte
-        # string. This causes a UnicodeDecodeError to be raised when the
-        # parsed content is a unicode object. The following fix resolves that
-        # (... but it should be fixed in shlex...):
-        if sys.version_info[0] == 2 and isinstance(lexer.wordchars, bytes):
-            lexer.wordchars = lexer.wordchars.decode("iso-8859-1")
-
         tokens = list(lexer)
         for token in tokens:
             # At this point, all shell-like parsing has been done (i.e.
@@ -1142,13 +1127,12 @@ class LinuxDistribution(object):
         """
         if not self.include_lsb:
             return {}
-        with open(os.devnull, "wb") as devnull:
-            try:
-                cmd = ("lsb_release", "-a")
-                stdout = subprocess.check_output(cmd, stderr=devnull)
-            # Command not found or lsb_release returned error
-            except (OSError, subprocess.CalledProcessError):
-                return {}
+        try:
+            cmd = ("lsb_release", "-a")
+            stdout = subprocess.check_output(cmd, stderr=subprocess.DEVNULL)
+        # Command not found or lsb_release returned error
+        except (OSError, subprocess.CalledProcessError):
+            return {}
         content = self._to_str(stdout).splitlines()
         return self._parse_lsb_release_content(content)
 
@@ -1180,12 +1164,11 @@ class LinuxDistribution(object):
     @cached_property
     def _uname_info(self):
         # type: () -> Dict[str, str]
-        with open(os.devnull, "wb") as devnull:
-            try:
-                cmd = ("uname", "-rs")
-                stdout = subprocess.check_output(cmd, stderr=devnull)
-            except OSError:
-                return {}
+        try:
+            cmd = ("uname", "-rs")
+            stdout = subprocess.check_output(cmd, stderr=subprocess.DEVNULL)
+        except OSError:
+            return {}
         content = self._to_str(stdout).splitlines()
         return self._parse_uname_content(content)
 
@@ -1208,19 +1191,10 @@ class LinuxDistribution(object):
         return props
 
     @staticmethod
-    def _to_str(text):
-        # type: (Union[bytes, str]) -> str
+    def _to_str(bytestring):
+        # type: (bytes) -> str
         encoding = sys.getfilesystemencoding()
-        encoding = "utf-8" if encoding == "ascii" else encoding
-
-        if sys.version_info[0] >= 3:
-            if isinstance(text, bytes):
-                return text.decode(encoding)
-        else:
-            if isinstance(text, unicode):  # noqa
-                return text.encode(encoding)
-
-        return text
+        return bytestring.decode(encoding)
 
     @cached_property
     def _distro_release_info(self):
@@ -1308,7 +1282,7 @@ class LinuxDistribution(object):
                 # Only parse the first line. For instance, on SLES there
                 # are multiple lines. We don't want them...
                 return self._parse_distro_release_content(fp.readline())
-        except (OSError, IOError):
+        except OSError:
             # Ignore not being able to read a specific, seemingly version
             # related file.
             # See https://github.com/python-distro/distro/issues/162

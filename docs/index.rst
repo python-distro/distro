@@ -19,13 +19,13 @@ If you want to jump into the API description right away, read about the
 Compatibility
 =============
 
-The ``distro`` package is supported on Python 2.7, 3.4+ and PyPy, and on any
-Linux or BSD distribution that provides one or more of the `data sources`_ used
-by this package.
+The ``distro`` package is supported on Python 3.6+ and PyPy, and on any Linux
+or BSD distribution that provides one or more of the `data sources`_ used by
+this package.
 
-This package is tested on Python 2.7, 3.4+ and PyPy, with test data that
-mimics the exact behavior of the data sources of
-`a number of Linux distributions <https://github.com/python-distro/distro/tree/master/tests/resources/distros>`_.
+This package is tested on Python 3.6+ and PyPy, with test data that mimics the
+exact behavior of the data sources of `a number of Linux distributions
+<https://github.com/python-distro/distro/tree/master/tests/resources/distros>`_.
 
 If you want to add test data for more distributions, please
 create an issue in the `distro issue tracker`_

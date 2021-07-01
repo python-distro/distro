@@ -1,4 +1,3 @@
-# coding=utf-8
 # Copyright 2015,2016 Nir Cohen
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,15 +13,11 @@
 # limitations under the License.
 
 import ast
+import io
 import json
 import os
 import subprocess
 import sys
-
-try:
-    from StringIO import StringIO  # Python 2.x
-except ImportError:
-    from io import StringIO  # Python 3.x
 
 import pytest
 
@@ -58,11 +53,13 @@ class TestCli:
         distro.main()
 
     def _run(self, command):
-        stdout, _ = subprocess.Popen(
-            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        ).communicate()
-        # Need to decode or we get bytes in Python 3.x
-        return stdout.decode("utf-8")
+        r = subprocess.run(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            encoding="utf-8",
+        )
+        return r.stdout
 
     def test_cli_for_coverage_yuch(self):
         self._parse("distro")
@@ -70,7 +67,7 @@ class TestCli:
 
     def test_cli_can_parse_root_dir_args(self):
         root_dir = os.path.join(RESOURCES, "cli", "fedora30")
-        self._parse("distro --root-dir {}".format(root_dir))
+        self._parse(f"distro --root-dir {root_dir}")
 
     def test_cli(self):
         command = [sys.executable, "-m", "distro"]
@@ -108,7 +105,7 @@ class TestCli:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Irrelevant on non-linux")
-class DistroTestCase(object):
+class DistroTestCase:
     """A base class for any testcase classes that test the distributions
     represented in the `DISTROS` subtree.
     """
@@ -476,7 +473,7 @@ class TestWithRootDir(TestOSRelease):
 @pytest.mark.skipif(not IS_LINUX, reason="Irrelevant on non-linux")
 class TestLSBRelease(DistroTestCase):
     def setup_method(self, test_method):
-        super(TestLSBRelease, self).setup_method(test_method)
+        super().setup_method(test_method)
         dist = test_method.__name__.split("_")[1]
         self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
         self.distro = distro.LinuxDistribution(
@@ -646,9 +643,7 @@ class TestLSBRelease(DistroTestCase):
 
     @pytest.mark.parametrize("errnum", ("001", "002", "126", "130", "255"))
     def test_lsb_release_error_level(self, errnum):
-        self._setup_for_distro(
-            os.path.join(TESTDISTROS, "lsb", "lsb_rc{0}".format(errnum))
-        )
+        self._setup_for_distro(os.path.join(TESTDISTROS, "lsb", f"lsb_rc{errnum}"))
 
         lsb_release_info = distro.LinuxDistribution(
             include_lsb=True,
@@ -741,7 +736,7 @@ class TestDistroRelease:
             DISTROS_DIR,
             distro_name + version,
             "etc",
-            "{0}-{1}".format(release_file_id, release_file_suffix),
+            "{}-{}".format(release_file_id, release_file_suffix),
         )
         self.distro = distro.LinuxDistribution(
             include_lsb=False,
@@ -1043,7 +1038,7 @@ class TestOverall(DistroTestCase):
     """
 
     def setup_method(self, test_method):
-        super(TestOverall, self).setup_method(test_method)
+        super().setup_method(test_method)
         dist = test_method.__name__.split("_")[1]
         self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
         self.distro = distro.LinuxDistribution()
@@ -1712,10 +1707,10 @@ class TestOverallWithEtcNotReadable(TestOverall):
     def setup_method(self, test_method):
         self._old_listdir = os.listdir
         os.listdir = _bad_os_listdir
-        super(TestOverallWithEtcNotReadable, self).setup_method(test_method)
+        super().setup_method(test_method)
 
     def teardown_method(self, test_method):
-        super(TestOverallWithEtcNotReadable, self).teardown_method(test_method)
+        super().teardown_method(test_method)
         if os.listdir is _bad_os_listdir:
             os.listdir = self._old_listdir
 
@@ -1736,7 +1731,7 @@ class TestGetAttr(DistroTestCase):
                 try:
                     assert info[key] == getattr(_distro, attr_method)(key)
                 except AssertionError:
-                    print("distro: {0}, key: {1}".format(dist, key))
+                    print(f"distro: {dist}, key: {key}")
 
     def test_os_release_attr(self):
         self._test_attr("os_release_info", "os_release_attr")
@@ -1751,7 +1746,7 @@ class TestGetAttr(DistroTestCase):
 @pytest.mark.skipif(not IS_LINUX, reason="Irrelevant on non-linux")
 class TestInfo(DistroTestCase):
     def setup_method(self, test_method):
-        super(TestInfo, self).setup_method(test_method)
+        super().setup_method(test_method)
         self.ubuntu14_os_release = os.path.join(
             DISTROS_DIR, "ubuntu14", "etc", "os-release"
         )
@@ -1882,7 +1877,7 @@ class TestOSReleaseParsing:
         self.distro.debug = True
 
     def _get_props(self, input):
-        return self.distro._parse_os_release_content(StringIO(input))
+        return self.distro._parse_os_release_content(io.StringIO(input))
 
     def _test_zero_length_props(self, input):
         props = self._get_props(input)
@@ -1971,17 +1966,16 @@ class TestOSReleaseParsing:
 
     def test_kv_22_quoted_unicode_wordchar(self):
         # "wordchar" means it is in the shlex.wordchars variable.
-        props = self._get_props(u'KEY="wordchar: \u00CA (E accent grave)"\n')
-        assert props.get("key", None) == u"wordchar: \u00CA (E accent grave)"
+        props = self._get_props('KEY="wordchar: \u00CA (E accent grave)"\n')
+        assert props.get("key", None) == "wordchar: \u00CA (E accent grave)"
 
     def test_kv_23_quoted_unicode_non_wordchar(self):
         # "non-wordchar" means it is not in the shlex.wordchars variable.
         props = self._get_props(
-            u'KEY="non-wordchar: \u00A1 (inverted exclamation mark)"\n'
+            'KEY="non-wordchar: \u00A1 (inverted exclamation mark)"\n'
         )
         assert (
-            props.get("key", None)
-            == u"non-wordchar: \u00A1 (inverted exclamation mark)"
+            props.get("key", None) == "non-wordchar: \u00A1 (inverted exclamation mark)"
         )
 
     def test_kv_24_double_quoted_entire_single_quoted_word(self):
@@ -1994,7 +1988,7 @@ class TestOSReleaseParsing:
 
     def test_kv_26_double_quoted_multiline(self):
         props = self.distro._parse_os_release_content(
-            StringIO('KEY="a multi\n' 'line value"\n')
+            io.StringIO('KEY="a multi\n' 'line value"\n')
         )
         assert props.get("key", None) == "a multi\nline value"
         # TODO: Find out why the result is not 'a multi line value'
@@ -2002,7 +1996,7 @@ class TestOSReleaseParsing:
     def test_kv_27_double_quoted_multiline_2(self):
         props = self._get_props("KEY=' a  simple   value '\n")
         props = self.distro._parse_os_release_content(
-            StringIO('KEY="a multi\n' 'line=value"\n')
+            io.StringIO('KEY="a multi\n' 'line=value"\n')
         )
         assert props.get("key", None) == "a multi\nline=value"
         # TODO: Find out why the result is not 'a multi line=value'
@@ -2017,14 +2011,14 @@ class TestOSReleaseParsing:
 
     def test_kx_01(self):
         props = self.distro._parse_os_release_content(
-            StringIO("KEY1=value1\n" 'KEY2="value  2"\n')
+            io.StringIO("KEY1=value1\n" 'KEY2="value  2"\n')
         )
         assert props.get("key1", None) == "value1"
         assert props.get("key2", None) == "value  2"
 
     def test_kx_02(self):
         props = self.distro._parse_os_release_content(
-            StringIO("# KEY1=value1\n" 'KEY2="value  2"\n')
+            io.StringIO("# KEY1=value1\n" 'KEY2="value  2"\n')
         )
         assert props.get("key1", None) is None
         assert props.get("key2", None) == "value  2"
@@ -2135,19 +2129,3 @@ class TestRepr:
             if attr in ("root_dir", "etc_dir", "usr_lib_dir"):
                 continue
             assert attr + "=" in repr_str
-
-
-@pytest.mark.skipif(not IS_LINUX, reason="Irrelevant on non-linux")
-class TestToStr:
-    """Test the _to_str() method."""
-
-    def test_to_str(self):
-        ret = distro.LinuxDistribution._to_str(b"bytes")
-        assert isinstance(ret, str)
-        assert ret == "bytes"
-
-        ret = distro.LinuxDistribution._to_str(u"bytes")
-        assert isinstance(ret, str)
-
-        ret = distro.LinuxDistribution._to_str("bytes")
-        assert isinstance(ret, str)
