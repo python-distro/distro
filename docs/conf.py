@@ -13,13 +13,14 @@
 # serve to show the default.
 
 import os
-import re
 import sys
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath(".."))
+
+import distro  # noqa: E402
 
 # -- General configuration ------------------------------------------------
 
@@ -67,23 +68,9 @@ _short_description = u"Linux Distribution - a Linux OS platform information API"
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 
-
-def parse_version():
-    with open("../setup.py", "r") as _fp:
-        _lines = _fp.readlines()
-        for _line in _lines:
-            m = re.match(r'^package_version *= *[\'"](.+)[\'"].*$', _line)
-            if m:
-                break
-        if m:
-            return m.group(1)
-        else:
-            return "unknown"
-
-
 # The short X.Y version.
 # Note: We use the full version in both cases.
-version = parse_version()
+version = distro.__version__
 
 # The full version, including alpha/beta/rc tags.
 release = version
