@@ -241,9 +241,10 @@ class TestOSRelease:
         self._test_outcome(desired_outcome)
 
     def test_fedora30_os_release(self):
-        # Fedora 21 and above no longer have code names but the metadata in os-release was only
-        # changed in a detectable way in Fedora 30+.  The piece in parenthesis in the pretty_name
-        # field contains the VARIANT and differs depending on the variant which was installed.
+        # Fedora 21 and above no longer have code names but the metadata in
+        # os-release was only changed in a detectable way in Fedora 30+. The
+        # piece in parenthesis in the pretty_name field contains the VARIANT
+        # and differs depending on the variant which was installed.
         desired_outcome = {
             'id': 'fedora',
             'name': 'Fedora',
