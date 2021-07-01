@@ -1,8 +1,7 @@
 Distro - an OS platform information API
 =======================================
 
-[![Build Status](https://travis-ci.org/python-distro/distro.svg?branch=master)](https://travis-ci.org/python-distro/distro)
-[![Build status](https://ci.appveyor.com/api/projects/status/e812qjk1gf0f74r5/branch/master?svg=true)](https://ci.appveyor.com/project/python-distro/distro/branch/master)
+[![CI Status](https://github.com/python-distro/distro/workflows/CI/badge.svg)](https://github.com/python-distro/distro/actions/workflows/ci.yaml)
 [![PyPI version](http://img.shields.io/pypi/v/distro.svg)](https://pypi.python.org/pypi/distro)
 [![Supported Python Versions](https://img.shields.io/pypi/pyversions/distro.svg)](https://img.shields.io/pypi/pyversions/distro.svg)
 [![Requirements Status](https://requires.io/github/python-distro/distro/requirements.svg?branch=master)](https://requires.io/github/python-distro/distro/requirements/?branch=master)
