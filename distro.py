@@ -80,11 +80,11 @@ NORMALIZED_DISTRO_ID = {
 
 # Pattern for content of distro release file (reversed)
 _DISTRO_RELEASE_CONTENT_REVERSED_PATTERN = re.compile(
-    r'(?:[^)]*\)(.*)\()? *(?:STL )?([\d.+\-a-z]*\d) *(?:esaeler *)?(.+)')
+    r'(?:[^)]*\)(.*)\()? *(?:STL )?([\d.+\-a-z]*\d) *(?:esaeler *)?(.+)'
+)
 
 # Pattern for base file name of distro release file
-_DISTRO_RELEASE_BASENAME_PATTERN = re.compile(
-    r'(\w+)[-_](release|version)$')
+_DISTRO_RELEASE_BASENAME_PATTERN = re.compile(r'(\w+)[-_](release|version)$')
 
 # Base file names to be ignored when searching for distro release file
 _DISTRO_RELEASE_IGNORE_BASENAMES = (
@@ -122,10 +122,10 @@ def linux_distribution(full_distribution_name=True):
     method normalizes the distro ID string to a reliable machine-readable value
     for a number of popular OS distributions.
     """
-    return _distro.linux_distribution(full_distribution_name)
+    return _DISTRO.linux_distribution(full_distribution_name)
 
 
-def id():
+def id():  # pylint: disable=redefined-builtin, invalid-name
     """
     Return the distro ID of the current distribution, as a
     machine-readable string.
@@ -201,7 +201,7 @@ def id():
       command, with ID values that differ from what was previously determined
       from the distro release file name.
     """
-    return _distro.id()
+    return _DISTRO.id()
 
 
 def name(pretty=False):
@@ -240,7 +240,7 @@ def name(pretty=False):
         with the value of the pretty version ("<version_id>" and "<codename>"
         fields) of the distro release file, if available.
     """
-    return _distro.name(pretty)
+    return _DISTRO.name(pretty)
 
 
 def version(pretty=False, best=False):
@@ -284,7 +284,7 @@ def version(pretty=False, best=False):
       the lsb_release command, if it follows the format of the distro release
       files.
     """
-    return _distro.version(pretty, best)
+    return _DISTRO.version(pretty, best)
 
 
 def version_parts(best=False):
@@ -301,7 +301,7 @@ def version_parts(best=False):
     For a description of the *best* parameter, see the :func:`distro.version`
     method.
     """
-    return _distro.version_parts(best)
+    return _DISTRO.version_parts(best)
 
 
 def major_version(best=False):
@@ -314,7 +314,7 @@ def major_version(best=False):
     For a description of the *best* parameter, see the :func:`distro.version`
     method.
     """
-    return _distro.major_version(best)
+    return _DISTRO.major_version(best)
 
 
 def minor_version(best=False):
@@ -327,7 +327,7 @@ def minor_version(best=False):
     For a description of the *best* parameter, see the :func:`distro.version`
     method.
     """
-    return _distro.minor_version(best)
+    return _DISTRO.minor_version(best)
 
 
 def build_number(best=False):
@@ -340,7 +340,7 @@ def build_number(best=False):
     For a description of the *best* parameter, see the :func:`distro.version`
     method.
     """
-    return _distro.build_number(best)
+    return _DISTRO.build_number(best)
 
 
 def like():
@@ -357,7 +357,7 @@ def like():
     `os-release man page
     <http://www.freedesktop.org/software/systemd/man/os-release.html>`_.
     """
-    return _distro.like()
+    return _DISTRO.like()
 
 
 def codename():
@@ -381,7 +381,7 @@ def codename():
 
     * the value of the "<codename>" field of the distro release file.
     """
-    return _distro.codename()
+    return _DISTRO.codename()
 
 
 def info(pretty=False, best=False):
@@ -425,7 +425,7 @@ def info(pretty=False, best=False):
     For a description of the *pretty* and *best* parameters, see the
     :func:`distro.version` method.
     """
-    return _distro.info(pretty, best)
+    return _DISTRO.info(pretty, best)
 
 
 def os_release_info():
@@ -435,7 +435,7 @@ def os_release_info():
 
     See `os-release file`_ for details about these information items.
     """
-    return _distro.os_release_info()
+    return _DISTRO.os_release_info()
 
 
 def lsb_release_info():
@@ -446,7 +446,7 @@ def lsb_release_info():
     See `lsb_release command output`_ for details about these information
     items.
     """
-    return _distro.lsb_release_info()
+    return _DISTRO.lsb_release_info()
 
 
 def distro_release_info():
@@ -456,7 +456,7 @@ def distro_release_info():
 
     See `distro release file`_ for details about these information items.
     """
-    return _distro.distro_release_info()
+    return _DISTRO.distro_release_info()
 
 
 def uname_info():
@@ -464,7 +464,7 @@ def uname_info():
     Return a dictionary containing key-value pairs for the information items
     from the distro release file data source of the current OS distribution.
     """
-    return _distro.uname_info()
+    return _DISTRO.uname_info()
 
 
 def os_release_attr(attribute):
@@ -483,7 +483,7 @@ def os_release_attr(attribute):
 
     See `os-release file`_ for details about these information items.
     """
-    return _distro.os_release_attr(attribute)
+    return _DISTRO.os_release_attr(attribute)
 
 
 def lsb_release_attr(attribute):
@@ -503,7 +503,7 @@ def lsb_release_attr(attribute):
     See `lsb_release command output`_ for details about these information
     items.
     """
-    return _distro.lsb_release_attr(attribute)
+    return _DISTRO.lsb_release_attr(attribute)
 
 
 def distro_release_attr(attribute):
@@ -522,7 +522,7 @@ def distro_release_attr(attribute):
 
     See `distro release file`_ for details about these information items.
     """
-    return _distro.distro_release_attr(attribute)
+    return _DISTRO.distro_release_attr(attribute)
 
 
 def uname_attr(attribute):
@@ -539,14 +539,15 @@ def uname_attr(attribute):
     * (string): Value of the information item, if the item exists.
                 The empty string, if the item does not exist.
     """
-    return _distro.uname_attr(attribute)
+    return _DISTRO.uname_attr(attribute)
 
 
-class cached_property(object):
+class cached_property(object):  # pylint: disable=invalid-name, too-few-public-methods, useless-object-inheritance
     """A version of @property which caches the value.  On access, it calls the
     underlying function and sets the value in `__dict__` so future accesses
     will not re-call the property.
     """
+
     def __init__(self, f):
         self._fname = f.__name__
         self._f = f
@@ -557,7 +558,7 @@ class cached_property(object):
         return ret
 
 
-class LinuxDistribution(object):
+class LinuxDistribution:
     """
     Provides information about a OS distribution.
 
@@ -575,12 +576,7 @@ class LinuxDistribution(object):
     lsb_release command.
     """
 
-    def __init__(self,
-                 include_lsb=True,
-                 os_release_file='',
-                 distro_release_file='',
-                 include_uname=True,
-                 root_dir=None):
+    def __init__(self, include_lsb=True, os_release_file='', distro_release_file='', include_uname=True, root_dir=None):
         """
         The initialization method of this class gathers information from the
         available data sources, and stores that in private instance attributes.
@@ -652,28 +648,25 @@ class LinuxDistribution(object):
           uses an unexpected encoding.
         """
         self.root_dir = root_dir
-        self.etc_dir = os.path.join(root_dir, 'etc') \
-            if root_dir else _UNIXCONFDIR
-        self.os_release_file = os_release_file or \
-            os.path.join(self.etc_dir, _OS_RELEASE_BASENAME)
+        self.etc_dir = os.path.join(root_dir, 'etc') if root_dir else _UNIXCONFDIR
+        self.os_release_file = os_release_file or os.path.join(self.etc_dir, _OS_RELEASE_BASENAME)
         self.distro_release_file = distro_release_file or ''  # updated later
         self.include_lsb = include_lsb
         self.include_uname = include_uname
 
     def __repr__(self):
-        """Return repr of all info
-        """
-        return \
-            "LinuxDistribution(" \
-            "os_release_file={self.os_release_file!r}, " \
-            "distro_release_file={self.distro_release_file!r}, " \
-            "include_lsb={self.include_lsb!r}, " \
-            "include_uname={self.include_uname!r}, " \
-            "_os_release_info={self._os_release_info!r}, " \
-            "_lsb_release_info={self._lsb_release_info!r}, " \
-            "_distro_release_info={self._distro_release_info!r}, " \
-            "_uname_info={self._uname_info!r})".format(
-                self=self)
+        """Return repr of all info"""
+        return (
+            "LinuxDistribution("
+            "os_release_file={self.os_release_file!r}, "
+            "distro_release_file={self.distro_release_file!r}, "
+            "include_lsb={self.include_lsb!r}, "
+            "include_uname={self.include_uname!r}, "
+            "_os_release_info={self._os_release_info!r}, "
+            "_lsb_release_info={self._lsb_release_info!r}, "
+            "_distro_release_info={self._distro_release_info!r}, "
+            "_uname_info={self._uname_info!r})".format(self=self)
+        )
 
     def linux_distribution(self, full_distribution_name=True):
         """
@@ -683,17 +676,14 @@ class LinuxDistribution(object):
 
         For details, see :func:`distro.linux_distribution`.
         """
-        return (
-            self.name() if full_distribution_name else self.id(),
-            self.version(),
-            self.codename()
-        )
+        return (self.name() if full_distribution_name else self.id(), self.version(), self.codename())
 
-    def id(self):
+    def id(self):  # pylint: disable=redefined-builtin, invalid-name
         """Return the distro ID of the OS distribution, as a string.
 
         For details, see :func:`distro.id`.
         """
+
         def normalize(distro_id, table):
             distro_id = distro_id.lower().replace(' ', '_')
             return table.get(distro_id, distro_id)
@@ -722,17 +712,17 @@ class LinuxDistribution(object):
 
         For details, see :func:`distro.name`.
         """
-        name = self.os_release_attr('name') \
-            or self.lsb_release_attr('distributor_id') \
-            or self.distro_release_attr('name') \
+        name = (  # pylint: disable=redefined-outer-name
+            self.os_release_attr('name')
+            or self.lsb_release_attr('distributor_id')
+            or self.distro_release_attr('name')
             or self.uname_attr('name')
+        )
         if pretty:
-            name = self.os_release_attr('pretty_name') \
-                or self.lsb_release_attr('description')
+            name = self.os_release_attr('pretty_name') or self.lsb_release_attr('description')
             if not name:
-                name = self.distro_release_attr('name') \
-                       or self.uname_attr('name')
-                version = self.version(pretty=True)
+                name = self.distro_release_attr('name') or self.uname_attr('name')
+                version = self.version(pretty=True)  # pylint: disable=redefined-outer-name
                 if version:
                     name = name + ' ' + version
         return name or ''
@@ -747,25 +737,23 @@ class LinuxDistribution(object):
             self.os_release_attr('version_id'),
             self.lsb_release_attr('release'),
             self.distro_release_attr('version_id'),
-            self._parse_distro_release_content(
-                self.os_release_attr('pretty_name')).get('version_id', ''),
-            self._parse_distro_release_content(
-                self.lsb_release_attr('description')).get('version_id', ''),
-            self.uname_attr('release')
+            self._parse_distro_release_content(self.os_release_attr('pretty_name')).get('version_id', ''),
+            self._parse_distro_release_content(self.lsb_release_attr('description')).get('version_id', ''),
+            self.uname_attr('release'),
         ]
-        version = ''
+        version = ''  # pylint: disable=redefined-outer-name
         if best:
             # This algorithm uses the last version in priority order that has
             # the best precision. If the versions are not in conflict, that
             # does not matter; otherwise, using the last one instead of the
             # first one might be considered a surprise.
-            for v in versions:
-                if v.count(".") > version.count(".") or version == '':
-                    version = v
+            for version_option in versions:
+                if version_option.count(".") > version.count(".") or version == '':
+                    version = version_option
         else:
-            for v in versions:
-                if v != '':
-                    version = v
+            for version_option in versions:
+                if version_option != '':
+                    version = version_option
                     break
         if pretty and version and self.codename():
             version = '{0} ({1})'.format(version, self.codename())
@@ -783,7 +771,7 @@ class LinuxDistribution(object):
             version_regex = re.compile(r'(\d+)\.?(\d+)?\.?(\d+)?')
             matches = version_regex.match(version_str)
             if matches:
-                major, minor, build_number = matches.groups()
+                major, minor, build_number = matches.groups()  # pylint: disable=redefined-outer-name
                 return major, minor or '', build_number or ''
         return '', '', ''
 
@@ -803,7 +791,7 @@ class LinuxDistribution(object):
         """
         return self.version_parts(best)[1]
 
-    def build_number(self, best=False):
+    def build_number(self, best=False):  # pylint: disable=redefined-outer-name
         """
         Return the build number of the current distribution.
 
@@ -819,7 +807,7 @@ class LinuxDistribution(object):
         """
         return self.os_release_attr('id_like') or ''
 
-    def codename(self):
+    def codename(self):  # pylint: disable=redefined-outer-name
         """
         Return the codename of the OS distribution.
 
@@ -830,9 +818,7 @@ class LinuxDistribution(object):
             # this to empty string to have no codename
             return self._os_release_info['codename']
         except KeyError:
-            return self.lsb_release_attr('codename') \
-                or self.distro_release_attr('codename') \
-                or ''
+            return self.lsb_release_attr('codename') or self.distro_release_attr('codename') or ''
 
     def info(self, pretty=False, best=False):
         """
@@ -845,9 +831,7 @@ class LinuxDistribution(object):
             id=self.id(),
             version=self.version(pretty, best),
             version_parts=dict(
-                major=self.major_version(best),
-                minor=self.minor_version(best),
-                build_number=self.build_number(best)
+                major=self.major_version(best), minor=self.minor_version(best), build_number=self.build_number(best)
             ),
             like=self.like(),
             codename=self.codename(),
@@ -977,8 +961,8 @@ class LinuxDistribution(object):
             # * variable assignments: var=value
             # * commands or their arguments (not allowed in os-release)
             if '=' in token:
-                k, v = token.split('=', 1)
-                props[k.lower()] = v
+                key, value = token.split('=', 1)
+                props[key.lower()] = value
             else:
                 # Ignore any tokens that are not variable assignments
                 pass
@@ -994,7 +978,7 @@ class LinuxDistribution(object):
             props['codename'] = props['ubuntu_codename']
         elif 'version' in props:
             # If there is no version_codename, parse it from the version
-            codename = re.search(r'(\(\D+\))|,(\s+)?\D+', props['version'])
+            codename = re.search(r'(\(\D+\))|,(\s+)?\D+', props['version'])  # pylint: disable=redefined-outer-name
             if codename:
                 codename = codename.group()
                 codename = codename.strip('()')
@@ -1041,11 +1025,11 @@ class LinuxDistribution(object):
         """
         props = {}
         for line in lines:
-            kv = line.strip('\n').split(':', 1)
+            kv = line.strip('\n').split(':', 1)  # pylint: disable=invalid-name
             if len(kv) != 2:
                 # Ignore lines without colon.
                 continue
-            k, v = kv
+            k, v = kv  # pylint: disable=invalid-name
             props.update({k.replace(' ', '_').lower(): v.strip()})
         return props
 
@@ -1065,7 +1049,7 @@ class LinuxDistribution(object):
         props = {}
         match = re.search(r'^([^\s]+)\s+([\d\.]+)', lines[0].strip())
         if match:
-            name, version = match.groups()
+            name, version = match.groups()  # pylint: disable=redefined-outer-name
 
             # This is to prevent the Linux kernel version from
             # appearing as the 'best' version on otherwise
@@ -1086,7 +1070,7 @@ class LinuxDistribution(object):
             if isinstance(text, bytes):
                 return text.decode(encoding)
         else:
-            if isinstance(text, unicode):  # noqa
+            if isinstance(text, unicode):  # pylint: disable=undefined-variable
                 return text.encode(encoding)
 
         return text
@@ -1102,62 +1086,62 @@ class LinuxDistribution(object):
         if self.distro_release_file:
             # If it was specified, we use it and parse what we can, even if
             # its file name or content does not match the expected pattern.
-            distro_info = self._parse_distro_release_file(
-                self.distro_release_file)
+            distro_info = self._parse_distro_release_file(self.distro_release_file)
             basename = os.path.basename(self.distro_release_file)
             # The file name pattern for user-specified distro release files
             # is somewhat more tolerant (compared to when searching for the
             # file), because we want to use what was specified as best as
             # possible.
             match = _DISTRO_RELEASE_BASENAME_PATTERN.match(basename)
-            if 'name' in distro_info \
-               and 'cloudlinux' in distro_info['name'].lower():
+            if 'name' in distro_info and 'cloudlinux' in distro_info['name'].lower():
                 distro_info['id'] = 'cloudlinux'
             elif match:
                 distro_info['id'] = match.group(1)
             return distro_info
-        else:
-            try:
-                basenames = os.listdir(self.etc_dir)
-                # We sort for repeatability in cases where there are multiple
-                # distro specific files; e.g. CentOS, Oracle, Enterprise all
-                # containing `redhat-release` on top of their own.
-                basenames.sort()
-            except OSError:
-                # This may occur when /etc is not readable but we can't be
-                # sure about the *-release files. Check common entries of
-                # /etc for information. If they turn out to not be there the
-                # error is handled in `_parse_distro_release_file()`.
-                basenames = ['SuSE-release',
-                             'arch-release',
-                             'base-release',
-                             'centos-release',
-                             'fedora-release',
-                             'gentoo-release',
-                             'mageia-release',
-                             'mandrake-release',
-                             'mandriva-release',
-                             'mandrivalinux-release',
-                             'manjaro-release',
-                             'oracle-release',
-                             'redhat-release',
-                             'sl-release',
-                             'slackware-version']
-            for basename in basenames:
-                if basename in _DISTRO_RELEASE_IGNORE_BASENAMES:
-                    continue
-                match = _DISTRO_RELEASE_BASENAME_PATTERN.match(basename)
-                if match:
-                    filepath = os.path.join(self.etc_dir, basename)
-                    distro_info = self._parse_distro_release_file(filepath)
-                    if 'name' in distro_info:
-                        # The name is always present if the pattern matches
-                        self.distro_release_file = filepath
-                        distro_info['id'] = match.group(1)
-                        if 'cloudlinux' in distro_info['name'].lower():
-                            distro_info['id'] = 'cloudlinux'
-                        return distro_info
-            return {}
+
+        try:
+            basenames = os.listdir(self.etc_dir)
+            # We sort for repeatability in cases where there are multiple
+            # distro specific files; e.g. CentOS, Oracle, Enterprise all
+            # containing `redhat-release` on top of their own.
+            basenames.sort()
+        except OSError:
+            # This may occur when /etc is not readable but we can't be
+            # sure about the *-release files. Check common entries of
+            # /etc for information. If they turn out to not be there the
+            # error is handled in `_parse_distro_release_file()`.
+            basenames = [
+                'SuSE-release',
+                'arch-release',
+                'base-release',
+                'centos-release',
+                'fedora-release',
+                'gentoo-release',
+                'mageia-release',
+                'mandrake-release',
+                'mandriva-release',
+                'mandrivalinux-release',
+                'manjaro-release',
+                'oracle-release',
+                'redhat-release',
+                'sl-release',
+                'slackware-version',
+            ]
+        for basename in basenames:
+            if basename in _DISTRO_RELEASE_IGNORE_BASENAMES:
+                continue
+            match = _DISTRO_RELEASE_BASENAME_PATTERN.match(basename)
+            if match:
+                filepath = os.path.join(self.etc_dir, basename)
+                distro_info = self._parse_distro_release_file(filepath)
+                if 'name' in distro_info:
+                    # The name is always present if the pattern matches
+                    self.distro_release_file = filepath
+                    distro_info['id'] = match.group(1)
+                    if 'cloudlinux' in distro_info['name'].lower():
+                        distro_info['id'] = 'cloudlinux'
+                    return distro_info
+        return {}
 
     def _parse_distro_release_file(self, filepath):
         """
@@ -1171,10 +1155,10 @@ class LinuxDistribution(object):
             A dictionary containing all information items.
         """
         try:
-            with open(filepath) as fp:
+            with open(filepath) as file_to_open:
                 # Only parse the first line. For instance, on SLES there
                 # are multiple lines. We don't want them...
-                return self._parse_distro_release_content(fp.readline())
+                return self._parse_distro_release_content(file_to_open.readline())
         except (OSError, IOError):
             # Ignore not being able to read a specific, seemingly version
             # related file.
@@ -1193,8 +1177,7 @@ class LinuxDistribution(object):
         Returns:
             A dictionary containing all information items.
         """
-        matches = _DISTRO_RELEASE_CONTENT_REVERSED_PATTERN.match(
-            line.strip()[::-1])
+        matches = _DISTRO_RELEASE_CONTENT_REVERSED_PATTERN.match(line.strip()[::-1])
         distro_info = {}
         if matches:
             # regexp ensures non-None
@@ -1208,7 +1191,7 @@ class LinuxDistribution(object):
         return distro_info
 
 
-_distro = LinuxDistribution()
+_DISTRO = LinuxDistribution()
 
 
 def main():
@@ -1217,28 +1200,18 @@ def main():
     logger.addHandler(logging.StreamHandler(sys.stdout))
 
     parser = argparse.ArgumentParser(description="OS distro info tool")
-    parser.add_argument(
-        '--json',
-        '-j',
-        help="Output in machine readable format",
-        action="store_true")
+    parser.add_argument('--json', '-j', help="Output in machine readable format", action="store_true")
 
     parser.add_argument(
-        '--root-dir',
-        '-r',
-        type=str,
-        dest='root_dir',
-        help="Path to the root filesystem directory (defaults to /)")
+        '--root-dir', '-r', type=str, dest='root_dir', help="Path to the root filesystem directory (defaults to /)"
+    )
 
     args = parser.parse_args()
 
     if args.root_dir:
-        dist = LinuxDistribution(
-            include_lsb=False,
-            include_uname=False,
-            root_dir=args.root_dir)
+        dist = LinuxDistribution(include_lsb=False, include_uname=False, root_dir=args.root_dir)
     else:
-        dist = _distro
+        dist = _DISTRO
 
     if args.json:
         logger.info(json.dumps(dist.info(), indent=4, sort_keys=True))
