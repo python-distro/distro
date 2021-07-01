@@ -1,0 +1,22 @@
+repos:
+- repo: local
+  hooks:
+  - id: pylint
+    name: pylint
+    # Don't wanna deal with tests right now.
+    entry: pylint --ignore-patterns=test_.*?py
+    args: ["--score=n"]
+    language: python
+    types: [python]
+  - id: black
+    name: black
+    entry: black --target-version py27 --check --diff .
+    language: python
+    require_serial: true
+    types: [python]
+  - id: mypy
+    name: mypy
+    entry: mypy --strict distro.py
+    language: python
+    require_serial: true
+    types: [python]
