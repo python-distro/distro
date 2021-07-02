@@ -1,0 +1,11 @@
+# See https://github.com/probot/stale for defaults, many of which are not set here.
+issues:
+  daysUntilStale: 360
+
+pulls:
+  daysUntilStale: 60
+  markComment: >
+    This pull request has been automatically marked as stale because it has not had
+    recent activity. It will be closed if no further activity occurs. Thank you
+    for your contributions.
+  daysUntilClose: 7
