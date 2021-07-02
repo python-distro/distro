@@ -1106,7 +1106,7 @@ class LinuxDistribution(object):
         """
         if not self.include_lsb:
             return {}
-        with open(os.devnull, "w") as devnull:
+        with open(os.devnull, "wb") as devnull:
             try:
                 cmd = ("lsb_release", "-a")
                 stdout = subprocess.check_output(cmd, stderr=devnull)
@@ -1144,7 +1144,7 @@ class LinuxDistribution(object):
     @cached_property
     def _uname_info(self):
         # type: () -> Dict[str, str]
-        with open(os.devnull, "w") as devnull:
+        with open(os.devnull, "wb") as devnull:
             try:
                 cmd = ("uname", "-rs")
                 stdout = subprocess.check_output(cmd, stderr=devnull)
