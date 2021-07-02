@@ -84,7 +84,7 @@ The `distro` package implements a robust and inclusive way of retrieving the
 information about a distribution based on new standards and old methods,
 namely from these data sources (from high to low precedence):
 
-* The os-release file `/etc/os-release`, if present.
+* The os-release file `/etc/os-release` if present, with a fall-back on `/usr/lib/os-release` if needed.
 * The output of the `lsb_release` command, if available.
 * The distro release file (`/etc/*(-|_)(release|version)`), if present.
 * The `uname` command for BSD based distrubtions.

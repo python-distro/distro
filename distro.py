@@ -70,6 +70,7 @@ if False:  # pragma: nocover
 
 
 _UNIXCONFDIR = os.environ.get("UNIXCONFDIR", "/etc")
+_UNIXUSRLIBDIR = os.environ.get("UNIXUSRLIBDIR", "/usr/lib")
 _OS_RELEASE_BASENAME = "os-release"
 
 #: Translation table for normalizing the "ID" attribute defined in os-release
@@ -714,9 +715,27 @@ class LinuxDistribution(object):
         """
         self.root_dir = root_dir
         self.etc_dir = os.path.join(root_dir, "etc") if root_dir else _UNIXCONFDIR
-        self.os_release_file = os_release_file or os.path.join(
-            self.etc_dir, _OS_RELEASE_BASENAME
+        self.usr_lib_dir = (
+            os.path.join(root_dir, "usr/lib") if root_dir else _UNIXUSRLIBDIR
         )
+
+        if os_release_file:
+            self.os_release_file = os_release_file
+        else:
+            etc_dir_os_release_file = os.path.join(self.etc_dir, _OS_RELEASE_BASENAME)
+            usr_lib_os_release_file = os.path.join(
+                self.usr_lib_dir, _OS_RELEASE_BASENAME
+            )
+
+            # NOTE: The idea is to respect order **and** have it set
+            #       at all times for API backwards compatibility.
+            if os.path.isfile(etc_dir_os_release_file) or not os.path.isfile(
+                usr_lib_os_release_file
+            ):
+                self.os_release_file = etc_dir_os_release_file
+            else:
+                self.os_release_file = usr_lib_os_release_file
+
         self.distro_release_file = distro_release_file or ""  # updated later
         self.include_lsb = include_lsb
         self.include_uname = include_uname
