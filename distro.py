@@ -1032,7 +1032,7 @@ class LinuxDistribution(object):
         Return a single named information item from the uname command
         output data source of the OS distribution.
 
-        For details, see :func:`distro.uname_release_attr`.
+        For details, see :func:`distro.uname_attr`.
         """
         return self._uname_info.get(attribute, "")
 
