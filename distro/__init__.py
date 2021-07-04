@@ -1365,7 +1365,3 @@ def main():
         logger.info("Version: %s", distribution_version)
         distribution_codename = dist.codename()
         logger.info("Codename: %s", distribution_codename)
-
-
-if __name__ == "__main__":
-    main()

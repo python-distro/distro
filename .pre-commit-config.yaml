@@ -17,4 +17,4 @@ repos:
     hooks:
       - id: mypy
         args: ["--strict"]
-        files: ^distro\.py$
+        files: ^distro/.*\.py$
