@@ -35,6 +35,7 @@ import re
 import shlex
 import subprocess
 import sys
+import warnings
 
 __version__ = "1.5.0"
 
@@ -135,6 +136,13 @@ _DISTRO_RELEASE_IGNORE_BASENAMES = (
 def linux_distribution(full_distribution_name=True):
     # type: (bool) -> Tuple[str, str, str]
     """
+    .. deprecated:: 1.6.0
+
+        :func:`distro.linux_distribution()` is deprecated. It should only be
+        used as a compatibility shim with Python's
+        :py:func:`platform.linux_distribution()`. Please use :func:`distro.id`,
+        :func:`distro.version` and :func:`distro.name` instead.
+
     Return information about the current OS distribution as a tuple
     ``(id_name, version, codename)`` with items as follows:
 
@@ -158,6 +166,13 @@ def linux_distribution(full_distribution_name=True):
     method normalizes the distro ID string to a reliable machine-readable value
     for a number of popular OS distributions.
     """
+    warnings.warn(
+        "distro.linux_distribution() is deprecated. It should only be used as a "
+        "compatibility shim with Python's platform.linux_distribution(). Please use "
+        "distro.id(), distro.version() and distro.name() instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     return _distro.linux_distribution(full_distribution_name)
 
 

@@ -2055,9 +2055,11 @@ class TestGlobal:
             assert method_result == function_result
 
         kwargs = {"full_distribution_name": True}
-        _test_consistency("linux_distribution", kwargs)
+        with pytest.deprecated_call():
+            _test_consistency("linux_distribution", kwargs)
         kwargs = {"full_distribution_name": False}
-        _test_consistency("linux_distribution", kwargs)
+        with pytest.deprecated_call():
+            _test_consistency("linux_distribution", kwargs)
 
         kwargs = {"pretty": False}
         _test_consistency("name", kwargs)
