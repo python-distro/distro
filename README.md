@@ -75,10 +75,10 @@ API, see the [latest API documentation](http://distro.readthedocs.org/en/latest/
 
 An alternative implementation became necessary because Python 3.5 deprecated
 this function, and Python 3.8 removed it altogether. Its predecessor function
-`platform.dist` was already deprecated since Python 2.6 and removed in Python
-3.8. Still, there are many cases in which access to that information is needed.
-See [Python issue 1322](https://bugs.python.org/issue1322) for more
-information.
+[`platform.dist`](https://docs.python.org/3.7/library/platform.html#platform.dist)
+was already deprecated since Python 2.6 and removed in Python 3.8. Still, there
+are many cases in which access to that information is needed. See [Python issue
+1322](https://bugs.python.org/issue1322) for more information.
 
 The `distro` package implements a robust and inclusive way of retrieving the
 information about a distribution based on new standards and old methods,

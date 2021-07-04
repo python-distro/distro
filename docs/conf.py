@@ -125,9 +125,11 @@ htmlhelp_basename = "distro_doc"
 # For documentation, see
 # http://www.sphinx-doc.org/en/stable/ext/intersphinx.html
 
-# Defines the prefixes for intersphinx links, and the targets they resolve
-# to. Example RST source for 'py' prefix:
+# Defines the prefixes for intersphinx links and the targets they resolve to.
+# Use Python 3.7 as that is the last version to include
+# platform.linux_distribution() and platform.dist(). Example RST source for
+# 'py' prefix:
 #     :py:func:`platform.dist`
-intersphinx_mapping = {"py": ("https://docs.python.org/3", None)}
+intersphinx_mapping = {"py": ("https://docs.python.org/3.7", None)}
 
 intersphinx_cache_limit = 5
