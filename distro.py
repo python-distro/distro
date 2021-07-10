@@ -37,7 +37,7 @@ import subprocess
 import sys
 import warnings
 
-__version__ = "1.5.0"
+__version__ = "1.6.0"
 
 # Use `if False` to avoid an ImportError on Python 2. After dropping Python 2
 # support, can use typing.TYPE_CHECKING instead. See:
