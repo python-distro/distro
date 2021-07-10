@@ -15,31 +15,12 @@
 # Name of this package
 PACKAGENAME = distro
 
-# Additional options for Sphinx
-SPHINXOPTS = -v
-
-# Paper format for the Sphinx LaTex/PDF builder.
-# Valid values: a4, letter
-SPHINXPAPER = a4
-
-# Sphinx build subtree.
-SPHINXBUILDDIR = build_docs
-
-# Directory where conf.py is located
-SPHINXCONFDIR = docs
-
-# Directory where input files for Sphinx are located
-SPHINXSOURCEDIR = .
-
-# Sphinx build command (Use 'pip install sphinx' to get it)
-SPHINXBUILD = sphinx-build
-
-# Internal variables for Sphinx
-SPHINXPAPEROPT_a4     = -D latex_paper_size=a4
-SPHINXPAPEROPT_letter = -D latex_paper_size=letter
-ALLSPHINXOPTS = -d $(SPHINXBUILDDIR)/doctrees -c $(SPHINXCONFDIR) \
-                $(SPHINXPAPEROPT_$(SPHINXPAPER)) $(SPHINXOPTS) \
-                $(SPHINXSOURCEDIR)
+# You can set these variables from the command line, and also
+# from the environment for the first two.
+SPHINXOPTS ?= -v
+SPHINXBUILD ?= sphinx-build
+SPHINXSOURCEDIR = docs
+SPHINXBUILDDIR = docs/_build
 
 .PHONY: help
 help:
@@ -48,18 +29,13 @@ help:
 	@echo "  dev       - prepare a development environment (includes tests)"
 	@echo "  instdev   - prepare a development environment (no tests)"
 	@echo "  install   - install into current Python environment"
-	@echo "  html      - generate docs as standalone HTML files in: $(SPHINXBUILDDIR)/html"
-	@echo "  pdf       - generate docs as PDF (via LaTeX) for paper format: $(SPHINXPAPER) in: $(SPHINXBUILDDIR)/pdf"
-	@echo "  man       - generate docs as manual pages in: $(SPHINXBUILDDIR)/man"
-	@echo "  docchanges   - generate an overview of all changed/added/deprecated items in docs"
-	@echo "  doclinkcheck - check all external links in docs for integrity"
-	@echo "  doccoverage  - run coverage check of the documentation"
 	@echo "  clobber   - remove any build products"
 	@echo "  build     - build the package"
 	@echo "  test      - test from this directory using tox, including test coverage"
 	@echo "  publish   - upload to PyPI"
 	@echo "  clean     - remove any temporary build products"
 	@echo "  dry-run   - perform all action required for a release without actually releasing"
+	@$(SPHINXBUILD) -M help "$(SPHINXSOURCEDIR)" "$(SPHINXBUILDDIR)" $(SPHINXOPTS) $(O)
 
 .PHONY: release
 release: test clean build publish
@@ -104,42 +80,13 @@ install:
 	python setup.py install
 	@echo "$@ done."
 
-.PHONY: html
-html:
-	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(SPHINXBUILDDIR)/html
-	@echo "$@ done; the HTML pages are in $(SPHINXBUILDDIR)/html."
-
-.PHONY: pdf
-pdf:
-	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(SPHINXBUILDDIR)/pdf
-	@echo "Running LaTeX files through pdflatex..."
-	$(MAKE) -C $(SPHINXBUILDDIR)/pdf all-pdf
-	@echo "$@ done; the PDF files are in $(SPHINXBUILDDIR)/pdf."
-
-.PHONY: man
-man:
-	$(SPHINXBUILD) -b man $(ALLSPHINXOPTS) $(SPHINXBUILDDIR)/man
-	@echo "$@ done; the manual pages are in $(SPHINXBUILDDIR)/man."
-
-.PHONY: docchanges
-docchanges:
-	$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) $(SPHINXBUILDDIR)/changes
-	@echo
-	@echo "$@ done; the doc changes overview file is in $(SPHINXBUILDDIR)/changes."
-
-.PHONY: doclinkcheck
-doclinkcheck:
-	$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) $(SPHINXBUILDDIR)/linkcheck
-	@echo
-	@echo "$@ done; look for any errors in the above output " \
-	      "or in $(SPHINXBUILDDIR)/linkcheck/output.txt."
-
-.PHONY: doccoverage
-doccoverage:
-	$(SPHINXBUILD) -b coverage $(ALLSPHINXOPTS) $(SPHINXBUILDDIR)/coverage
-	@echo "$@ done; the doc coverage results are in $(SPHINXBUILDDIR)/coverage/python.txt."
-
 .PHONY: clobber
 clobber: clean
 	rm -rf $(SPHINXBUILDDIR)
 	@echo "$@ done."
+
+# Catch-all target: route all unknown targets to Sphinx using the new
+# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
+.PHONY: Makefile
+%: Makefile
+	@$(SPHINXBUILD) -M $@ "$(SPHINXSOURCEDIR)" "$(SPHINXBUILDDIR)" $(SPHINXOPTS) $(O)
