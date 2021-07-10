@@ -1,4 +1,3 @@
-
 .. _distro official repo: https://github.com/python-distro/distro
 .. _distro issue tracker: https://github.com/python-distro/distro/issues
 .. _open issues on missing test data: https://github.com/python-distro/distro/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22>
@@ -20,9 +19,9 @@ If you want to jump into the API description right away, read about the
 Compatibility
 =============
 
-The ``distro`` package is supported on Python 2.7, 3.4+ and PyPy, and on
-any Linux or *BSD distribution that provides one or more of the `data sources`_
-used by this package.
+The ``distro`` package is supported on Python 2.7, 3.4+ and PyPy, and on any
+Linux or BSD distribution that provides one or more of the `data sources`_ used
+by this package.
 
 This package is tested on Python 2.7, 3.4+ and PyPy, with test data that
 mimics the exact behavior of the data sources of
@@ -54,7 +53,7 @@ namely from these data sources:
 
 * The `distro release file`_, if present.
 
-* The `uname command output`_, if present.
+* The ``uname`` command output, if present.
 
 
 Access to the information
@@ -81,12 +80,11 @@ distribution:
   will come from the distro release file (because it is not provided by the
   lsb_release command).
 
-  Examples: :func:`distro.id` for retrieving
-  the distro ID, or :func:`ld.info` to get the machine-readable part of the
-  information in a more aggregated way, or :func:`distro.linux_distribution` with
-  an interface that is compatible to the original
-  :py:func:`platform.linux_distribution` function, supporting a subset of its
-  parameters.
+  Examples: :func:`distro.id` for retrieving the distro ID, or
+  :func:`distro.info` to get the machine-readable part of the information in a
+  more aggregated way, or :func:`distro.linux_distribution` with an interface
+  that is compatible to the original :py:func:`platform.linux_distribution`
+  function, supporting a subset of its parameters.
 
 * `Single source accessor functions`_
 
@@ -148,9 +146,11 @@ accessor functions.
 .. autofunction:: distro.os_release_info
 .. autofunction:: distro.lsb_release_info
 .. autofunction:: distro.distro_release_info
+.. autofunction:: distro.uname_info
 .. autofunction:: distro.os_release_attr
 .. autofunction:: distro.lsb_release_attr
 .. autofunction:: distro.distro_release_attr
+.. autofunction:: distro.uname_attr
 
 LinuxDistribution class
 =======================
@@ -474,4 +474,3 @@ The following information items can be found in a distro release file
     version_id                       "42.1"
     codename                         "x86_64"
     ===============================  ==========================================
-
