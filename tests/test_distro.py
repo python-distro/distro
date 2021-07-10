@@ -71,11 +71,11 @@ class TestCli:
 
     def test_cli(self):
         command = [sys.executable, "-m", "distro"]
-        desired_output = "Name: " + distro.name(pretty=True)
+        desired_output = f"Name: {distro.name(pretty=True)}"
         distro_version = distro.version(pretty=True)
         distro_codename = distro.codename()
-        desired_output += "\n" + "Version: " + distro_version
-        desired_output += "\n" + "Codename: " + distro_codename
+        desired_output += f"\nVersion: {distro_version}"
+        desired_output += f"\nCodename: {distro_codename}"
         desired_output += "\n"
         assert self._run(command) == desired_output
 
@@ -736,7 +736,7 @@ class TestDistroRelease:
             DISTROS_DIR,
             distro_name + version,
             "etc",
-            "{}-{}".format(release_file_id, release_file_suffix),
+            f"{release_file_id}-{release_file_suffix}",
         )
         self.distro = distro.LinuxDistribution(
             include_lsb=False,
@@ -2128,4 +2128,4 @@ class TestRepr:
         for attr in MODULE_DISTRO.__dict__.keys():
             if attr in ("root_dir", "etc_dir", "usr_lib_dir"):
                 continue
-            assert attr + "=" in repr_str
+            assert f"{attr}=" in repr_str

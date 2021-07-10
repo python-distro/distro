@@ -812,7 +812,7 @@ class LinuxDistribution:
                 name = self.distro_release_attr("name") or self.uname_attr("name")
                 version = self.version(pretty=True)
                 if version:
-                    name = name + " " + version
+                    name = f"{name} {version}"
         return name or ""
 
     def version(self, pretty: bool = False, best: bool = False) -> str:
