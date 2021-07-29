@@ -686,6 +686,15 @@ class TestSpecialRelease(DistroTestCase):
         desired_outcome = {"id": "empty"}
         self._test_outcome(desired_outcome)
 
+    def test_dontincludeuname(self):
+        self._setup_for_distro(os.path.join(TESTDISTROS, "distro", "dontincludeuname"))
+
+        self.distro = distro.LinuxDistribution(include_uname=False)
+
+        assert self.distro.uname_attr("id") == ""
+        assert self.distro.uname_attr("name") == ""
+        assert self.distro.uname_attr("release") == ""
+
     def test_unknowndistro_release(self):
         self._setup_for_distro(os.path.join(TESTDISTROS, "distro", "unknowndistro"))
 
