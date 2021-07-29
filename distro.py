@@ -1182,11 +1182,15 @@ class LinuxDistribution(object):
         # type: () -> Dict[str, str]
         with open(os.devnull, "wb") as devnull:
             try:
-                cmd = ("uname", "-rs")
-                stdout = subprocess.check_output(cmd, stderr=devnull)
+                stdout = subprocess.check_output(("uname", "-rs"), stderr=devnull)
             except OSError:
                 return {}
+
         content = self._to_str(stdout).splitlines()
+        if not content:
+            # For some reasons, `uname -rs` output is empty: ignore it.
+            return {}
+
         return self._parse_uname_content(content)
 
     @staticmethod
