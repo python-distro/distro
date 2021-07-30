@@ -1,4 +1,4 @@
-## 1.6.0 (2021.7.14)
+## 1.6.0 (2021.7.30)
 
 BACKWARDS COMPATIBILITY:
 * Deprecated the `distro.linux_distribution()` function. Use
