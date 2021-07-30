@@ -23,13 +23,6 @@ RELEASE:
 * Moved repository from `nir0s/distro` to
   [`python-distro/distro`](https://github.com/python-distro/distro) on GitHub.
 
-TESTS:
-* Changed CI to use GitHub Actions [[#277](https://github.com/python-distro/distro/pull/277)]
-
-DOCS:
-* Pinned intersphinx links to Python 3.7 [[#297](https://github.com/python-distro/distro/pull/297)]
-
-
 ## 1.5.0 (2020.3.30)
 
 BACKWARD COMPATIBILITY:
