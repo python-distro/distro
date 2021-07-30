@@ -1185,17 +1185,14 @@ class LinuxDistribution(object):
                 stdout = subprocess.check_output(("uname", "-rs"), stderr=devnull)
             except OSError:
                 return {}
-
         content = self._to_str(stdout).splitlines()
-        if not content:
-            # For some reasons, `uname -rs` output is empty: ignore it.
-            return {}
-
         return self._parse_uname_content(content)
 
     @staticmethod
     def _parse_uname_content(lines):
         # type: (Sequence[str]) -> Dict[str, str]
+        if not lines:
+            return {}
         props = {}
         match = re.search(r"^([^\s]+)\s+([\d\.]+)", lines[0].strip())
         if match:
