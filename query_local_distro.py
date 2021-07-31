@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import print_function
-
 from pprint import pformat
 
 import distro
@@ -31,15 +29,15 @@ print("lsb_release_info:")
 pprint(distro.lsb_release_info())
 print("distro_release_info:")
 pprint(distro.distro_release_info())
-print("id: {0}".format(distro.id()))
-print("name: {0}".format(distro.name()))
-print("name_pretty: {0}".format(distro.name(True)))
-print("version: {0}".format(distro.version()))
-print("version_pretty: {0}".format(distro.version(True)))
-print("like: {0}".format(distro.like()))
-print("codename: {0}".format(distro.codename()))
-print("linux_distribution_full: {0}".format(distro.linux_distribution()))
-print("linux_distribution: {0}".format(distro.linux_distribution(False)))
-print("major_version: {0}".format(distro.major_version()))
-print("minor_version: {0}".format(distro.minor_version()))
-print("build_number: {0}".format(distro.build_number()))
+print(f"id: {distro.id()}")
+print(f"name: {distro.name()}")
+print(f"name_pretty: {distro.name(True)}")
+print(f"version: {distro.version()}")
+print(f"version_pretty: {distro.version(True)}")
+print(f"like: {distro.like()}")
+print(f"codename: {distro.codename()}")
+print(f"linux_distribution_full: {distro.linux_distribution()}")
+print(f"linux_distribution: {distro.linux_distribution(False)}")
+print(f"major_version: {distro.major_version()}")
+print(f"minor_version: {distro.minor_version()}")
+print(f"build_number: {distro.build_number()}")

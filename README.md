@@ -92,9 +92,8 @@ namely from these data sources (from high to low precedence):
 
 ## Python and Distribution Support
 
-`distro` is supported and tested on Python 2.7, 3.4+ and PyPy and on
-any distribution that provides one or more of the data sources
-covered.
+`distro` is supported and tested on Python 3.6+ and PyPy and on any
+distribution that provides one or more of the data sources covered.
 
 This package is tested with test data that mimics the exact behavior of the data sources of [a number of Linux distributions](https://github.com/python-distro/distro/tree/master/tests/resources/distros).
 
@@ -129,7 +128,7 @@ formats can be found here:
 * https://src.fedoraproject.org/rpms/python-distro
 * https://www.archlinux.org/packages/community/any/python-distro/
 * https://launchpad.net/ubuntu/+source/python-distro
-* https://packages.debian.org/sid/python-distro
+* https://packages.debian.org/stable/python3-distro
 * https://packages.gentoo.org/packages/dev-python/distro
-* https://pkgs.org/download/python2-distro
+* https://pkgs.org/download/python3-distro
 * https://slackbuilds.org/repository/14.2/python/python-distro/
