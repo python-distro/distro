@@ -1123,7 +1123,8 @@ class LinuxDistribution:
     @cached_property
     def _uname_info(self) -> Dict[str, str]:
         try:
-            stdout = subprocess.check_output(("uname", "-rs"), stderr=devnull)
+            cmd = ("uname", "-rs")
+            stdout = subprocess.check_output(cmd, stderr=subprocess.DEVNULL)
         except OSError:
             return {}
         content = self._to_str(stdout).splitlines()
