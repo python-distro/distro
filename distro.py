@@ -36,40 +36,39 @@ import shlex
 import subprocess
 import sys
 import warnings
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Optional,
+    Sequence,
+    TextIO,
+    Tuple,
+    Type,
+)
+
+try:
+    from typing import TypedDict
+except ImportError:
+    # Python 3.7
+    TypedDict = dict
 
 __version__ = "1.6.0"
 
-# Use `if False` to avoid an ImportError on Python 2. After dropping Python 2
-# support, can use typing.TYPE_CHECKING instead. See:
-# https://docs.python.org/3/library/typing.html#typing.TYPE_CHECKING
-if False:  # pragma: nocover
-    from typing import (
-        Any,
-        Callable,
-        Dict,
-        Iterable,
-        Optional,
-        Sequence,
-        TextIO,
-        Tuple,
-        Type,
-        TypedDict,
-        Union,
-    )
 
-    VersionDict = TypedDict(
-        "VersionDict", {"major": str, "minor": str, "build_number": str}
-    )
-    InfoDict = TypedDict(
-        "InfoDict",
-        {
-            "id": str,
-            "version": str,
-            "version_parts": VersionDict,
-            "like": str,
-            "codename": str,
-        },
-    )
+class VersionDict(TypedDict):
+    major: str
+    minor: str
+    build_number: str
+
+
+class InfoDict(TypedDict):
+    id: str
+    version: str
+    version_parts: VersionDict
+    like: str
+    codename: str
 
 
 _UNIXCONFDIR = os.environ.get("UNIXCONFDIR", "/etc")
@@ -133,8 +132,7 @@ _DISTRO_RELEASE_IGNORE_BASENAMES = (
 )
 
 
-def linux_distribution(full_distribution_name=True):
-    # type: (bool) -> Tuple[str, str, str]
+def linux_distribution(full_distribution_name: bool = True) -> Tuple[str, str, str]:
     """
     .. deprecated:: 1.6.0
 
@@ -176,8 +174,7 @@ def linux_distribution(full_distribution_name=True):
     return _distro.linux_distribution(full_distribution_name)
 
 
-def id():
-    # type: () -> str
+def id() -> str:
     """
     Return the distro ID of the current distribution, as a
     machine-readable string.
@@ -256,8 +253,7 @@ def id():
     return _distro.id()
 
 
-def name(pretty=False):
-    # type: (bool) -> str
+def name(pretty: bool = False) -> str:
     """
     Return the name of the current OS distribution, as a human-readable
     string.
@@ -296,8 +292,7 @@ def name(pretty=False):
     return _distro.name(pretty)
 
 
-def version(pretty=False, best=False):
-    # type: (bool, bool) -> str
+def version(pretty: bool = False, best: bool = False) -> str:
     """
     Return the version of the current OS distribution, as a human-readable
     string.
@@ -341,8 +336,7 @@ def version(pretty=False, best=False):
     return _distro.version(pretty, best)
 
 
-def version_parts(best=False):
-    # type: (bool) -> Tuple[str, str, str]
+def version_parts(best: bool = False) -> Tuple[str, str, str]:
     """
     Return the version of the current OS distribution as a tuple
     ``(major, minor, build_number)`` with items as follows:
@@ -359,8 +353,7 @@ def version_parts(best=False):
     return _distro.version_parts(best)
 
 
-def major_version(best=False):
-    # type: (bool) -> str
+def major_version(best: bool = False) -> str:
     """
     Return the major version of the current OS distribution, as a string,
     if provided.
@@ -373,8 +366,7 @@ def major_version(best=False):
     return _distro.major_version(best)
 
 
-def minor_version(best=False):
-    # type: (bool) -> str
+def minor_version(best: bool = False) -> str:
     """
     Return the minor version of the current OS distribution, as a string,
     if provided.
@@ -387,8 +379,7 @@ def minor_version(best=False):
     return _distro.minor_version(best)
 
 
-def build_number(best=False):
-    # type: (bool) -> str
+def build_number(best: bool = False) -> str:
     """
     Return the build number of the current OS distribution, as a string,
     if provided.
@@ -401,8 +392,7 @@ def build_number(best=False):
     return _distro.build_number(best)
 
 
-def like():
-    # type: () -> str
+def like() -> str:
     """
     Return a space-separated list of distro IDs of distributions that are
     closely related to the current OS distribution in regards to packaging
@@ -419,8 +409,7 @@ def like():
     return _distro.like()
 
 
-def codename():
-    # type: () -> str
+def codename() -> str:
     """
     Return the codename for the release of the current OS distribution,
     as a string.
@@ -444,8 +433,7 @@ def codename():
     return _distro.codename()
 
 
-def info(pretty=False, best=False):
-    # type: (bool, bool) -> InfoDict
+def info(pretty: bool = False, best: bool = False) -> InfoDict:
     """
     Return certain machine-readable information items about the current OS
     distribution in a dictionary, as shown in the following example:
@@ -489,8 +477,7 @@ def info(pretty=False, best=False):
     return _distro.info(pretty, best)
 
 
-def os_release_info():
-    # type: () -> Dict[str, str]
+def os_release_info() -> Dict[str, str]:
     """
     Return a dictionary containing key-value pairs for the information items
     from the os-release file data source of the current OS distribution.
@@ -500,8 +487,7 @@ def os_release_info():
     return _distro.os_release_info()
 
 
-def lsb_release_info():
-    # type: () -> Dict[str, str]
+def lsb_release_info() -> Dict[str, str]:
     """
     Return a dictionary containing key-value pairs for the information items
     from the lsb_release command data source of the current OS distribution.
@@ -512,8 +498,7 @@ def lsb_release_info():
     return _distro.lsb_release_info()
 
 
-def distro_release_info():
-    # type: () -> Dict[str, str]
+def distro_release_info() -> Dict[str, str]:
     """
     Return a dictionary containing key-value pairs for the information items
     from the distro release file data source of the current OS distribution.
@@ -523,8 +508,7 @@ def distro_release_info():
     return _distro.distro_release_info()
 
 
-def uname_info():
-    # type: () -> Dict[str, str]
+def uname_info() -> Dict[str, str]:
     """
     Return a dictionary containing key-value pairs for the information items
     from the distro release file data source of the current OS distribution.
@@ -532,8 +516,7 @@ def uname_info():
     return _distro.uname_info()
 
 
-def os_release_attr(attribute):
-    # type: (str) -> str
+def os_release_attr(attribute: str) -> str:
     """
     Return a single named information item from the os-release file data source
     of the current OS distribution.
@@ -552,8 +535,7 @@ def os_release_attr(attribute):
     return _distro.os_release_attr(attribute)
 
 
-def lsb_release_attr(attribute):
-    # type: (str) -> str
+def lsb_release_attr(attribute: str) -> str:
     """
     Return a single named information item from the lsb_release command output
     data source of the current OS distribution.
@@ -573,8 +555,7 @@ def lsb_release_attr(attribute):
     return _distro.lsb_release_attr(attribute)
 
 
-def distro_release_attr(attribute):
-    # type: (str) -> str
+def distro_release_attr(attribute: str) -> str:
     """
     Return a single named information item from the distro release file
     data source of the current OS distribution.
@@ -593,8 +574,7 @@ def distro_release_attr(attribute):
     return _distro.distro_release_attr(attribute)
 
 
-def uname_attr(attribute):
-    # type: (str) -> str
+def uname_attr(attribute: str) -> str:
     """
     Return a single named information item from the distro release file
     data source of the current OS distribution.
@@ -615,25 +595,23 @@ try:
     from functools import cached_property
 except ImportError:
     # Python < 3.8
-    class cached_property(object):  # type: ignore
+    class cached_property:  # type: ignore
         """A version of @property which caches the value.  On access, it calls the
         underlying function and sets the value in `__dict__` so future accesses
         will not re-call the property.
         """
 
-        def __init__(self, f):
-            # type: (Callable[[Any], Any]) -> None
+        def __init__(self, f: Callable[[Any], Any]) -> None:
             self._fname = f.__name__
             self._f = f
 
-        def __get__(self, obj, owner):
-            # type: (Any, Type[Any]) -> Any
-            assert obj is not None, "call {} on an instance".format(self._fname)
+        def __get__(self, obj: Any, owner: Type[Any]) -> Any:
+            assert obj is not None, f"call {self._fname} on an instance"
             ret = obj.__dict__[self._fname] = self._f(obj)
             return ret
 
 
-class LinuxDistribution(object):
+class LinuxDistribution:
     """
     Provides information about a OS distribution.
 
@@ -653,13 +631,12 @@ class LinuxDistribution(object):
 
     def __init__(
         self,
-        include_lsb=True,
-        os_release_file="",
-        distro_release_file="",
-        include_uname=True,
-        root_dir=None,
-    ):
-        # type: (bool, str, str, bool, Optional[str]) -> None
+        include_lsb: bool = True,
+        os_release_file: str = "",
+        distro_release_file: str = "",
+        include_uname: bool = True,
+        root_dir: Optional[str] = None,
+    ) -> None:
         """
         The initialization method of this class gathers information from the
         available data sources, and stores that in private instance attributes.
@@ -720,7 +697,7 @@ class LinuxDistribution(object):
 
         Raises:
 
-        * :py:exc:`IOError`: Some I/O issue with an os-release file or distro
+        * :py:exc:`OSError`: Some I/O issue with an os-release file or distro
           release file.
 
         * :py:exc:`subprocess.CalledProcessError`: The lsb_release command had
@@ -757,8 +734,7 @@ class LinuxDistribution(object):
         self.include_lsb = include_lsb
         self.include_uname = include_uname
 
-    def __repr__(self):
-        # type: () -> str
+    def __repr__(self) -> str:
         """Return repr of all info"""
         return (
             "LinuxDistribution("
@@ -772,8 +748,9 @@ class LinuxDistribution(object):
             "_uname_info={self._uname_info!r})".format(self=self)
         )
 
-    def linux_distribution(self, full_distribution_name=True):
-        # type: (bool) -> Tuple[str, str, str]
+    def linux_distribution(
+        self, full_distribution_name: bool = True
+    ) -> Tuple[str, str, str]:
         """
         Return information about the OS distribution that is compatible
         with Python's :func:`platform.linux_distribution`, supporting a subset
@@ -787,15 +764,13 @@ class LinuxDistribution(object):
             self.codename(),
         )
 
-    def id(self):
-        # type: () -> str
+    def id(self) -> str:
         """Return the distro ID of the OS distribution, as a string.
 
         For details, see :func:`distro.id`.
         """
 
-        def normalize(distro_id, table):
-            # type: (str, Dict[str, str]) -> str
+        def normalize(distro_id: str, table: Dict[str, str]) -> str:
             distro_id = distro_id.lower().replace(" ", "_")
             return table.get(distro_id, distro_id)
 
@@ -817,8 +792,7 @@ class LinuxDistribution(object):
 
         return ""
 
-    def name(self, pretty=False):
-        # type: (bool) -> str
+    def name(self, pretty: bool = False) -> str:
         """
         Return the name of the OS distribution, as a string.
 
@@ -838,11 +812,10 @@ class LinuxDistribution(object):
                 name = self.distro_release_attr("name") or self.uname_attr("name")
                 version = self.version(pretty=True)
                 if version:
-                    name = name + " " + version
+                    name = f"{name} {version}"
         return name or ""
 
-    def version(self, pretty=False, best=False):
-        # type: (bool, bool) -> str
+    def version(self, pretty: bool = False, best: bool = False) -> str:
         """
         Return the version of the OS distribution, as a string.
 
@@ -875,11 +848,10 @@ class LinuxDistribution(object):
                     version = v
                     break
         if pretty and version and self.codename():
-            version = "{0} ({1})".format(version, self.codename())
+            version = f"{version} ({self.codename()})"
         return version
 
-    def version_parts(self, best=False):
-        # type: (bool) -> Tuple[str, str, str]
+    def version_parts(self, best: bool = False) -> Tuple[str, str, str]:
         """
         Return the version of the OS distribution, as a tuple of version
         numbers.
@@ -895,8 +867,7 @@ class LinuxDistribution(object):
                 return major, minor or "", build_number or ""
         return "", "", ""
 
-    def major_version(self, best=False):
-        # type: (bool) -> str
+    def major_version(self, best: bool = False) -> str:
         """
         Return the major version number of the current distribution.
 
@@ -904,8 +875,7 @@ class LinuxDistribution(object):
         """
         return self.version_parts(best)[0]
 
-    def minor_version(self, best=False):
-        # type: (bool) -> str
+    def minor_version(self, best: bool = False) -> str:
         """
         Return the minor version number of the current distribution.
 
@@ -913,8 +883,7 @@ class LinuxDistribution(object):
         """
         return self.version_parts(best)[1]
 
-    def build_number(self, best=False):
-        # type: (bool) -> str
+    def build_number(self, best: bool = False) -> str:
         """
         Return the build number of the current distribution.
 
@@ -922,8 +891,7 @@ class LinuxDistribution(object):
         """
         return self.version_parts(best)[2]
 
-    def like(self):
-        # type: () -> str
+    def like(self) -> str:
         """
         Return the IDs of distributions that are like the OS distribution.
 
@@ -931,8 +899,7 @@ class LinuxDistribution(object):
         """
         return self.os_release_attr("id_like") or ""
 
-    def codename(self):
-        # type: () -> str
+    def codename(self) -> str:
         """
         Return the codename of the OS distribution.
 
@@ -949,8 +916,7 @@ class LinuxDistribution(object):
                 or ""
             )
 
-    def info(self, pretty=False, best=False):
-        # type: (bool, bool) -> InfoDict
+    def info(self, pretty: bool = False, best: bool = False) -> InfoDict:
         """
         Return certain machine-readable information about the OS
         distribution.
@@ -969,8 +935,7 @@ class LinuxDistribution(object):
             codename=self.codename(),
         )
 
-    def os_release_info(self):
-        # type: () -> Dict[str, str]
+    def os_release_info(self) -> Dict[str, str]:
         """
         Return a dictionary containing key-value pairs for the information
         items from the os-release file data source of the OS distribution.
@@ -979,8 +944,7 @@ class LinuxDistribution(object):
         """
         return self._os_release_info
 
-    def lsb_release_info(self):
-        # type: () -> Dict[str, str]
+    def lsb_release_info(self) -> Dict[str, str]:
         """
         Return a dictionary containing key-value pairs for the information
         items from the lsb_release command data source of the OS
@@ -990,8 +954,7 @@ class LinuxDistribution(object):
         """
         return self._lsb_release_info
 
-    def distro_release_info(self):
-        # type: () -> Dict[str, str]
+    def distro_release_info(self) -> Dict[str, str]:
         """
         Return a dictionary containing key-value pairs for the information
         items from the distro release file data source of the OS
@@ -1001,8 +964,7 @@ class LinuxDistribution(object):
         """
         return self._distro_release_info
 
-    def uname_info(self):
-        # type: () -> Dict[str, str]
+    def uname_info(self) -> Dict[str, str]:
         """
         Return a dictionary containing key-value pairs for the information
         items from the uname command data source of the OS distribution.
@@ -1011,8 +973,7 @@ class LinuxDistribution(object):
         """
         return self._uname_info
 
-    def os_release_attr(self, attribute):
-        # type: (str) -> str
+    def os_release_attr(self, attribute: str) -> str:
         """
         Return a single named information item from the os-release file data
         source of the OS distribution.
@@ -1021,8 +982,7 @@ class LinuxDistribution(object):
         """
         return self._os_release_info.get(attribute, "")
 
-    def lsb_release_attr(self, attribute):
-        # type: (str) -> str
+    def lsb_release_attr(self, attribute: str) -> str:
         """
         Return a single named information item from the lsb_release command
         output data source of the OS distribution.
@@ -1031,8 +991,7 @@ class LinuxDistribution(object):
         """
         return self._lsb_release_info.get(attribute, "")
 
-    def distro_release_attr(self, attribute):
-        # type: (str) -> str
+    def distro_release_attr(self, attribute: str) -> str:
         """
         Return a single named information item from the distro release file
         data source of the OS distribution.
@@ -1041,8 +1000,7 @@ class LinuxDistribution(object):
         """
         return self._distro_release_info.get(attribute, "")
 
-    def uname_attr(self, attribute):
-        # type: (str) -> str
+    def uname_attr(self, attribute: str) -> str:
         """
         Return a single named information item from the uname command
         output data source of the OS distribution.
@@ -1052,8 +1010,7 @@ class LinuxDistribution(object):
         return self._uname_info.get(attribute, "")
 
     @cached_property
-    def _os_release_info(self):
-        # type: () -> Dict[str, str]
+    def _os_release_info(self) -> Dict[str, str]:
         """
         Get the information items from the specified os-release file.
 
@@ -1066,8 +1023,7 @@ class LinuxDistribution(object):
         return {}
 
     @staticmethod
-    def _parse_os_release_content(lines):
-        # type: (TextIO) -> Dict[str, str]
+    def _parse_os_release_content(lines: TextIO) -> Dict[str, str]:
         """
         Parse the lines of an os-release file.
 
@@ -1083,16 +1039,6 @@ class LinuxDistribution(object):
         props = {}
         lexer = shlex.shlex(lines, posix=True)
         lexer.whitespace_split = True
-
-        # The shlex module defines its `wordchars` variable using literals,
-        # making it dependent on the encoding of the Python source file.
-        # In Python 2.6 and 2.7, the shlex source file is encoded in
-        # 'iso-8859-1', and the `wordchars` variable is defined as a byte
-        # string. This causes a UnicodeDecodeError to be raised when the
-        # parsed content is a unicode object. The following fix resolves that
-        # (... but it should be fixed in shlex...):
-        if sys.version_info[0] == 2 and isinstance(lexer.wordchars, bytes):
-            lexer.wordchars = lexer.wordchars.decode("iso-8859-1")
 
         tokens = list(lexer)
         for token in tokens:
@@ -1132,8 +1078,7 @@ class LinuxDistribution(object):
         return props
 
     @cached_property
-    def _lsb_release_info(self):
-        # type: () -> Dict[str, str]
+    def _lsb_release_info(self) -> Dict[str, str]:
         """
         Get the information items from the lsb_release command output.
 
@@ -1142,19 +1087,17 @@ class LinuxDistribution(object):
         """
         if not self.include_lsb:
             return {}
-        with open(os.devnull, "wb") as devnull:
-            try:
-                cmd = ("lsb_release", "-a")
-                stdout = subprocess.check_output(cmd, stderr=devnull)
-            # Command not found or lsb_release returned error
-            except (OSError, subprocess.CalledProcessError):
-                return {}
+        try:
+            cmd = ("lsb_release", "-a")
+            stdout = subprocess.check_output(cmd, stderr=subprocess.DEVNULL)
+        # Command not found or lsb_release returned error
+        except (OSError, subprocess.CalledProcessError):
+            return {}
         content = self._to_str(stdout).splitlines()
         return self._parse_lsb_release_content(content)
 
     @staticmethod
-    def _parse_lsb_release_content(lines):
-        # type: (Iterable[str]) -> Dict[str, str]
+    def _parse_lsb_release_content(lines: Iterable[str]) -> Dict[str, str]:
         """
         Parse the output of the lsb_release command.
 
@@ -1178,20 +1121,17 @@ class LinuxDistribution(object):
         return props
 
     @cached_property
-    def _uname_info(self):
-        # type: () -> Dict[str, str]
-        with open(os.devnull, "wb") as devnull:
-            try:
-                cmd = ("uname", "-rs")
-                stdout = subprocess.check_output(cmd, stderr=devnull)
-            except OSError:
-                return {}
+    def _uname_info(self) -> Dict[str, str]:
+        try:
+            cmd = ("uname", "-rs")
+            stdout = subprocess.check_output(cmd, stderr=subprocess.DEVNULL)
+        except OSError:
+            return {}
         content = self._to_str(stdout).splitlines()
         return self._parse_uname_content(content)
 
     @staticmethod
-    def _parse_uname_content(lines):
-        # type: (Sequence[str]) -> Dict[str, str]
+    def _parse_uname_content(lines: Sequence[str]) -> Dict[str, str]:
         props = {}
         match = re.search(r"^([^\s]+)\s+([\d\.]+)", lines[0].strip())
         if match:
@@ -1208,23 +1148,12 @@ class LinuxDistribution(object):
         return props
 
     @staticmethod
-    def _to_str(text):
-        # type: (Union[bytes, str]) -> str
+    def _to_str(bytestring: bytes) -> str:
         encoding = sys.getfilesystemencoding()
-        encoding = "utf-8" if encoding == "ascii" else encoding
-
-        if sys.version_info[0] >= 3:
-            if isinstance(text, bytes):
-                return text.decode(encoding)
-        else:
-            if isinstance(text, unicode):  # noqa
-                return text.encode(encoding)
-
-        return text
+        return bytestring.decode(encoding)
 
     @cached_property
-    def _distro_release_info(self):
-        # type: () -> Dict[str, str]
+    def _distro_release_info(self) -> Dict[str, str]:
         """
         Get the information items from the specified distro release file.
 
@@ -1291,8 +1220,7 @@ class LinuxDistribution(object):
                         return distro_info
             return {}
 
-    def _parse_distro_release_file(self, filepath):
-        # type: (str) -> Dict[str, str]
+    def _parse_distro_release_file(self, filepath: str) -> Dict[str, str]:
         """
         Parse a distro release file.
 
@@ -1308,15 +1236,14 @@ class LinuxDistribution(object):
                 # Only parse the first line. For instance, on SLES there
                 # are multiple lines. We don't want them...
                 return self._parse_distro_release_content(fp.readline())
-        except (OSError, IOError):
+        except OSError:
             # Ignore not being able to read a specific, seemingly version
             # related file.
             # See https://github.com/python-distro/distro/issues/162
             return {}
 
     @staticmethod
-    def _parse_distro_release_content(line):
-        # type: (str) -> Dict[str, str]
+    def _parse_distro_release_content(line: str) -> Dict[str, str]:
         """
         Parse a line from a distro release file.
 
@@ -1344,8 +1271,7 @@ class LinuxDistribution(object):
 _distro = LinuxDistribution()
 
 
-def main():
-    # type: () -> None
+def main() -> None:
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
     logger.addHandler(logging.StreamHandler(sys.stdout))
