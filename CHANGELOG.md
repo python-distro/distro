@@ -1,3 +1,28 @@
+## 1.6.0 (2021.7.30)
+
+BACKWARDS COMPATIBILITY:
+* Deprecated the `distro.linux_distribution()` function. Use
+  `distro.id()`, `distro.version()` and `distro.name()` instead
+  [[#296](https://github.com/python-distro/distro/pull/296)]
+* Deprecated Python 2.7, 3.4 and 3.5 support. Further releases
+  will only support Python 3.6+ 
+
+ENHANCEMENTS:
+* Added type hints to `distro` module [[#269](https://github.com/python-distro/distro/pull/269)]
+* Added `__version__` for checking `distro` version [[#292](https://github.com/python-distro/distro/pull/292)]
+* Added support for arbitrary rootfs via the `root_dir` parameter [[#247](https://github.com/python-distro/distro/pull/247)]
+* Added the `--root-dir` option to CLI [[#161](https://github.com/python-distro/distro/issues/161)]
+* Added fallback to `/usr/lib/os-release` when `/etc/os-release` isn't available [[#262](https://github.com/python-distro/distro/pull/262)]
+
+BUG FIXES:
+* Fixed `subprocess.CalledProcessError` when running `lsb_release` [[#261](https://github.com/python-distro/distro/pull/261)]
+* Ignore `/etc/iredmail-release` file while parsing distribution [[#268](https://github.com/python-distro/distro/pull/268)]
+* Use a binary file for `/dev/null` to avoid `TextIOWrapper` overhead [[#271](https://github.com/python-distro/distro/pull/271)]
+
+RELEASE:
+* Moved repository from `nir0s/distro` to
+  [`python-distro/distro`](https://github.com/python-distro/distro) on GitHub.
+
 ## 1.5.0 (2020.3.30)
 
 BACKWARD COMPATIBILITY:
