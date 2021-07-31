@@ -129,7 +129,7 @@ formats can be found here:
 * https://src.fedoraproject.org/rpms/python-distro
 * https://www.archlinux.org/packages/community/any/python-distro/
 * https://launchpad.net/ubuntu/+source/python-distro
-* https://packages.debian.org/sid/python-distro
+* https://packages.debian.org/stable/python3-distro
 * https://packages.gentoo.org/packages/dev-python/distro
-* https://pkgs.org/download/python2-distro
+* https://pkgs.org/download/python3-distro
 * https://slackbuilds.org/repository/14.2/python/python-distro/
