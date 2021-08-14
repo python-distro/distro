@@ -1122,6 +1122,8 @@ class LinuxDistribution:
 
     @cached_property
     def _uname_info(self) -> Dict[str, str]:
+        if not self.include_uname:
+            return {}
         try:
             cmd = ("uname", "-rs")
             stdout = subprocess.check_output(cmd, stderr=subprocess.DEVNULL)
