@@ -1180,6 +1180,8 @@ class LinuxDistribution(object):
     @cached_property
     def _uname_info(self):
         # type: () -> Dict[str, str]
+        if not self.include_uname:
+            return {}
         with open(os.devnull, "wb") as devnull:
             try:
                 cmd = ("uname", "-rs")
