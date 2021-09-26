@@ -1194,6 +1194,8 @@ class LinuxDistribution(object):
     @staticmethod
     def _parse_uname_content(lines):
         # type: (Sequence[str]) -> Dict[str, str]
+        if not lines:
+            return {}
         props = {}
         match = re.search(r"^([^\s]+)\s+([\d\.]+)", lines[0].strip())
         if match:
