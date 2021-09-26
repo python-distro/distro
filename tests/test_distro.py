@@ -716,6 +716,14 @@ class TestSpecialRelease(DistroTestCase):
         assert self.distro.uname_attr("name") == ""
         assert self.distro.uname_attr("release") == ""
 
+    def test_empty_uname(self):
+        self._setup_for_distro(os.path.join(TESTDISTROS, "distro", "emptyuname"))
+        self.distro = distro.LinuxDistribution()
+
+        assert self.distro.uname_attr("id") == ""
+        assert self.distro.uname_attr("name") == ""
+        assert self.distro.uname_attr("release") == ""
+
     def test_usrlibosreleaseonly(self):
         self._setup_for_distro(
             os.path.join(TESTDISTROS, "distro", "usrlibosreleaseonly")
