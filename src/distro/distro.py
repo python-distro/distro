@@ -220,6 +220,7 @@ def id() -> str:
     "freebsd"       FreeBSD
     "midnightbsd"   MidnightBSD
     "rocky"         Rocky Linux
+    "aix"           AIX
     ==============  =========================================
 
     If you have a need to get distros for reliable IDs added into this set,
@@ -644,6 +645,7 @@ class LinuxDistribution:
         distro_release_file: str = "",
         include_uname: bool = True,
         root_dir: Optional[str] = None,
+        include_oslevel: bool = True,
     ) -> None:
         """
         The initialization method of this class gathers information from the
@@ -686,6 +688,11 @@ class LinuxDistribution:
         * ``root_dir`` (string): The absolute path to the root directory to use
           to find distro-related information files.
 
+        * ``include_oslevel`` (bool): Controls whether (AIX) oslevel command
+          output is included as a data source. If the oslevel command is not
+          available in the program execution path the data source will be
+          empty.
+
         Public instance attributes:
 
         * ``os_release_file`` (string): The path name of the
@@ -702,6 +709,10 @@ class LinuxDistribution:
         * ``include_uname`` (bool): The result of the ``include_uname``
           parameter. This controls whether the uname information will
           be loaded.
+
+        * ``include_oslevel`` (bool): The result of the ``include_oslevel``
+          parameter. This controls whether (AIX) oslevel information will be
+          loaded.
 
         Raises:
 
@@ -741,6 +752,7 @@ class LinuxDistribution:
         self.distro_release_file = distro_release_file or ""  # updated later
         self.include_lsb = include_lsb
         self.include_uname = include_uname
+        self.include_oslevel = include_oslevel
 
     def __repr__(self) -> str:
         """Return repr of all info"""
@@ -750,10 +762,12 @@ class LinuxDistribution:
             "distro_release_file={self.distro_release_file!r}, "
             "include_lsb={self.include_lsb!r}, "
             "include_uname={self.include_uname!r}, "
+            "include_oslevel={self.include_oslevel!r}, "
             "_os_release_info={self._os_release_info!r}, "
             "_lsb_release_info={self._lsb_release_info!r}, "
             "_distro_release_info={self._distro_release_info!r}, "
-            "_uname_info={self._uname_info!r})".format(self=self)
+            "_uname_info={self._uname_info!r}, "
+            "_oslevel_info={self._oslevel_info!r})".format(self=self)
         )
 
     def linux_distribution(
@@ -841,6 +855,9 @@ class LinuxDistribution:
             ).get("version_id", ""),
             self.uname_attr("release"),
         ]
+        if self.uname_attr("id").startswith("aix"):
+            # On AIX platforms, prefer oslevel command output.
+            versions.insert(0, self.oslevel_info())
         version = ""
         if best:
             # This algorithm uses the last version in priority order that has
@@ -980,6 +997,12 @@ class LinuxDistribution:
         For details, see :func:`distro.uname_info`.
         """
         return self._uname_info
+
+    def oslevel_info(self) -> str:
+        """
+        Return AIX' oslevel command output.
+        """
+        return self._oslevel_info
 
     def os_release_attr(self, attribute: str) -> str:
         """
@@ -1134,6 +1157,16 @@ class LinuxDistribution:
             return {}
         content = self._to_str(stdout).splitlines()
         return self._parse_uname_content(content)
+
+    @cached_property
+    def _oslevel_info(self) -> str:
+        if not self.include_oslevel:
+            return ""
+        try:
+            stdout = subprocess.check_output("oslevel", stderr=subprocess.DEVNULL)
+        except (OSError, subprocess.CalledProcessError):
+            return ""
+        return self._to_str(stdout).strip()
 
     @staticmethod
     def _parse_uname_content(lines: Sequence[str]) -> Dict[str, str]:
@@ -1301,7 +1334,10 @@ def main() -> None:
 
     if args.root_dir:
         dist = LinuxDistribution(
-            include_lsb=False, include_uname=False, root_dir=args.root_dir
+            include_lsb=False,
+            include_uname=False,
+            include_oslevel=False,
+            root_dir=args.root_dir,
         )
     else:
         dist = _distro
