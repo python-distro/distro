@@ -18,7 +18,7 @@ from pprint import pformat
 import distro
 
 
-def pprint(obj):
+def pprint(obj: object) -> None:
     for line in pformat(obj).split("\n"):
         print(4 * " " + line)
 
