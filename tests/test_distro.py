@@ -33,7 +33,7 @@ DISTROS = [dist for dist in os.listdir(DISTROS_DIR) if dist != "__shared__"]
 
 IS_LINUX = sys.platform.startswith("linux")
 if IS_LINUX:
-    import distro
+    from distro import distro
 
     RELATIVE_UNIXCONFDIR = distro._UNIXCONFDIR[1:]
     RELATIVE_UNIXUSRLIBDIR = distro._UNIXUSRLIBDIR[1:]

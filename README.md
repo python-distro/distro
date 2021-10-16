@@ -36,6 +36,20 @@ Installation of the latest development version:
 pip install https://github.com/python-distro/distro/archive/master.tar.gz
 ```
 
+To use as a standalone script, download `distro.py` directly:
+
+```shell
+curl -O https://raw.githubusercontent.com/python-distro/distro/master/src/distro/distro.py
+python distro.py
+```
+
+``distro`` is safe to vendor within projects that do not wish to add
+dependencies.
+
+```shell
+cd myproject
+curl -O https://raw.githubusercontent.com/python-distro/distro/master/src/distro/distro.py
+```
 
 ## Usage
 
