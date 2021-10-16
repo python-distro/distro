@@ -313,6 +313,10 @@ def version(pretty=False, best=False):
     sources in a fixed priority order does not always yield the most precise
     version (e.g. for Debian 8.2, or CentOS 7.1).
 
+    Some other distributions may not provide this kind of information. In these
+    cases, an empty string would be returned. This behavior can be observed
+    with rolling releases distributions (e.g. Arch Linux).
+
     The *best* parameter can be used to control the approach for the returned
     version:
 
