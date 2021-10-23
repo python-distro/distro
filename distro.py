@@ -198,7 +198,7 @@ def id():
     "fedora"        Fedora
     "sles"          SUSE Linux Enterprise Server
     "opensuse"      openSUSE
-    "amazon"        Amazon Linux
+    "amzn"          Amazon Linux
     "arch"          Arch Linux
     "cloudlinux"    CloudLinux OS
     "exherbo"       Exherbo Linux
