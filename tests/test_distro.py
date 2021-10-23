@@ -1046,7 +1046,6 @@ class TestOverall(DistroTestCase):
     TODO: This class should have testcases for all distros that are claimed
     to be reliably maintained w.r.t. to their ID (see `id()`). Testcases for
     the following distros are still missing:
-      * `amazon` - Amazon Linux
       * `gentoo` - GenToo Linux
       * `ibm_powerkvm` - IBM PowerKVM
       * `parallels` - Parallels
