@@ -308,6 +308,18 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
+    def test_opensuse15_os_release(self) -> None:
+        desired_outcome = {
+            "id": "opensuse",
+            "name": "openSUSE Leap",
+            "pretty_name": "openSUSE Leap 15.2",
+            "version": "15.2",
+            "pretty_version": "15.2",
+            "best_version": "15.2",
+            "like": "suse opensuse",
+        }
+        self._test_outcome(desired_outcome)
+
     def test_raspbian7_os_release(self) -> None:
         desired_outcome = {
             "id": "raspbian",
@@ -1351,6 +1363,20 @@ class TestOverall(DistroTestCase):
             "codename": "x86_64",
         }
         self._test_release_file_info("SuSE-release", desired_info)
+
+    def test_opensuse15_release(self) -> None:
+        desired_outcome = {
+            "id": "opensuse",
+            "name": "openSUSE Leap",
+            "pretty_name": "openSUSE Leap 15.2",
+            "version": "15.2",
+            "pretty_version": "15.2",
+            "best_version": "15.2",
+            "like": "suse opensuse",
+            "major_version": "15",
+            "minor_version": "2",
+        }
+        self._test_outcome(desired_outcome)
 
     def test_oracle7_release(self) -> None:
         desired_outcome = {
