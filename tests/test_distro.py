@@ -359,6 +359,19 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
+    def test_rocky_os_release(self) -> None:
+        desired_outcome = {
+            "id": "rocky",
+            "name": "Rocky Linux",
+            "pretty_name": "Rocky Linux 8.4 (Green Obsidian)",
+            "version": "8.4",
+            "pretty_version": "8.4 (Green Obsidian)",
+            "best_version": "8.4",
+            "like": "rhel centos fedora",
+            "codename": "Green Obsidian",
+        }
+        self._test_outcome(desired_outcome)
+
     def test_slackware14_os_release(self) -> None:
         desired_outcome = {
             "id": "slackware",
@@ -1495,6 +1508,29 @@ class TestOverall(DistroTestCase):
             "codename": "Maipo",
         }
         self._test_release_file_info("redhat-release", desired_info)
+
+    def test_rocky_release(self) -> None:
+        desired_outcome = {
+            "id": "rocky",
+            "name": "Rocky Linux",
+            "pretty_name": "Rocky Linux 8.4 (Green Obsidian)",
+            "version": "8.4",
+            "pretty_version": "8.4 (Green Obsidian)",
+            "best_version": "8.4",
+            "like": "rhel centos fedora",
+            "codename": "Green Obsidian",
+            "major_version": "8",
+            "minor_version": "4",
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            "id": "centos",
+            "name": "Rocky Linux",
+            "version_id": "8.4",
+            "codename": "Green Obsidian",
+        }
+        self._test_release_file_info("centos-release", desired_info)
 
     def test_slackware14_release(self) -> None:
         desired_outcome = {
