@@ -220,6 +220,7 @@ def id():
     "netbsd"        NetBSD
     "freebsd"       FreeBSD
     "midnightbsd"   MidnightBSD
+    "rocky"         Rocky Linux
     ==============  =========================================
 
     If you have a need to get distros for reliable IDs added into this set,
@@ -1281,6 +1282,7 @@ class LinuxDistribution(object):
                     "manjaro-release",
                     "oracle-release",
                     "redhat-release",
+                    "rocky-release",
                     "sl-release",
                     "slackware-version",
                 ]
