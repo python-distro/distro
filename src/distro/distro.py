@@ -713,6 +713,10 @@ class LinuxDistribution:
           parameter. This controls whether (AIX) oslevel information will be
           loaded.
 
+        * ``root_dir`` (string): The result of the ``root_dir`` parameter.
+          The absolute path to the root directory to use to find distro-related
+          information files.
+
         Raises:
 
         * :py:exc:`OSError`: Some I/O issue with an os-release file or distro
@@ -758,6 +762,7 @@ class LinuxDistribution:
             "include_lsb={self.include_lsb!r}, "
             "include_uname={self.include_uname!r}, "
             "include_oslevel={self.include_oslevel!r}, "
+            "root_dir={self.root_dir!r}, "
             "_os_release_info={self._os_release_info!r}, "
             "_lsb_release_info={self._lsb_release_info!r}, "
             "_distro_release_info={self._distro_release_info!r}, "
