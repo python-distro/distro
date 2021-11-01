@@ -731,10 +731,6 @@ class LinuxDistribution(object):
         * :py:exc:`IOError`: Some I/O issue with an os-release file or distro
           release file.
 
-        * :py:exc:`subprocess.CalledProcessError`: The lsb_release command had
-          some issue (other than not being available in the program execution
-          path).
-
         * :py:exc:`UnicodeError`: A data source has unexpected characters or
           uses an unexpected encoding.
         """
