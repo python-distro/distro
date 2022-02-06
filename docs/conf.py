@@ -25,10 +25,10 @@ author = "Nir Cohen, Andreas Maier"
 
 # The short X.Y version.
 # Note: We use the full version in both cases.
-version = distro.__version__
+version = distro.__version__  # type: ignore
 
 # The full version, including alpha/beta/rc tags
-release = distro.__version__
+release = version
 
 
 # -- General configuration ---------------------------------------------------
