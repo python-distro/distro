@@ -1025,7 +1025,7 @@ class LinuxDistribution:
             A dictionary containing all information items.
         """
         if os.path.isfile(self.os_release_file):
-            with open(self.os_release_file) as release_file:
+            with open(self.os_release_file, encoding="utf-8") as release_file:
                 return self._parse_os_release_content(release_file)
         return {}
 
@@ -1244,7 +1244,7 @@ class LinuxDistribution:
             A dictionary containing all information items.
         """
         try:
-            with open(filepath) as fp:
+            with open(filepath, encoding="utf-8") as fp:
                 # Only parse the first line. For instance, on SLES there
                 # are multiple lines. We don't want them...
                 return self._parse_distro_release_content(fp.readline())
