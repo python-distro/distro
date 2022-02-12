@@ -1833,6 +1833,9 @@ class TestInfo(DistroTestCase):
         self.ubuntu14_os_release = os.path.join(
             DISTROS_DIR, "ubuntu14", "etc", "os-release"
         )
+        self.fedora30_os_release = os.path.join(
+            DISTROS_DIR, "fedora30", "etc", "os-release"
+        )
 
     def test_info(self) -> None:
         _distro = distro.LinuxDistribution(
@@ -1904,6 +1907,12 @@ class TestInfo(DistroTestCase):
         )
         i = _distro.linux_distribution()
         assert i == ("Ubuntu", "14.04", "Trusty Tahr")
+
+        _distro = distro.LinuxDistribution(
+            include_lsb=False, os_release_file=self.fedora30_os_release
+        )
+        i = _distro.linux_distribution()
+        assert i == ("Fedora", "30", "Thirty")
 
     def test_linux_distribution_full_false(self) -> None:
         _distro = distro.LinuxDistribution(
