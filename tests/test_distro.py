@@ -505,7 +505,6 @@ class TestLSBRelease(DistroTestCase):
         dist = test_method.__name__.split("_")[1]
         self._setup_for_distro(os.path.join(DISTROS_DIR, dist))
         self.distro = distro.LinuxDistribution(
-            include_lsb=True,
             os_release_file="path-to-non-existing-file",
             distro_release_file="path-to-non-existing-file",
         )
@@ -611,7 +610,6 @@ class TestLSBRelease(DistroTestCase):
         self._setup_for_distro(os.path.join(TESTDISTROS, "lsb", "ubuntu14_normal"))
 
         self.distro = distro.LinuxDistribution(
-            include_lsb=True,
             os_release_file="path-to-non-existing-file",
             distro_release_file="path-to-non-existing-file",
         )
@@ -631,7 +629,6 @@ class TestLSBRelease(DistroTestCase):
         self._setup_for_distro(os.path.join(TESTDISTROS, "lsb", "ubuntu14_nomodules"))
 
         self.distro = distro.LinuxDistribution(
-            include_lsb=True,
             os_release_file="path-to-non-existing-file",
             distro_release_file="path-to-non-existing-file",
         )
@@ -653,7 +650,6 @@ class TestLSBRelease(DistroTestCase):
         )
 
         self.distro = distro.LinuxDistribution(
-            include_lsb=True,
             os_release_file="path-to-non-existing-file",
             distro_release_file="path-to-non-existing-file",
         )
@@ -674,7 +670,6 @@ class TestLSBRelease(DistroTestCase):
         self._setup_for_distro(os.path.join(TESTDISTROS, "lsb", f"lsb_rc{errnum}"))
 
         lsb_release_info = distro.LinuxDistribution(
-            include_lsb=True,
             os_release_file="path-to-non-existing-file",
             distro_release_file="path-to-non-existing-file",
         )._lsb_release_info
