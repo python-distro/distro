@@ -151,7 +151,8 @@ def linux_distribution(full_distribution_name: bool = True) -> Tuple[str, str, s
 
     * ``version``:  The result of :func:`distro.version`.
 
-    * ``codename``:  The result of :func:`distro.codename`.
+    * ``codename``:  The extra item (usually in parentheses) after the
+      os-release version number, or the result of :func:`distro.codename`.
 
     The interface of this function is compatible with the original
     :py:func:`platform.linux_distribution` function, supporting a subset of
@@ -768,7 +769,7 @@ class LinuxDistribution:
         return (
             self.name() if full_distribution_name else self.id(),
             self.version(),
-            self.codename(),
+            self._os_release_info.get("release_codename") or self.codename(),
         )
 
     def id(self) -> str:
@@ -1062,6 +1063,13 @@ class LinuxDistribution:
                 # Ignore any tokens that are not variable assignments
                 pass
 
+        if "version" in props:
+            # extract release codename (if any) from version attribute
+            match = re.search(r"\((\D+)\)|,\s*(\D+)", props["version"])
+            if match:
+                release_codename = match.group(1) or match.group(2)
+                props["codename"] = props["release_codename"] = release_codename
+
         if "version_codename" in props:
             # os-release added a version_codename field.  Use that in
             # preference to anything else Note that some distros purposefully
@@ -1071,16 +1079,6 @@ class LinuxDistribution:
         elif "ubuntu_codename" in props:
             # Same as above but a non-standard field name used on older Ubuntus
             props["codename"] = props["ubuntu_codename"]
-        elif "version" in props:
-            # If there is no version_codename, parse it from the version
-            match = re.search(r"(\(\D+\))|,(\s+)?\D+", props["version"])
-            if match:
-                codename = match.group()
-                codename = codename.strip("()")
-                codename = codename.strip(",")
-                codename = codename.strip()
-                # codename appears within paranthese.
-                props["codename"] = codename
 
         return props
 
