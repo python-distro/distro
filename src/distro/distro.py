@@ -1056,12 +1056,10 @@ class LinuxDistribution:
             # stripped, etc.), so the tokens are now either:
             # * variable assignments: var=value
             # * commands or their arguments (not allowed in os-release)
+            # Ignore any tokens that are not variable assignments
             if "=" in token:
                 k, v = token.split("=", 1)
                 props[k.lower()] = v
-            else:
-                # Ignore any tokens that are not variable assignments
-                pass
 
         if "version" in props:
             # extract release codename (if any) from version attribute
