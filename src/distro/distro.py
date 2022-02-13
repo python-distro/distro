@@ -640,12 +640,12 @@ class LinuxDistribution:
 
     def __init__(
         self,
-        include_lsb: bool = True,
+        include_lsb: Optional[bool] = None,
         os_release_file: str = "",
         distro_release_file: str = "",
-        include_uname: bool = True,
+        include_uname: Optional[bool] = None,
         root_dir: Optional[str] = None,
-        include_oslevel: bool = True,
+        include_oslevel: Optional[bool] = None,
     ) -> None:
         """
         The initialization method of this class gathers information from the
@@ -686,7 +686,8 @@ class LinuxDistribution:
           be empty.
 
         * ``root_dir`` (string): The absolute path to the root directory to use
-          to find distro-related information files.
+          to find distro-related information files. Note that ``include_*``
+          parameters must not be enabled in combination with ``root_dir``.
 
         * ``include_oslevel`` (bool): Controls whether (AIX) oslevel command
           output is included as a data source. If the oslevel command is not
@@ -720,6 +721,9 @@ class LinuxDistribution:
 
         Raises:
 
+        * :py:exc:`ValueError`: Initialization parameters combination is not
+           supported.
+
         * :py:exc:`OSError`: Some I/O issue with an os-release file or distro
           release file.
 
@@ -750,9 +754,22 @@ class LinuxDistribution:
                 self.os_release_file = usr_lib_os_release_file
 
         self.distro_release_file = distro_release_file or ""  # updated later
-        self.include_lsb = include_lsb
-        self.include_uname = include_uname
-        self.include_oslevel = include_oslevel
+
+        is_root_dir_defined = root_dir is not None
+        if is_root_dir_defined and (include_lsb or include_uname or include_oslevel):
+            raise ValueError(
+                "Including subprocess data sources from specific root_dir is disallowed"
+                " to prevent false information"
+            )
+        self.include_lsb = (
+            include_lsb if include_lsb is not None else not is_root_dir_defined
+        )
+        self.include_uname = (
+            include_uname if include_uname is not None else not is_root_dir_defined
+        )
+        self.include_oslevel = (
+            include_oslevel if include_oslevel is not None else not is_root_dir_defined
+        )
 
     def __repr__(self) -> str:
         """Return repr of all info"""
