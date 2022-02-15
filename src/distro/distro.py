@@ -122,6 +122,26 @@ _DISTRO_RELEASE_CONTENT_REVERSED_PATTERN = re.compile(
 # Pattern for base file name of distro release file
 _DISTRO_RELEASE_BASENAME_PATTERN = re.compile(r"(\w+)[-_](release|version)$")
 
+# Base file names to be looked up for if _UNIXCONFDIR is not readable.
+_DISTRO_RELEASE_BASENAMES = [
+    "SuSE-release",
+    "arch-release",
+    "base-release",
+    "centos-release",
+    "fedora-release",
+    "gentoo-release",
+    "mageia-release",
+    "mandrake-release",
+    "mandriva-release",
+    "mandrivalinux-release",
+    "manjaro-release",
+    "oracle-release",
+    "redhat-release",
+    "rocky-release",
+    "sl-release",
+    "slackware-version",
+]
+
 # Base file names to be ignored when searching for distro release file
 _DISTRO_RELEASE_IGNORE_BASENAMES = (
     "debian_version",
@@ -1228,14 +1248,14 @@ class LinuxDistribution:
             # file), because we want to use what was specified as best as
             # possible.
             match = _DISTRO_RELEASE_BASENAME_PATTERN.match(basename)
-            if "name" in distro_info and "cloudlinux" in distro_info["name"].lower():
-                distro_info["id"] = "cloudlinux"
-            elif match:
-                distro_info["id"] = match.group(1)
-            return distro_info
         else:
             try:
-                basenames = os.listdir(self.etc_dir)
+                basenames = [
+                    basename
+                    for basename in os.listdir(self.etc_dir)
+                    if basename not in _DISTRO_RELEASE_IGNORE_BASENAMES
+                    and os.path.isfile(os.path.join(self.etc_dir, basename))
+                ]
                 # We sort for repeatability in cases where there are multiple
                 # distro specific files; e.g. CentOS, Oracle, Enterprise all
                 # containing `redhat-release` on top of their own.
@@ -1245,39 +1265,29 @@ class LinuxDistribution:
                 # sure about the *-release files. Check common entries of
                 # /etc for information. If they turn out to not be there the
                 # error is handled in `_parse_distro_release_file()`.
-                basenames = [
-                    "SuSE-release",
-                    "arch-release",
-                    "base-release",
-                    "centos-release",
-                    "fedora-release",
-                    "gentoo-release",
-                    "mageia-release",
-                    "mandrake-release",
-                    "mandriva-release",
-                    "mandrivalinux-release",
-                    "manjaro-release",
-                    "oracle-release",
-                    "redhat-release",
-                    "rocky-release",
-                    "sl-release",
-                    "slackware-version",
-                ]
+                basenames = _DISTRO_RELEASE_BASENAMES
             for basename in basenames:
-                if basename in _DISTRO_RELEASE_IGNORE_BASENAMES:
-                    continue
                 match = _DISTRO_RELEASE_BASENAME_PATTERN.match(basename)
-                if match:
-                    filepath = os.path.join(self.etc_dir, basename)
-                    distro_info = self._parse_distro_release_file(filepath)
-                    if "name" in distro_info:
-                        # The name is always present if the pattern matches
-                        self.distro_release_file = filepath
-                        distro_info["id"] = match.group(1)
-                        if "cloudlinux" in distro_info["name"].lower():
-                            distro_info["id"] = "cloudlinux"
-                        return distro_info
-            return {}
+                if match is None:
+                    continue
+                filepath = os.path.join(self.etc_dir, basename)
+                distro_info = self._parse_distro_release_file(filepath)
+                # The name is always present if the pattern matches.
+                if "name" not in distro_info:
+                    continue
+                self.distro_release_file = filepath
+                break
+            else:  # the loop didn't "break": no candidate.
+                return {}
+
+        if match is not None:
+            distro_info["id"] = match.group(1)
+
+        # CloudLinux < 7: manually enrich info with proper id.
+        if "cloudlinux" in distro_info.get("name", "").lower():
+            distro_info["id"] = "cloudlinux"
+
+        return distro_info
 
     def _parse_distro_release_file(self, filepath: str) -> Dict[str, str]:
         """
