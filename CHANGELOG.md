@@ -1,3 +1,26 @@
+## 1.7.0 (2022.02.15)
+
+BACKWARD COMPATIBILITY:
+* Dropped support for EOL Pythons 2.7, 3.4 and 3.5 [[#281](https://github.com/python-distro/distro/pull/281)]
+* Dropped support for LSB and `uname` back-ends when `--root-dir` is specified [[#311](https://github.com/python-distro/distro/pull/311)]
+* Moved `distro.py` to `src/distro/distro.py` [[#315](https://github.com/python-distro/distro/pull/315)]
+
+ENHANCEMENTS:
+* Documented that `distro.version()` can return an empty string on rolling releases [[#312](https://github.com/python-distro/distro/pull/312)]
+* Documented support for Python 3.10 [[#316](https://github.com/python-distro/distro/pull/316)]
+* Added official support for Rocky Linux distribution [[#318](https://github.com/python-distro/distro/pull/318)]
+* Added a shebang to `distro.py` to allow standalone execution [[#313](https://github.com/python-distro/distro/pull/313)]
+* Added support for AIX platforms [[#311](https://github.com/python-distro/distro/pull/311)]
+* Added compliance for PEP-561 [[#315](https://github.com/python-distro/distro/pull/315)]
+
+BUG FIXES:
+* Fixed `include_uname` parameter oversight [[#305](https://github.com/python-distro/distro/pull/305)]
+* Fixed crash when `uname -rs` output is empty [[#304](https://github.com/python-distro/distro/pull/304)]
+* Fixed Amazon Linux identifier in `distro.id()` documentation [[#318](https://github.com/python-distro/distro/pull/318)]
+* Fixed OpenSuse >= 15 support [[#319](https://github.com/python-distro/distro/pull/319)]
+* Fixed encoding issues when opening distro release files [[#324](https://github.com/python-distro/distro/pull/324)]
+* Fixed `linux_distribution` regression introduced in [[#230](https://github.com/python-distro/distro/pull/230)] [[#325](https://github.com/python-distro/distro/pull/325)]
+
 ## 1.6.0 (2021.7.30)
 
 BACKWARDS COMPATIBILITY:
