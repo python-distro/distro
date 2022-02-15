@@ -1,4 +1,4 @@
-## 1.7.0 (2022.02.13)
+## 1.7.0 (2022.02.15)
 
 BACKWARD COMPATIBILITY:
 * Dropped support for EOL Pythons 2.7, 3.4 and 3.5 [[#281](https://github.com/python-distro/distro/pull/281)]
