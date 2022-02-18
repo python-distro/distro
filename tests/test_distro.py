@@ -731,6 +731,34 @@ class TestSpecialRelease(DistroTestCase):
         desired_outcome = {"id": "empty"}
         self._test_outcome(desired_outcome)
 
+    def test_absolutesymlinks(self) -> None:
+        self.distro = distro.LinuxDistribution(
+            root_dir=os.path.join(TESTDISTROS, "distro", "absolutesymlinks")
+        )
+        desired_outcome = {"id": "absolutesymlinks"}
+        self._test_outcome(desired_outcome)
+
+    def test_rootdirescape(self) -> None:
+        self.distro = distro.LinuxDistribution(
+            root_dir=os.path.join(TESTDISTROS, "distro", "rootdirescape")
+        )
+        # loading existing file outside of root_dir has been prevented (empty data)
+        self._test_outcome({})
+
+    def test_rootdirnonescape(self) -> None:
+        self.distro = distro.LinuxDistribution(
+            root_dir=os.path.join(TESTDISTROS, "distro", "rootdirnonescape")
+        )
+        desired_outcome = {"id": "rootdirnonescape"}
+        self._test_outcome(desired_outcome)
+
+    def test_symlinksloop(self) -> None:
+        self.distro = distro.LinuxDistribution(
+            root_dir=os.path.join(TESTDISTROS, "distro", "symlinksloop")
+        )
+        # due to symbolic links loop, loading of file has been prevented (empty data)
+        self._test_outcome({})
+
     def test_dontincludeuname(self) -> None:
         self._setup_for_distro(os.path.join(TESTDISTROS, "distro", "dontincludeuname"))
 

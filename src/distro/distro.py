@@ -29,6 +29,7 @@ access to OS distribution information is needed. See `Python issue 1322
 """
 
 import argparse
+import errno
 import json
 import logging
 import os
@@ -768,8 +769,10 @@ class LinuxDistribution:
 
             # NOTE: The idea is to respect order **and** have it set
             #       at all times for API backwards compatibility.
-            if os.path.isfile(etc_dir_os_release_file) or not os.path.isfile(
-                usr_lib_os_release_file
+            if (
+                self.root_dir is not None
+                or os.path.isfile(etc_dir_os_release_file)
+                or not os.path.isfile(usr_lib_os_release_file)
             ):
                 self.os_release_file = etc_dir_os_release_file
             else:
@@ -902,7 +905,10 @@ class LinuxDistribution:
             # On Debian-like, add debian_version file content to candidates list.
             try:
                 with open(
-                    os.path.join(self.etc_dir, "debian_version"), encoding="ascii"
+                    self.__resolve_chroot_symlink_as_needed(
+                        os.path.join(self.etc_dir, "debian_version")
+                    ),
+                    encoding="ascii",
                 ) as fp:
                     versions.append(fp.readline().rstrip())
             except FileNotFoundError:
@@ -1089,6 +1095,59 @@ class LinuxDistribution:
         """
         return self._uname_info.get(attribute, "")
 
+    @staticmethod
+    def __abs_path_join(root_path: str, abs_path: str) -> str:
+        rel_path = os.path.splitdrive(abs_path)[1].lstrip(os.sep)
+        if os.altsep is not None:
+            rel_path = rel_path.lstrip(os.altsep)
+
+        return os.path.join(root_path, rel_path)
+
+    def __resolve_chroot_symlink_as_needed(self, link_location: str) -> str:
+        """
+        Resolves a potential symlink in ``link_location``
+        against ``self.root_dir`` if inside the chroot,
+        else just return the original path.
+        We're doing this check at a central place, to making
+        the calling code more readable and to de-duplicate.
+        """
+        if self.root_dir is None:
+            return link_location
+
+        if os.path.commonprefix([self.root_dir, link_location]) != self.root_dir:
+            raise FileNotFoundError
+
+        seen_paths = []
+        while True:
+            try:
+                resolved = os.readlink(link_location)
+            except OSError:  # includes case "not a symlink"
+                if os.path.commonprefix(
+                    [
+                        os.path.realpath(self.root_dir),
+                        os.path.realpath(link_location),
+                    ]
+                ) != os.path.realpath(self.root_dir):
+                    # `link_location` resolves outside of `self.root_dir`.
+                    raise FileNotFoundError from None
+
+                return link_location
+
+            if os.path.isabs(resolved):
+                # i.e. absolute path (regarding to the chroot), that we need to
+                # "move" back inside the chroot.
+                resolved = self.__abs_path_join(self.root_dir, resolved)
+            else:
+                # i.e. relative path that we make absolute
+                resolved = os.path.join(os.path.dirname(link_location), resolved)
+
+            # prevent symlinks infinite loop
+            if resolved in seen_paths:
+                raise OSError(errno.ELOOP, os.strerror(errno.ELOOP), resolved)
+
+            seen_paths.append(link_location)
+            link_location = resolved
+
     @cached_property
     def _os_release_info(self) -> Dict[str, str]:
         """
@@ -1097,10 +1156,14 @@ class LinuxDistribution:
         Returns:
             A dictionary containing all information items.
         """
-        if os.path.isfile(self.os_release_file):
-            with open(self.os_release_file, encoding="utf-8") as release_file:
+        try:
+            with open(
+                self.__resolve_chroot_symlink_as_needed(self.os_release_file),
+                encoding="utf-8",
+            ) as release_file:
                 return self._parse_os_release_content(release_file)
-        return {}
+        except OSError:
+            return {}
 
     @staticmethod
     def _parse_os_release_content(lines: TextIO) -> Dict[str, str]:
@@ -1265,7 +1328,6 @@ class LinuxDistribution:
                     basename
                     for basename in os.listdir(self.etc_dir)
                     if basename not in _DISTRO_RELEASE_IGNORE_BASENAMES
-                    and os.path.isfile(os.path.join(self.etc_dir, basename))
                 ]
                 # We sort for repeatability in cases where there are multiple
                 # distro specific files; e.g. CentOS, Oracle, Enterprise all
@@ -1281,12 +1343,13 @@ class LinuxDistribution:
                 match = _DISTRO_RELEASE_BASENAME_PATTERN.match(basename)
                 if match is None:
                     continue
-                filepath = os.path.join(self.etc_dir, basename)
-                distro_info = self._parse_distro_release_file(filepath)
+                # NOTE: _parse_distro_release_file below will be resolving for us
+                unresolved_filepath = os.path.join(self.etc_dir, basename)
+                distro_info = self._parse_distro_release_file(unresolved_filepath)
                 # The name is always present if the pattern matches.
                 if "name" not in distro_info:
                     continue
-                self.distro_release_file = filepath
+                self.distro_release_file = unresolved_filepath
                 break
             else:  # the loop didn't "break": no candidate.
                 return {}
@@ -1312,7 +1375,9 @@ class LinuxDistribution:
             A dictionary containing all information items.
         """
         try:
-            with open(filepath, encoding="utf-8") as fp:
+            with open(
+                self.__resolve_chroot_symlink_as_needed(filepath), encoding="utf-8"
+            ) as fp:
                 # Only parse the first line. For instance, on SLES there
                 # are multiple lines. We don't want them...
                 return self._parse_distro_release_content(fp.readline())
