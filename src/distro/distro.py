@@ -1372,12 +1372,7 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.root_dir:
-        dist = LinuxDistribution(
-            include_lsb=False,
-            include_uname=False,
-            include_oslevel=False,
-            root_dir=args.root_dir,
-        )
+        dist = LinuxDistribution(root_dir=args.root_dir)
     else:
         dist = _distro
 

@@ -519,9 +519,6 @@ class TestWithRootDir(TestOSRelease):
         dist = test_method.__name__.split("_")[1]
         root_dir = os.path.join(DISTROS_DIR, dist)
         self.distro = distro.LinuxDistribution(
-            include_lsb=False,
-            include_uname=False,
-            include_oslevel=False,
             os_release_file="",
             distro_release_file="path-to-non-existing-file",
             root_dir=root_dir,
