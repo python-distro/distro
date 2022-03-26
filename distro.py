@@ -203,6 +203,7 @@ def id():
     "opensuse"      openSUSE
     "amzn"          Amazon Linux
     "arch"          Arch Linux
+    "buildroot"     Buildroot
     "cloudlinux"    CloudLinux OS
     "exherbo"       Exherbo Linux
     "gentoo"        GenToo Linux
