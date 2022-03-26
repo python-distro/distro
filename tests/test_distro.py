@@ -163,6 +163,17 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
+    def test_buildroot_os_release(self) -> None:
+        desired_outcome = {
+            "id": "buildroot",
+            "name": "Buildroot",
+            "pretty_name": "Buildroot 2022.02",
+            "version": "2022.02",
+            "pretty_version": "2022.02",
+            "best_version": "2022.02",
+        }
+        self._test_outcome(desired_outcome)
+
     def test_kali_os_release(self) -> None:
         desired_outcome = {
             "id": "kali",

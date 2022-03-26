@@ -220,6 +220,7 @@ def id() -> str:
     "opensuse"      openSUSE
     "amzn"          Amazon Linux
     "arch"          Arch Linux
+    "buildroot"     Buildroot
     "cloudlinux"    CloudLinux OS
     "exherbo"       Exherbo Linux
     "gentoo"        GenToo Linux
