@@ -262,6 +262,14 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
+    def test_guix_os_release(self) -> None:
+        desired_outcome = {
+            "id": "guix",
+            "name": "Guix System",
+            "pretty_name": "Guix System",
+        }
+        self._test_outcome(desired_outcome)
+
     def test_kvmibm1_os_release(self) -> None:
         desired_outcome = {
             "id": "kvmibm",

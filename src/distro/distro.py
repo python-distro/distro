@@ -242,6 +242,7 @@ def id() -> str:
     "midnightbsd"   MidnightBSD
     "rocky"         Rocky Linux
     "aix"           AIX
+    "guix"          Guix System
     ==============  =========================================
 
     If you have a need to get distros for reliable IDs added into this set,
