@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
 
       - name: Install tox
         run: python -m pip install tox
@@ -33,13 +33,13 @@ jobs:
           - "3.8"
           - "3.9"
           - "3.10"
-          - "pypy3"
+          - "pypy-3.6"
 
     steps:
       - uses: actions/checkout@v2
 
       - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python }}
 
@@ -64,7 +64,7 @@ jobs:
       - uses: codecov/codecov-action@v1
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: 3.x
 
