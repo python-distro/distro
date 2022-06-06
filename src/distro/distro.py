@@ -898,6 +898,15 @@ class LinuxDistribution:
         if self.uname_attr("id").startswith("aix"):
             # On AIX platforms, prefer oslevel command output.
             versions.insert(0, self.oslevel_info())
+        elif self.id() == "debian" or "debian" in self.like().split():
+            # On Debian-like, add debian_version file content to candidates list.
+            try:
+                with open(
+                    os.path.join(self.etc_dir, "debian_version"), encoding="ascii"
+                ) as fp:
+                    versions.append(fp.readline().rstrip())
+            except FileNotFoundError:
+                pass
         version = ""
         if best:
             # This algorithm uses the last version in priority order that has

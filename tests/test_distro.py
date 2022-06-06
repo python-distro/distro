@@ -138,11 +138,10 @@ class DistroTestCase:
 class TestOSRelease:
     def setup_method(self, test_method: FunctionType) -> None:
         dist = test_method.__name__.split("_")[1]
-        os_release = os.path.join(DISTROS_DIR, dist, "etc", "os-release")
         self.distro = distro.LinuxDistribution(
             include_lsb=False,
-            os_release_file=os_release,
             distro_release_file="path-to-non-existing-file",
+            root_dir=os.path.join(DISTROS_DIR, dist),
         )
 
     def _test_outcome(self, outcome: Dict[str, str]) -> None:
@@ -217,8 +216,20 @@ class TestOSRelease:
             "pretty_name": "Debian GNU/Linux 8 (jessie)",
             "version": "8",
             "pretty_version": "8 (jessie)",
-            "best_version": "8",
+            "best_version": "8.2",
             "codename": "jessie",
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_debian10_os_release(self) -> None:
+        desired_outcome = {
+            "id": "debian",
+            "name": "Debian GNU/Linux",
+            "pretty_name": "Debian GNU/Linux 10 (buster)",
+            "version": "10",
+            "pretty_version": "10 (buster)",
+            "best_version": "10.11",
+            "codename": "buster",
         }
         self._test_outcome(desired_outcome)
 
@@ -346,7 +357,7 @@ class TestOSRelease:
             "pretty_name": "Raspbian GNU/Linux 7 (wheezy)",
             "version": "7",
             "pretty_version": "7 (wheezy)",
-            "best_version": "7",
+            "best_version": "7.1",
             "like": "debian",
             "codename": "wheezy",
         }
@@ -359,7 +370,7 @@ class TestOSRelease:
             "pretty_name": "Raspbian GNU/Linux 8 (jessie)",
             "version": "8",
             "pretty_version": "8 (jessie)",
-            "best_version": "8",
+            "best_version": "8.0",
             "like": "debian",
             "codename": "jessie",
         }
@@ -1230,6 +1241,20 @@ class TestOverall(DistroTestCase):
         self._test_outcome(desired_outcome)
         self._test_non_existing_release_file()
 
+    def test_debian10_release(self) -> None:
+        desired_outcome = {
+            "id": "debian",
+            "name": "Debian GNU/Linux",
+            "pretty_name": "Debian GNU/Linux 10 (buster)",
+            "version": "10",
+            "pretty_version": "10 (buster)",
+            "best_version": "10.11",
+            "codename": "buster",
+            "major_version": "10",
+        }
+        self._test_outcome(desired_outcome)
+        self._test_non_existing_release_file()
+
     def test_exherbo_release(self) -> None:
         desired_outcome = {
             "id": "exherbo",
@@ -1448,7 +1473,7 @@ class TestOverall(DistroTestCase):
             "pretty_name": "Raspbian GNU/Linux 7 (wheezy)",
             "version": "7",
             "pretty_version": "7 (wheezy)",
-            "best_version": "7",
+            "best_version": "7.1",
             "like": "debian",
             "codename": "wheezy",
             "major_version": "7",
@@ -1463,7 +1488,7 @@ class TestOverall(DistroTestCase):
             "pretty_name": "Raspbian GNU/Linux 8 (jessie)",
             "version": "8",
             "pretty_version": "8 (jessie)",
-            "best_version": "8",
+            "best_version": "8.0",
             "like": "debian",
             "codename": "jessie",
             "major_version": "8",
