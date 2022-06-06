@@ -866,6 +866,13 @@ class LinuxDistribution(object):
             ).get("version_id", ""),
             self.uname_attr("release"),
         ]
+        if self.id() == "debian" or "debian" in self.like().split():
+            # On Debian-like, add debian_version file content to candidates list.
+            try:
+                with open(os.path.join(self.etc_dir, "debian_version")) as fp:
+                    versions.append(fp.readline().rstrip())
+            except IOError:
+                pass
         version = ""
         if best:
             # This algorithm uses the last version in priority order that has
