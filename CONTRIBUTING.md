@@ -49,6 +49,6 @@ def test_centos5_dist_release(self):
     self._test_outcome(desired_outcome, 'centos', '5')
 ```
 
-Where the name of the method is not indicative of the lookup folder but rather tha two last arguments in `_test_outcome`.
+Where the name of the method is not indicative of the lookup folder but rather the two last arguments in `_test_outcome`.
 
 A test case is mandatory under `TestOverall` for a PR to be complete.
