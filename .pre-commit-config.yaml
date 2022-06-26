@@ -19,5 +19,4 @@ repos:
         args: ["--strict"]
         additional_dependencies: [
             "pytest==6.2.5",
-            "types-setuptools==57.4.2",
         ]
