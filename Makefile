@@ -54,7 +54,7 @@ clean:
 
 .PHONY: build
 build:
-	python setup.py sdist bdist_wheel
+	python -m build
 
 .PHONY: publish
 publish:
@@ -72,12 +72,12 @@ dev: instdev test
 .PHONY: instdev
 instdev:
 	pip install -r dev-requirements.txt
-	python setup.py develop
+	pip install -e .
 	@echo "$@ done."
 
 .PHONY: install
 install:
-	python setup.py install
+	pip install .
 	@echo "$@ done."
 
 .PHONY: clobber

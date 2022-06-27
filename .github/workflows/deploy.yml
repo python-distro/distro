@@ -1,7 +1,7 @@
 name: "Deploy to PyPI"
 on:
   workflow_dispatch:
-    inputs: 
+    inputs:
       tag:
         description: "Git tag to deploy to PyPI"
         required: true
@@ -21,7 +21,7 @@ jobs:
       - shell: bash
         run: |
           python -m pip install --disable-pip-version-check -U pip
-          python -m pip install -U setuptools wheel twine
-          python setup.py sdist bdist_wheel
+          python -m pip install -U build twine
+          python -m build
           python -m twine check dist/*
           python -m twine upload --username=__token__ --password=${{ secrets.PYPI_TOKEN }} dist/*
