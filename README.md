@@ -77,6 +77,8 @@ $ python
 >>> import distro
 >>> distro.name(pretty=True)
 'CentOS Linux 8'
+>>> distro.id()
+'centos'
 >>> distro.version(best=True)
 '8.4.2105'
 ```
