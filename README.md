@@ -119,7 +119,7 @@ This package is tested with test data that mimics the exact behavior of the data
 ## Testing
 
 ```shell
-git clone git@github.com:python-distro/distro.git
+git clone git@github.com/python-distro/distro.git
 cd distro
 pip install tox
 tox
