@@ -1326,7 +1326,9 @@ class LinuxDistribution:
             try:
                 basenames = [
                     basename
-                    for basename in os.listdir(self.etc_dir)
+                    for basename in os.listdir(
+                        self.__resolve_chroot_symlink_as_needed(self.etc_dir)
+                    )
                     if basename not in _DISTRO_RELEASE_IGNORE_BASENAMES
                 ]
                 # We sort for repeatability in cases where there are multiple
