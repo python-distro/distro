@@ -1117,7 +1117,7 @@ class LinuxDistribution:
         if os.path.commonprefix([self.root_dir, link_location]) != self.root_dir:
             raise FileNotFoundError
 
-        seen_paths = []
+        seen_paths = set()
         while True:
             try:
                 resolved = os.readlink(link_location)
@@ -1145,7 +1145,7 @@ class LinuxDistribution:
             if resolved in seen_paths:
                 raise OSError(errno.ELOOP, os.strerror(errno.ELOOP), resolved)
 
-            seen_paths.append(link_location)
+            seen_paths.add(link_location)
             link_location = resolved
 
     @cached_property
