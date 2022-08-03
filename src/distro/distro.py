@@ -29,7 +29,6 @@ access to OS distribution information is needed. See `Python issue 1322
 """
 
 import argparse
-import errno
 import json
 import logging
 import os
@@ -38,11 +37,13 @@ import shlex
 import subprocess
 import sys
 import warnings
+from string import ascii_letters
 from typing import (
     Any,
     Callable,
     Dict,
     Iterable,
+    List,
     Optional,
     Sequence,
     TextIO,
@@ -153,6 +154,84 @@ _DISTRO_RELEASE_IGNORE_BASENAMES = (
     "plesk-release",
     "iredmail-release",
 )
+
+_IS_WINDOWS = os.name == "nt"
+
+
+def _is_drive_plus_colon(candidate: str) -> bool:
+    return len(candidate) == 2 and candidate[0] in ascii_letters and candidate[1] == ":"
+
+
+def _realpath_with_root(path: str, root: str) -> str:
+    """
+    Remake of ``os.abs_path.realpath`` (with the same default ``strict=False`` behavior)
+    that not only resolves symlinks and dot-dot segments in ``path``
+    but also supports a custom root (or chroot) directory ``root``.
+
+    A custom implementation turned out needed, e.g. because a symlink to
+    ``../../etc/os-release`` inside the chroot would be correct to resolve to
+    ``<chroot>/etc/os-release`` rather than ``<chroot>/../../etc/os-release``.
+
+    Where the resolution algorithm differs among Linux on Windows, this implementation
+    is closer to what Linux would do.
+    """
+    abs_path = os.path.abspath(path)
+
+    input_segments = abs_path.split(os.sep)
+    output_segments: List[str] = []
+
+    abs_root = os.path.abspath(root)
+    root_segments = abs_root.split(os.sep)
+    if input_segments[: len(root_segments)] != root_segments:
+        # Path ``abs_path`` is not inside chroot ``abs_root``, syntactically.
+        return os.path.realpath(path)
+    input_segments = input_segments[len(root_segments) :]  # noqa: E203 (for black)
+
+    files_seen_before = set()
+    keep_probing = True
+
+    while input_segments:
+        first_segment, *input_segments = input_segments  # i.e. pop first element
+
+        if first_segment == "":
+            pass
+        elif first_segment == "..":
+            if output_segments:
+                output_segments = output_segments[:-1]
+        elif first_segment != ".":
+            file_under_test = os.sep.join(
+                root_segments + output_segments + [first_segment]
+            )
+            if file_under_test in files_seen_before:
+                keep_probing = False
+            else:
+                files_seen_before.add(file_under_test)
+
+            if not keep_probing or not os.path.islink(file_under_test):
+                output_segments.append(first_segment)
+            else:
+                link_text = os.readlink(file_under_test)
+                input_segments = link_text.split(os.sep) + input_segments
+
+                # Reset output for absolute symlinks as needed
+                assert input_segments  # symlinks cannot be empty
+                if _IS_WINDOWS and _is_drive_plus_colon(input_segments[0]):
+                    output_segments = []
+                    input_segments = input_segments[1:]
+                elif (
+                    _IS_WINDOWS
+                    and len(input_segments) >= 4
+                    and input_segments[:3] == ["", "", "?"]
+                    and _is_drive_plus_colon(input_segments[3])
+                ):  # i.e. drive style UNC path
+                    output_segments = []
+                    input_segments = input_segments[4:]
+                elif input_segments[0] == "":  # i.e. an absolute path
+                    output_segments = []
+
+    output_segments = root_segments + output_segments
+
+    return os.sep.join(output_segments)
 
 
 def linux_distribution(full_distribution_name: bool = True) -> Tuple[str, str, str]:
@@ -1114,39 +1193,7 @@ class LinuxDistribution:
         if self.root_dir is None:
             return link_location
 
-        if os.path.commonprefix([self.root_dir, link_location]) != self.root_dir:
-            raise FileNotFoundError
-
-        seen_paths = set()
-        while True:
-            try:
-                resolved = os.readlink(link_location)
-            except OSError:  # includes case "not a symlink"
-                if os.path.commonprefix(
-                    [
-                        os.path.realpath(self.root_dir),
-                        os.path.realpath(link_location),
-                    ]
-                ) != os.path.realpath(self.root_dir):
-                    # `link_location` resolves outside of `self.root_dir`.
-                    raise FileNotFoundError from None
-
-                return link_location
-
-            if os.path.isabs(resolved):
-                # i.e. absolute path (regarding to the chroot), that we need to
-                # "move" back inside the chroot.
-                resolved = self.__abs_path_join(self.root_dir, resolved)
-            else:
-                # i.e. relative path that we make absolute
-                resolved = os.path.join(os.path.dirname(link_location), resolved)
-
-            # prevent symlinks infinite loop
-            if resolved in seen_paths:
-                raise OSError(errno.ELOOP, os.strerror(errno.ELOOP), resolved)
-
-            seen_paths.add(link_location)
-            link_location = resolved
+        return _realpath_with_root(link_location, root=self.root_dir)
 
     @cached_property
     def _os_release_info(self) -> Dict[str, str]:

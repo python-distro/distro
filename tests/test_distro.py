@@ -18,10 +18,14 @@ import json
 import os
 import subprocess
 import sys
+import unittest
+from tempfile import TemporaryDirectory
 from types import FunctionType
 from typing import Any, Dict, List, NoReturn, Optional
 
 import pytest
+
+from distro.distro import _realpath_with_root
 
 BASE = os.path.abspath(os.path.dirname(__file__))
 RESOURCES = os.path.join(BASE, "resources")
@@ -32,6 +36,8 @@ DISTROS = [dist for dist in os.listdir(DISTROS_DIR) if dist != "__shared__"]
 
 
 IS_LINUX = sys.platform.startswith("linux")
+IS_WINDOWS = os.name == "nt"
+
 if IS_LINUX:
     from distro import distro
 
@@ -2300,3 +2306,138 @@ class TestRepr:
             if attr in ("root_dir", "etc_dir", "usr_lib_dir"):
                 continue
             assert f"{attr}=" in repr_str
+
+
+class TestRealpathWithRoot(unittest.TestCase):
+    def test_multiple_levels(self) -> None:
+        with TemporaryDirectory() as tempdir:
+            dst = os.path.join(tempdir, "foo")
+            os.symlink("bar", dst)
+            os.symlink("baz", os.path.join(tempdir, "bar"))
+            expected = os.path.join(tempdir, "baz")
+            self.assertEqual(os.path.realpath(dst), expected)
+            self.assertEqual(_realpath_with_root(dst, root=tempdir), expected)
+
+    def test_no_separators_no_dots(self) -> None:
+        with TemporaryDirectory() as tempdir:
+            dst = os.path.join(tempdir, "bar")
+            os.symlink("foo", dst)
+            self.assertEqual(os.path.realpath(dst), os.path.join(tempdir, "foo"))
+            self.assertEqual(
+                _realpath_with_root(dst, root=tempdir), os.path.join(tempdir, "foo")
+            )
+
+    def test_leading_dots(self) -> None:
+        with TemporaryDirectory() as tempdir:
+            dst = os.path.join(tempdir, "bar")
+            os.symlink("././foo".replace("/", os.sep), dst)
+            self.assertEqual(os.path.realpath(dst), os.path.join(tempdir, "foo"))
+            self.assertEqual(
+                _realpath_with_root(dst, root=tempdir), os.path.join(tempdir, "foo")
+            )
+
+    @pytest.mark.skipif(not IS_WINDOWS, reason="Irrelevant on non-windows")
+    def test_leading_drive(self) -> None:
+        with TemporaryDirectory() as tempdir:
+            dst = os.path.join(tempdir, "bar")
+            os.symlink(r"C:\..\foo", dst)
+            self.assertEqual(os.path.realpath(dst), r"C:\foo")
+            self.assertEqual(
+                _realpath_with_root(dst, root=tempdir), os.path.join(tempdir, "foo")
+            )
+
+    def test_multiple_trailing_separators(self) -> None:
+        with TemporaryDirectory() as tempdir:
+            dst = os.path.join(tempdir, "bar")
+            os.symlink("foo" + 3 * os.sep, dst)
+            self.assertEqual(os.path.realpath(dst), os.path.join(tempdir, "foo"))
+            self.assertEqual(
+                _realpath_with_root(dst, root=tempdir), os.path.join(tempdir, "foo")
+            )
+
+    def test_root_single_separator(self) -> None:
+        with TemporaryDirectory() as tempdir:
+            dst = os.path.join(tempdir, "bar")
+            os.symlink(os.sep, dst)
+            if IS_WINDOWS:
+                drive_plus_colon = os.path.splitdrive(tempdir)[0]
+                expected_without_root = drive_plus_colon + os.sep
+            else:
+                expected_without_root = "/"
+            self.assertEqual(os.path.realpath(dst), expected_without_root)
+            self.assertEqual(_realpath_with_root(dst, root=tempdir), tempdir)
+
+    @pytest.mark.skipif(not IS_LINUX, reason=r"os.readlink messes with \\\ on Windows")
+    def test_root_multiple_separators(self) -> None:
+        with TemporaryDirectory() as tempdir:
+            dst = os.path.join(tempdir, "bar")
+            os.symlink(3 * os.sep, dst)
+            # On Windows we would get:
+            # FileNotFoundError: [WinError 161] The specified path is invalid
+            self.assertEqual(os.path.realpath(dst), "/")
+            # On Windows, ``os.readlink`` interprets ``\\\`` and returns ``\\?\UNC``
+            self.assertEqual(_realpath_with_root(dst, root=tempdir), tempdir)
+
+    def test_beyond_root(self) -> None:
+        with TemporaryDirectory() as tempdir:
+            dst = os.path.join(tempdir, "bar")
+            os.symlink("../../../../../../../etc/passwd".replace("/", os.sep), dst)
+            if not IS_WINDOWS:
+                # On Windows we would get OSError: [WinError 4392] The data present
+                # in the reparse point buffer is invalid
+                self.assertEqual(os.path.realpath(dst), "/etc/passwd")
+            self.assertEqual(
+                _realpath_with_root(dst, root=tempdir),
+                os.path.join(tempdir, "etc", "passwd"),
+            )
+
+    def test_loop_simple(self) -> None:
+        with TemporaryDirectory() as tempdir:
+            tempdir = os.path.realpath(tempdir)  # workaround for Windows
+            dst = os.path.join(tempdir, "bar")
+            os.symlink("bar", dst)
+            expected = dst
+            self.assertEqual(os.path.realpath(dst), expected)
+            self.assertEqual(_realpath_with_root(dst, root=tempdir), expected)
+
+    def test_loop_nested(self) -> None:
+        with TemporaryDirectory() as tempdir:
+            tempdir = os.path.realpath(tempdir)  # workaround for Windows
+            dst = os.path.join(tempdir, "bar")
+            os.symlink("bar/foo/baz".replace("/", os.sep), dst)
+            expected = os.path.join(tempdir, "bar", "foo", "baz")
+            if not IS_WINDOWS:
+                # On Windows, after ``bar`` is cut off
+                self.assertEqual(os.path.realpath(dst), expected)
+            self.assertEqual(_realpath_with_root(dst, root=tempdir), expected)
+
+    def test_loop_delayed(self) -> None:
+        with TemporaryDirectory() as tempdir:
+            dst = os.path.join(tempdir, "bar")
+            os.symlink("loop", dst)
+            os.symlink("loop", os.path.join(tempdir, "loop"))
+            expected = os.path.join(tempdir, "loop")
+            self.assertEqual(os.path.realpath(dst), expected)
+            self.assertEqual(_realpath_with_root(dst, root=tempdir), expected)
+
+    def test_loop_delayed_pair(self) -> None:
+        with TemporaryDirectory() as tempdir:
+            dst = os.path.join(tempdir, "bar")
+            os.symlink("loop1", dst)
+            os.symlink("loop2", os.path.join(tempdir, "loop1"))
+            os.symlink("loop1", os.path.join(tempdir, "loop2"))
+            expected = os.path.join(tempdir, "loop1")
+            self.assertEqual(os.path.realpath(dst), expected)
+            self.assertEqual(_realpath_with_root(dst, root=tempdir), expected)
+
+    def test_loop_inner(self) -> None:
+        with TemporaryDirectory() as tempdir:
+            dst = os.path.join(tempdir, "foo")
+            os.symlink("loop/../bar".replace("/", os.sep), dst)
+            os.symlink("baz", os.path.join(tempdir, "bar"))
+            os.symlink("loop", os.path.join(tempdir, "loop"))
+            expected = os.path.join(tempdir, "bar")  # i.e. without following "bar"
+            if not IS_WINDOWS:
+                # On Windows, symlink ``bar`` would be followed into ``baz``
+                self.assertEqual(os.path.realpath(dst), expected)
+            self.assertEqual(_realpath_with_root(dst, root=tempdir), expected)
