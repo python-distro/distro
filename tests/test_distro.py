@@ -2258,7 +2258,7 @@ class TestRepr:
         repr_str = repr(distro._distro)
         assert "LinuxDistribution" in repr_str
         for attr in MODULE_DISTRO.__dict__.keys():
-            if attr in ("root_dir", "etc_dir", "usr_lib_dir"):
+            if attr in ("root_dir", "etc_dir", "usr_lib_dir", "_debian_version"):
                 continue
             assert attr + "=" in repr_str
 
