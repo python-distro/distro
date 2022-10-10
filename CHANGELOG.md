@@ -1,3 +1,20 @@
+## 1.8.0 (2022.10.10)
+
+BACKWARD COMPATIBILITY:
+* Replace `setup.py` with `build` [[#342](https://github.com/python-distro/distro/pull/342)]
+
+ENHANCEMENTS:
+* Lowered `LinuxDistribution._distro_release_info` method complexity [[#327](https://github.com/python-distro/distro/pull/327)]
+* Added official support for Buildroot distribution [[#329](https://github.com/python-distro/distro/pull/329)]
+* Added official support for Guix distribution [[#330](https://github.com/python-distro/distro/pull/330)]
+* Added support for `/etc/debian_version` [[#333](https://github.com/python-distro/distro/pull/333)] & [[#349](https://github.com/python-distro/distro/pull/349)]
+* Fixed a typography in CONTRIBUTING.md [[#340](https://github.com/python-distro/distro/pull/340)]
+* Improved README.md "Usage" code block [[#343](https://github.com/python-distro/distro/pull/343)]
+
+RELEASE:
+* Bumped black to v22.3.0 in pre-commit.ci configuration [[#331](https://github.com/python-distro/distro/pull/331)]
+* Enabled GitHub Dependabot to keep GitHub Actions up to date [[#335](https://github.com/python-distro/distro/pull/335)]
+
 ## 1.7.0 (2022.02.15)
 
 BACKWARD COMPATIBILITY:
@@ -130,7 +147,7 @@ RELEASE:
 ## 1.0.4 (2017.04.01)
 
 BUG FIXES:
-* Guess common *-release files if /etc not readable [[#175](https://github.com/python-distro/distro/issues/175)]
+* Guess common \*-release files if /etc not readable [[#175](https://github.com/python-distro/distro/issues/175)]
 
 ## 1.0.3 (2017.03.19)
 
@@ -213,4 +230,3 @@ TESTS:
 
 DOCS:
 * Documentation fixes
-
