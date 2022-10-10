@@ -900,13 +900,7 @@ class LinuxDistribution:
             versions.insert(0, self.oslevel_info())
         elif self.id() == "debian" or "debian" in self.like().split():
             # On Debian-like, add debian_version file content to candidates list.
-            try:
-                with open(
-                    os.path.join(self.etc_dir, "debian_version"), encoding="ascii"
-                ) as fp:
-                    versions.append(fp.readline().rstrip())
-            except FileNotFoundError:
-                pass
+            versions.append(self._debian_version)
         version = ""
         if best:
             # This algorithm uses the last version in priority order that has
@@ -1216,6 +1210,16 @@ class LinuxDistribution:
         except (OSError, subprocess.CalledProcessError):
             return ""
         return self._to_str(stdout).strip()
+
+    @cached_property
+    def _debian_version(self) -> str:
+        try:
+            with open(
+                os.path.join(self.etc_dir, "debian_version"), encoding="ascii"
+            ) as fp:
+                return fp.readline().rstrip()
+        except FileNotFoundError:
+            return ""
 
     @staticmethod
     def _parse_uname_content(lines: Sequence[str]) -> Dict[str, str]:
