@@ -509,6 +509,21 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
+    def test_bttcb1_os_release(self) -> None:
+        desired_outcome = {
+            "id": "debian",
+            "codename": "bullseye",
+            "name": "Debian GNU/Linux",
+            "pretty_name": "BTT-CB1 2.3.1 Bullseye",
+            "like": "",
+            "version": "11",
+            "pretty_version": "11 (bullseye)",
+            "best_version": "11",
+            "major_version": "11",
+            "minor_version": "0",
+        }
+        self._test_outcome(desired_outcome)
+
 
 class TestWithRootDir(TestOSRelease):
     """Test that a LinuxDistribution can be created using an arbitrary root_dir

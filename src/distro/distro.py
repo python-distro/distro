@@ -151,6 +151,7 @@ _DISTRO_RELEASE_IGNORE_BASENAMES = (
     "system-release",
     "plesk-release",
     "iredmail-release",
+    "board-release",
 )
 
 
