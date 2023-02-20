@@ -25,17 +25,22 @@ jobs:
 
   test:
     name: Python ${{ matrix.python }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
+        os:
+          - "ubuntu-latest"
         python:
-          - "3.6"
           - "3.7"
           - "3.8"
           - "3.9"
           - "3.10"
-          - "pypy-3.6"
+        include:
+          - os: "ubuntu-20.04"
+            python: "3.6"
+          - os: "ubuntu-20.04"
+            python: "pypy-3.6"
 
     steps:
       - uses: actions/checkout@v3
