@@ -30,12 +30,15 @@ jobs:
     strategy:
       matrix:
         python:
-          - "3.6"
           - "3.7"
           - "3.8"
           - "3.9"
           - "3.10"
-          - "pypy-3.6"
+        include:
+          - os: "ubuntu-20.04"
+            python-version: "3.6"
+          - os: "ubuntu-20.04"
+            python-version: "pypy-3.6"
 
     steps:
       - uses: actions/checkout@v3
