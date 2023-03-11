@@ -125,6 +125,7 @@ _DISTRO_RELEASE_BASENAME_PATTERN = re.compile(r"(\w+)[-_](release|version)$")
 # Base file names to be looked up for if _UNIXCONFDIR is not readable.
 _DISTRO_RELEASE_BASENAMES = [
     "SuSE-release",
+    "altlinux-release",
     "arch-release",
     "base-release",
     "centos-release",
@@ -244,6 +245,7 @@ def id() -> str:
     "rocky"         Rocky Linux
     "aix"           AIX
     "guix"          Guix System
+    "altlinux"      ALT Linux
     ==============  =========================================
 
     If you have a need to get distros for reliable IDs added into this set,

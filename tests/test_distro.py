@@ -509,6 +509,19 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
+    def test_altlinux10_os_release(self) -> None:
+        desired_outcome = {
+            "id": "altlinux",
+            "name": "ALT Server",
+            "pretty_name": "ALT Server 10.1 (Mendelevium)",
+            "version": "10.1",
+            "pretty_version": "10.1",
+            "best_version": "10.1",
+            "major_version": "10",
+            "minor_version": "1",
+        }
+        self._test_outcome(desired_outcome)
+
     def test_bttcb1_os_release(self) -> None:
         desired_outcome = {
             "id": "debian",
@@ -1094,6 +1107,20 @@ class TestDistroRelease:
             "minor_version": "3",
         }
         self._test_outcome(desired_outcome, "cloudlinux", "7", "redhat")
+
+    def test_altlinux10_dist_release(self) -> None:
+        desired_outcome = {
+            "id": "altlinux",
+            "name": "ALT Server",
+            "codename": "Mendelevium",
+            "pretty_name": "ALT Server 10.1 (Mendelevium)",
+            "version": "10.1",
+            "pretty_version": "10.1 (Mendelevium)",
+            "best_version": "10.1",
+            "major_version": "10",
+            "minor_version": "1",
+        }
+        self._test_outcome(desired_outcome, "altlinux", "10")
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Irrelevant on non-linux")
@@ -1843,6 +1870,28 @@ class TestOverall(DistroTestCase):
             "minor_version": "3",
         }
         self._test_outcome(desired_outcome)
+
+    def test_altlinux10_release(self) -> None:
+        desired_outcome = {
+            "id": "altlinux",
+            "name": "ALT Server",
+            "codename": "Mendelevium",
+            "pretty_name": "ALT Server 10.1 (Mendelevium)",
+            "version": "10.1",
+            "pretty_version": "10.1 (Mendelevium)",
+            "best_version": "10.1",
+            "major_version": "10",
+            "minor_version": "1",
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            "id": "altlinux",
+            "name": "ALT Server",
+            "version_id": "10.1",
+            "codename": "Mendelevium",
+        }
+        self._test_release_file_info("altlinux-release", desired_info)
 
 
 def _bad_os_listdir(path: str = ".") -> NoReturn:
