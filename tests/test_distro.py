@@ -233,6 +233,18 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
+    def test_debiantesting_os_release(self) -> None:
+        desired_outcome = {
+            "id": "debian",
+            "name": "Debian GNU/Linux",
+            "pretty_name": "Debian GNU/Linux bookworm/sid",
+            "version": "bookworm/sid",
+            "pretty_version": "bookworm/sid (bookworm)",
+            "best_version": "bookworm/sid",
+            "codename": "bookworm",
+        }
+        self._test_outcome(desired_outcome)
+
     def test_fedora19_os_release(self) -> None:
         desired_outcome = {
             "id": "fedora",
@@ -1293,6 +1305,20 @@ class TestOverall(DistroTestCase):
             "best_version": "10.11",
             "codename": "buster",
             "major_version": "10",
+        }
+        self._test_outcome(desired_outcome)
+        self._test_non_existing_release_file()
+
+    def test_debiantesting_release(self) -> None:
+        desired_outcome = {
+            "id": "debian",
+            "name": "Debian GNU/Linux",
+            "pretty_name": "Debian GNU/Linux bookworm/sid",
+            "version": "bookworm/sid",
+            "pretty_version": "bookworm/sid (bookworm)",
+            "best_version": "bookworm/sid",
+            "codename": "bookworm",
+            "major_version": "",
         }
         self._test_outcome(desired_outcome)
         self._test_non_existing_release_file()
