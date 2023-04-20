@@ -153,6 +153,7 @@ _DISTRO_RELEASE_IGNORE_BASENAMES = (
     "plesk-release",
     "iredmail-release",
     "board-release",
+    "ec2_version",
 )
 
 
