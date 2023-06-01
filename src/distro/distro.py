@@ -995,10 +995,10 @@ class LinuxDistribution:
 
         For details, see :func:`distro.info`.
         """
-        return dict(
+        return InfoDict(
             id=self.id(),
             version=self.version(pretty, best),
-            version_parts=dict(
+            version_parts=VersionDict(
                 major=self.major_version(best),
                 minor=self.minor_version(best),
                 build_number=self.build_number(best),
