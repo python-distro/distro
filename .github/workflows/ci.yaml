@@ -45,7 +45,7 @@ jobs:
             python: "pypy-3.6"
           - os: "ubuntu-22.04"
             python: "pypy-3.10"
-          - os: "macos-latest"
+          - os: "macos-12"
             python: 3.12
 
     steps:
