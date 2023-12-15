@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -25,20 +25,31 @@ jobs:
 
   test:
     name: Python ${{ matrix.python }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
+        os:
+          - "ubuntu-latest"
         python:
-          - "3.6"
           - "3.7"
           - "3.8"
           - "3.9"
           - "3.10"
-          - "pypy-3.6"
+          - "3.11"
+          - "3.12"
+        include:
+          - os: "ubuntu-20.04"
+            python: "3.6"
+          - os: "ubuntu-20.04"
+            python: "pypy-3.6"
+          - os: "ubuntu-22.04"
+            python: "pypy-3.10"
+          - os: "macos-12"
+            python: 3.12
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v4
@@ -61,7 +72,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: codecov/codecov-action@v3
 
