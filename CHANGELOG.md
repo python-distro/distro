@@ -1,4 +1,4 @@
-## UNRELEASED
+## 1.9.0 (2023.12.19)
 
 ENHANCEMENTS:
 * Refactor distro.info() method to return an InfoDict [[#360](https://github.com/python-distro/distro/pull/360)]
