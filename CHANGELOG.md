@@ -8,7 +8,6 @@ ENHANCEMENTS:
 RELEASE:
 * Run Python 3.6 on Ubuntu 20.04 for CI and bump isort [[#355](https://github.com/python-distro/distro/pull/355)]
 
-
 TESTS:
 * Test on modern versions of CPython and PyPy and macOS [[#362](https://github.com/python-distro/distro/pull/362)]
 * Add support for ALT Linux Server 10.1 distribution [[#354](https://github.com/python-distro/distro/pull/354)]
