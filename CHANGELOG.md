@@ -1,3 +1,19 @@
+## 1.9.0 (2023.12.19)
+
+ENHANCEMENTS:
+* Refactor distro.info() method to return an InfoDict [[#360](https://github.com/python-distro/distro/pull/360)]
+* Ignore the file '/etc/board-release' [[#353](https://github.com/python-distro/distro/pull/353)]
+* Ignore the file '/etc/ec2_version' [[#359](https://github.com/python-distro/distro/pull/353)]
+
+RELEASE:
+* Run Python 3.6 on Ubuntu 20.04 for CI and bump isort [[#355](https://github.com/python-distro/distro/pull/355)]
+
+TESTS:
+* Test on modern versions of CPython and PyPy and macOS [[#362](https://github.com/python-distro/distro/pull/362)]
+* Add support for ALT Linux Server 10.1 distribution [[#354](https://github.com/python-distro/distro/pull/354)]
+* Add Debian Testing to the tests [[#356](https://github.com/python-distro/distro/pull/356)]
+* Update archlinux resource for tests [[#352](https://github.com/python-distro/distro/pull/352)]
+
 ## 1.8.0 (2022.10.10)
 
 BACKWARD COMPATIBILITY:

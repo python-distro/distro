@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright 2015,2016,2017 Nir Cohen
+# Copyright 2015-2021 Nir Cohen
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ except ImportError:
     # Python 3.7
     TypedDict = dict
 
-__version__ = "1.8.0"
+__version__ = "1.9.0"
 
 
 class VersionDict(TypedDict):

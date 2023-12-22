@@ -1,4 +1,4 @@
-# Copyright 2015,2016 Nir Cohen
+# Copyright 2015-2021 Nir Cohen
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ release: test clean build publish
 
 .PHONY: test
 test:
-	pip install 'tox>=1.7.2'
+	pip install 'tox>=1.9.0'
 	tox
 	@echo "$@ done."
 
