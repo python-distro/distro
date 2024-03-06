@@ -1919,6 +1919,24 @@ class TestOverall(DistroTestCase):
         }
         self._test_release_file_info("altlinux-release", desired_info)
 
+    def test_armbian_release(self) -> None:
+        desired_outcome = {
+            "id": "debian",
+            "codename": "buster",
+            "name": "Debian GNU/Linux",
+            "pretty_name": "Debian GNU/Linux 10 (buster)",
+            "like": "",
+            "version": "10",
+            "pretty_version": "10 (buster)",
+            "best_version": "10",
+            "major_version": "10",
+            "minor_version": "",
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {"id": "armbian", "name": "Armbian"}
+        self._test_release_file_info("armbian-release", desired_info)
+
 
 def _bad_os_listdir(path: str = ".") -> NoReturn:
     """This function is used by TestOverallWithEtcNotReadable to simulate

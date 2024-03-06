@@ -141,6 +141,7 @@ _DISTRO_RELEASE_BASENAMES = [
     "rocky-release",
     "sl-release",
     "slackware-version",
+    "armbian-release",
 ]
 
 # Base file names to be ignored when searching for distro release file
@@ -1300,7 +1301,12 @@ class LinuxDistribution:
                 return {}
 
         if match is not None:
-            distro_info["id"] = match.group(1)
+            distro_info["id"] = id = match.group(1)
+
+            # Armbian release files are not standard and have a comment on
+            # the start of the file.
+            if id == "armbian" and distro_info.get("name", "").startswith("#"):
+                distro_info["name"] = "Armbian"
 
         # CloudLinux < 7: manually enrich info with proper id.
         if "cloudlinux" in distro_info.get("name", "").lower():
