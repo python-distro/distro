@@ -1301,11 +1301,13 @@ class LinuxDistribution:
                 return {}
 
         if match is not None:
-            distro_info["id"] = id = match.group(1)
+            distro_info["id"] = match.group(1)
 
-            # Armbian release files are not standard and have a comment on
-            # the start of the file.
-            if id == "armbian" and distro_info.get("name", "").startswith("#"):
+            # Armbian release files are not standard as they start with a
+            # comment. Manually set name if it has not been inferred.
+            if distro_info["id"] == "armbian" and distro_info.get(
+                "name", ""
+            ).startswith("#"):
                 distro_info["name"] = "Armbian"
 
         # CloudLinux < 7: manually enrich info with proper id.
