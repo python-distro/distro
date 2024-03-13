@@ -127,6 +127,7 @@ _DISTRO_RELEASE_BASENAMES = [
     "SuSE-release",
     "altlinux-release",
     "arch-release",
+    "armbian-release",
     "base-release",
     "centos-release",
     "fedora-release",
@@ -141,7 +142,6 @@ _DISTRO_RELEASE_BASENAMES = [
     "rocky-release",
     "sl-release",
     "slackware-version",
-    "armbian-release",
 ]
 
 # Base file names to be ignored when searching for distro release file
