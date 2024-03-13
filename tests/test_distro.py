@@ -1934,7 +1934,10 @@ class TestOverall(DistroTestCase):
         }
         self._test_outcome(desired_outcome)
 
-        desired_info = {"id": "armbian", "name": "Armbian"}
+        desired_info = {
+            "id": "armbian",
+            "name": "Armbian",
+        }
         self._test_release_file_info("armbian-release", desired_info)
 
 
