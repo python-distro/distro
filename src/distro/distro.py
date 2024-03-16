@@ -906,6 +906,9 @@ class LinuxDistribution:
         elif self.id() == "debian" or "debian" in self.like().split():
             # On Debian-like, add debian_version file content to candidates list.
             versions.append(self._debian_version)
+            if self._distro_release_info.get("id") == "armbian":
+                # On Armbian, add version from armbian-release file to candidates list.
+                versions.append(self._armbian_version)
         version = ""
         if best:
             # This algorithm uses the last version in priority order that has
@@ -1226,6 +1229,16 @@ class LinuxDistribution:
         except FileNotFoundError:
             return ""
 
+    @cached_property
+    def _armbian_version(self) -> str:
+        try:
+            with open(
+                os.path.join(self.etc_dir, "armbian-release"), encoding="ascii"
+            ) as fp:
+                return self._parse_os_release_content(fp).get("version", "")
+        except FileNotFoundError:
+            return ""
+
     @staticmethod
     def _parse_uname_content(lines: Sequence[str]) -> Dict[str, str]:
         if not lines:
@@ -1309,6 +1322,7 @@ class LinuxDistribution:
                 "name", ""
             ).startswith("#"):
                 distro_info["name"] = "Armbian"
+                distro_info["version_id"] = self._armbian_version
 
         # CloudLinux < 7: manually enrich info with proper id.
         if "cloudlinux" in distro_info.get("name", "").lower():
