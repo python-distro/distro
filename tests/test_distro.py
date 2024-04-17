@@ -1919,6 +1919,28 @@ class TestOverall(DistroTestCase):
         }
         self._test_release_file_info("altlinux-release", desired_info)
 
+    def test_armbian_release(self) -> None:
+        desired_outcome = {
+            "id": "debian",
+            "codename": "buster",
+            "name": "Debian GNU/Linux",
+            "pretty_name": "Debian GNU/Linux 10 (buster)",
+            "like": "",
+            "version": "10",
+            "pretty_version": "10 (buster)",
+            "best_version": "23.02.2",
+            "major_version": "10",
+            "minor_version": "",
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            "id": "armbian",
+            "name": "Armbian",
+            "version_id": "23.02.2",
+        }
+        self._test_release_file_info("armbian-release", desired_info)
+
 
 def _bad_os_listdir(path: str = ".") -> NoReturn:
     """This function is used by TestOverallWithEtcNotReadable to simulate
@@ -2362,6 +2384,12 @@ class TestRepr:
         repr_str = repr(distro._distro)
         assert "LinuxDistribution" in repr_str
         for attr in MODULE_DISTRO.__dict__.keys():
-            if attr in ("root_dir", "etc_dir", "usr_lib_dir", "_debian_version"):
+            if attr in (
+                "root_dir",
+                "etc_dir",
+                "usr_lib_dir",
+                "_debian_version",
+                "_armbian_version",
+            ):
                 continue
             assert f"{attr}=" in repr_str
