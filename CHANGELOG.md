@@ -1,3 +1,8 @@
+## 1.10.0 (2024.MM.DD)
+
+ENHANCEMENTS:
+* Added support for Armbian release info (`/etc/armbian-release`) [[#366](https://github.com/python-distro/distro/pull/366)]
+
 ## 1.9.0 (2023.12.19)
 
 ENHANCEMENTS:
