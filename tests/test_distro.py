@@ -36,6 +36,7 @@ if IS_LINUX:
     from distro import distro
 
     RELATIVE_UNIXCONFDIR = distro._UNIXCONFDIR[1:]
+    RELATIVE_UNIXPROCDIR = distro._UNIXPROCDIR[1:]
     RELATIVE_UNIXUSRLIBDIR = distro._UNIXUSRLIBDIR[1:]
     MODULE_DISTRO = distro._distro
 
@@ -118,11 +119,13 @@ class DistroTestCase:
         # changes it:
         self._saved_path = os.environ["PATH"]
         self._saved_UNIXCONFDIR = distro._UNIXCONFDIR
+        self._saved_UNIXPROCDIR = distro._UNIXPROCDIR
         self._saved_UNIXUSRLIBDIR = distro._UNIXUSRLIBDIR
 
     def teardown_method(self, test_method: FunctionType) -> None:
         os.environ["PATH"] = self._saved_path
         distro._UNIXCONFDIR = self._saved_UNIXCONFDIR
+        distro._UNIXPROCDIR = self._saved_UNIXPROCDIR
         distro._UNIXUSRLIBDIR = self._saved_UNIXUSRLIBDIR
 
     def _setup_for_distro(self, distro_root: str) -> None:
@@ -131,6 +134,7 @@ class DistroTestCase:
         # distro that runs this test, so we use a PATH with only one entry:
         os.environ["PATH"] = distro_bin
         distro._UNIXCONFDIR = os.path.join(distro_root, RELATIVE_UNIXCONFDIR)
+        distro._UNIXPROCDIR = os.path.join(distro_root, RELATIVE_UNIXPROCDIR)
         distro._UNIXUSRLIBDIR = os.path.join(distro_root, RELATIVE_UNIXUSRLIBDIR)
 
 
@@ -627,6 +631,42 @@ class TestLSBRelease(DistroTestCase):
     #         'best_version': '6.0.3',
     #     }
     #     self._test_outcome(desired_outcome)
+
+    def test_cloudlinuxvm7_uname(self) -> None:
+        self._test_outcome(
+            {
+                "id": "cloudlinux",
+                "name": "CloudLinux",
+                "version": "7",
+                "pretty_name": "CloudLinux 7",
+                "pretty_version": "7",
+                "best_version": "7",
+            }
+        )
+
+    def test_cloudlinuxvm8_uname(self) -> None:
+        self._test_outcome(
+            {
+                "id": "cloudlinux",
+                "name": "CloudLinux",
+                "version": "8",
+                "pretty_name": "CloudLinux 8",
+                "pretty_version": "8",
+                "best_version": "8",
+            }
+        )
+
+    def test_cloudlinuxvm9_uname(self) -> None:
+        self._test_outcome(
+            {
+                "id": "cloudlinux",
+                "name": "CloudLinux",
+                "version": "9.4",
+                "pretty_name": "CloudLinux 9.4",
+                "pretty_version": "9.4",
+                "best_version": "9.4",
+            }
+        )
 
     def test_openbsd62_uname(self) -> None:
         self._test_outcome(
@@ -2406,9 +2446,11 @@ class TestRepr:
             if attr in (
                 "root_dir",
                 "etc_dir",
+                "proc_dir",
                 "usr_lib_dir",
                 "_debian_version",
                 "_armbian_version",
+                "_kernel_modules",
             ):
                 continue
             assert f"{attr}=" in repr_str
