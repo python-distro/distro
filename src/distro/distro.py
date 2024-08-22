@@ -546,9 +546,21 @@ def distro_release_info() -> Dict[str, str]:
 
 def uname_info() -> Dict[str, str]:
     """
+    .. deprecated:: 1.10.0
+
+        :func:`distro.uname_info()` is deprecated and will be removed in a
+        future version. Please use :func:`os.uname()` or :func:`platform.uname()`
+        instead.
+
     Return a dictionary containing key-value pairs for the information items
     from the distro release file data source of the current OS distribution.
     """
+    warnings.warn(
+        "distro.uname_info() is deprecated and will be removed in a future version. "
+        "Please use os.uname() or platform.uname() instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     return _distro.uname_info()
 
 
@@ -612,6 +624,12 @@ def distro_release_attr(attribute: str) -> str:
 
 def uname_attr(attribute: str) -> str:
     """
+    .. deprecated:: 1.10.0
+
+        :func:`distro.uname_attr()` is deprecated and will be removed in a
+        future version. Please use :func:`os.uname()` or :func:`platform.uname()`
+        instead.
+
     Return a single named information item from the distro release file
     data source of the current OS distribution.
 
@@ -624,6 +642,12 @@ def uname_attr(attribute: str) -> str:
     * (string): Value of the information item, if the item exists.
                 The empty string, if the item does not exist.
     """
+    warnings.warn(
+        "distro.uname_attr() is deprecated and will be removed in a future version. "
+        "Please use os.uname() or platform.uname() instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     return _distro.uname_attr(attribute)
 
 
@@ -853,7 +877,7 @@ class LinuxDistribution:
         if distro_id:
             return normalize(distro_id, NORMALIZED_DISTRO_ID)
 
-        distro_id = self.uname_attr("id")
+        distro_id = self._uname_attr("id")
         if distro_id:
             return normalize(distro_id, NORMALIZED_DISTRO_ID)
 
@@ -869,14 +893,14 @@ class LinuxDistribution:
             self.os_release_attr("name")
             or self.lsb_release_attr("distributor_id")
             or self.distro_release_attr("name")
-            or self.uname_attr("name")
+            or self._uname_attr("name")
         )
         if pretty:
             name = self.os_release_attr("pretty_name") or self.lsb_release_attr(
                 "description"
             )
             if not name:
-                name = self.distro_release_attr("name") or self.uname_attr("name")
+                name = self.distro_release_attr("name") or self._uname_attr("name")
                 version = self.version(pretty=True)
                 if version:
                     name = f"{name} {version}"
@@ -898,9 +922,9 @@ class LinuxDistribution:
             self._parse_distro_release_content(
                 self.lsb_release_attr("description")
             ).get("version_id", ""),
-            self.uname_attr("release"),
+            self._uname_attr("release"),
         ]
-        if self.uname_attr("id").startswith("aix"):
+        if self._uname_attr("id").startswith("aix"):
             # On AIX platforms, prefer oslevel command output.
             versions.insert(0, self.oslevel_info())
         elif self.id() == "debian" or "debian" in self.like().split():
@@ -1042,11 +1066,25 @@ class LinuxDistribution:
 
     def uname_info(self) -> Dict[str, str]:
         """
+        .. deprecated:: 1.10.0
+
+            :func:`LinuxDistribution.uname_info()` is deprecated and will be removed
+            in a future version. Please use :func:`os.uname()` or
+            :func:`platform.uname()` instead.
+
         Return a dictionary containing key-value pairs for the information
         items from the uname command data source of the OS distribution.
 
         For details, see :func:`distro.uname_info`.
         """
+        warnings.warn(
+            (
+                "LinuxDistribution.uname_info() is deprecated and will be removed in a"
+                " future version. Please use os.uname() or platform.uname() instead."
+            ),
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return self._uname_info
 
     def oslevel_info(self) -> str:
@@ -1083,6 +1121,29 @@ class LinuxDistribution:
         return self._distro_release_info.get(attribute, "")
 
     def uname_attr(self, attribute: str) -> str:
+        """
+        .. deprecated:: 1.10.0
+
+            :func:`LinuxDistribution.uname_attr()` is deprecated and will be removed in
+            a future version. Please use :func:`os.uname()` or :func:`platform.uname()`
+            instead.
+
+        Return a single named information item from the uname command
+        output data source of the OS distribution.
+
+        For details, see :func:`distro.uname_attr`.
+        """
+        warnings.warn(
+            (
+                "LinuxDistribution.uname_attr() is deprecated and will be removed in a"
+                " future version. Please use os.uname() or platform.uname() instead."
+            ),
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self._uname_attr(attribute)
+
+    def _uname_attr(self, attribute: str) -> str:
         """
         Return a single named information item from the uname command
         output data source of the OS distribution.
