@@ -1204,7 +1204,7 @@ class LinuxDistribution:
         try:
             cmd = ("uname", "-rs")
             stdout = subprocess.check_output(cmd, stderr=subprocess.DEVNULL)
-        except OSError:
+        except (OSError, subprocess.CalledProcessError):
             return {}
         content = self._to_str(stdout).splitlines()
         return self._parse_uname_content(content)
