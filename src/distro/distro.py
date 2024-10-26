@@ -42,6 +42,7 @@ from typing import (
     Callable,
     Dict,
     Iterable,
+    List,
     Optional,
     Sequence,
     TextIO,
@@ -73,6 +74,7 @@ class InfoDict(TypedDict):
 
 
 _UNIXCONFDIR = os.environ.get("UNIXCONFDIR", "/etc")
+_UNIXPROCDIR = os.environ.get("UNIXPROCDIR", "/proc")
 _UNIXUSRLIBDIR = os.environ.get("UNIXUSRLIBDIR", "/usr/lib")
 _OS_RELEASE_BASENAME = "os-release"
 
@@ -759,6 +761,7 @@ class LinuxDistribution:
         """
         self.root_dir = root_dir
         self.etc_dir = os.path.join(root_dir, "etc") if root_dir else _UNIXCONFDIR
+        self.proc_dir = os.path.join(root_dir, "proc") if root_dir else _UNIXPROCDIR
         self.usr_lib_dir = (
             os.path.join(root_dir, "usr/lib") if root_dir else _UNIXUSRLIBDIR
         )
@@ -1239,14 +1242,32 @@ class LinuxDistribution:
         except FileNotFoundError:
             return ""
 
-    @staticmethod
-    def _parse_uname_content(lines: Sequence[str]) -> Dict[str, str]:
+    def _parse_uname_content(self, lines: Sequence[str]) -> Dict[str, str]:
         if not lines:
             return {}
         props = {}
-        match = re.search(r"^([^\s]+)\s+([\d\.]+)", lines[0].strip())
+        match = re.search(r"^([^\s]+)\s+([^\s]+)", lines[0].strip())
         if match:
-            name, version = match.groups()
+            name, release = match.groups()
+
+            # CloudLinux detection relies on uname release information
+            release_parts = release.split(".")
+            if (
+                # check penultimate release component contains an "el*" version
+                len(release_parts) > 1
+                and release_parts[-2].startswith("el")
+                and (
+                    # CloudLinux < 9 : "lve*" is set in kernel release
+                    any(rc.startswith("lve") for rc in release_parts)
+                    # CloudLinux >= 9 : check whether "kmodlve" is loaded
+                    or "kmodlve" in self._loaded_modules
+                )
+            ):
+                props["id"] = "cloudlinux"
+                props["name"] = "CloudLinux"
+                # strip "el" prefix and replace underscores by dots
+                props["release"] = release_parts[-2][2:].replace("_", ".")
+                return props
 
             # This is to prevent the Linux kernel version from
             # appearing as the 'best' version on otherwise
@@ -1255,8 +1276,16 @@ class LinuxDistribution:
                 return {}
             props["id"] = name.lower()
             props["name"] = name
-            props["release"] = version
+            props["release"] = release.split("-")[0]  # only keep version part
         return props
+
+    @cached_property
+    def _loaded_modules(self) -> List[str]:
+        try:
+            with open(os.path.join(self.proc_dir, "modules"), encoding="ascii") as fp:
+                return [line.split()[0] for line in fp]
+        except OSError:
+            return []
 
     @staticmethod
     def _to_str(bytestring: bytes) -> str:
