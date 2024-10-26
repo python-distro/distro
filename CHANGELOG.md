@@ -1,3 +1,17 @@
+## 1.10.0 (2025.MM.DD)
+
+BACKWARDS COMPATIBILITY:
+* Dropped support for EOL Python 3.6 [[#377](https://github.com/python-distro/distro/pull/377)]
+* Deprecated the `distro.uname_attr()` and `distro.uname_info()`.
+  Use `os.uname()` or `platform.uname()` instead [[#370](https://github.com/python-distro/distro/pull/370)]
+
+ENHANCEMENTS:
+* Added support for Armbian release info (`/etc/armbian-release`) [[#366](https://github.com/python-distro/distro/pull/366)]
+
+BUG FIXES:
+* Ignored `n/a` from `lsb_release` output
+* Handled `CalledProcessError` when calling `lsb_release` and `uname`
+
 ## 1.9.0 (2023.12.19)
 
 ENHANCEMENTS:

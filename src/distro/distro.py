@@ -55,7 +55,7 @@ except ImportError:
     # Python 3.7
     TypedDict = dict  # type: ignore[assignment]
 
-__version__ = "1.9.0"
+__version__ = "1.10.0"
 
 
 class VersionDict(TypedDict):
