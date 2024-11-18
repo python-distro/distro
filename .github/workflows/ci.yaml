@@ -63,7 +63,7 @@ jobs:
         run: tox -e py
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           files: .coverage
 
@@ -74,7 +74,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v5
 
       - name: Set up Python
         uses: actions/setup-python@v5
