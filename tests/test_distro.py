@@ -695,6 +695,25 @@ class TestLSBRelease(DistroTestCase):
         }
         self._test_outcome(desired_outcome)
 
+    def test_debian13noosrelease_lsb_release(self) -> None:
+        self._setup_for_distro(os.path.join(TESTDISTROS, "lsb", "debian13_noosrelease"))
+
+        self.distro = distro.LinuxDistribution(
+            os_release_file="path-to-non-existing-file",
+            distro_release_file="path-to-non-existing-file",
+        )
+
+        desired_outcome = {
+            "id": "debian",
+            "name": "Debian",
+            "pretty_name": "Debian GNU/Linux trixie/sid",
+            "version": "trixie/sid",
+            "pretty_version": "trixie/sid (trixie)",
+            "best_version": "trixie/sid",
+            "codename": "trixie",
+        }
+        self._test_outcome(desired_outcome)
+
     def test_ubuntu14nomodules_lsb_release(self) -> None:
         self._setup_for_distro(os.path.join(TESTDISTROS, "lsb", "ubuntu14_nomodules"))
 
@@ -1677,9 +1696,9 @@ class TestOverall(DistroTestCase):
             "name": "SLES",
             "pretty_name": "SUSE Linux Enterprise Server 12 SP1",
             "version": "12.1",
-            "pretty_version": "12.1 (n/a)",
+            "pretty_version": "12.1 (s390x)",
             "best_version": "12.1",
-            "codename": "n/a",
+            "codename": "s390x",
             "major_version": "12",
             "minor_version": "1",
         }
