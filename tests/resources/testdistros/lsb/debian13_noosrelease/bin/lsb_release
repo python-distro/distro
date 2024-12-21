@@ -1,0 +1,8 @@
+#!/bin/bash
+/bin/cat <<'EOT'
+No LSB modules are available.
+Distributor ID:	Debian
+Description:	Debian GNU/Linux trixie/sid
+Release:	n/a
+Codename:	trixie
+EOT
