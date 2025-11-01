@@ -109,7 +109,7 @@ namely from these data sources (from high to low precedence):
 
 ## Python and Distribution Support
 
-`distro` is supported and tested on Python 3.6+ and PyPy and on any
+`distro` is supported and tested on Python 3.7+ and PyPy and on any
 distribution that provides one or more of the data sources covered.
 
 This package is tested with test data that mimics the exact behavior of the data sources of [a number of Linux distributions](https://github.com/python-distro/distro/tree/master/tests/resources/distros).
