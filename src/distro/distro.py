@@ -53,7 +53,7 @@ try:
     from typing import TypedDict
 except ImportError:
     # Python 3.7
-    TypedDict = dict
+    TypedDict = dict  # type: ignore[assignment]
 
 __version__ = "1.9.0"
 
