@@ -2241,16 +2241,16 @@ class TestOSReleaseParsing:
 
     def test_kv_22_quoted_unicode_wordchar(self) -> None:
         # "wordchar" means it is in the shlex.wordchars variable.
-        props = self._get_props('KEY="wordchar: \u00CA (E accent grave)"\n')
-        assert props.get("key", None) == "wordchar: \u00CA (E accent grave)"
+        props = self._get_props('KEY="wordchar: \u00ca (E accent grave)"\n')
+        assert props.get("key", None) == "wordchar: \u00ca (E accent grave)"
 
     def test_kv_23_quoted_unicode_non_wordchar(self) -> None:
         # "non-wordchar" means it is not in the shlex.wordchars variable.
         props = self._get_props(
-            'KEY="non-wordchar: \u00A1 (inverted exclamation mark)"\n'
+            'KEY="non-wordchar: \u00a1 (inverted exclamation mark)"\n'
         )
         assert (
-            props.get("key", None) == "non-wordchar: \u00A1 (inverted exclamation mark)"
+            props.get("key", None) == "non-wordchar: \u00a1 (inverted exclamation mark)"
         )
 
     def test_kv_24_double_quoted_entire_single_quoted_word(self) -> None:
