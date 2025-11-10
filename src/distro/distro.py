@@ -37,6 +37,7 @@ import shlex
 import subprocess
 import sys
 import warnings
+from pathlib import Path
 from typing import (
     Any,
     Callable,
@@ -795,9 +796,15 @@ class LinuxDistribution:
                 self.usr_lib_dir, _OS_RELEASE_BASENAME
             )
 
+            def __isfile(path: str) -> bool:
+                try:
+                    return os.path.isfile(self._resolve_path_relatively_to_chroot(path))
+                except FileNotFoundError:
+                    return False
+
             # NOTE: The idea is to respect order **and** have it set
             #       at all times for API backwards compatibility.
-            if os.path.isfile(etc_dir_os_release_file) or not os.path.isfile(
+            if __isfile(etc_dir_os_release_file) or not __isfile(
                 usr_lib_os_release_file
             ):
                 self.os_release_file = etc_dir_os_release_file
@@ -1152,6 +1159,101 @@ class LinuxDistribution:
         """
         return self._uname_info.get(attribute, "")
 
+    @staticmethod
+    def __abs_path_join(root_path: Path, abs_path: Path) -> Path:
+        rel_path = os.path.splitdrive(abs_path)[1].lstrip(os.sep)
+        if os.altsep is not None:
+            rel_path = rel_path.lstrip(os.altsep)
+
+        return root_path / Path(rel_path)
+
+    def _resolve_path_relatively_to_chroot(self, path: str) -> Path:
+        """
+        Resolves any encountered symbolic links in ``path`` relatively to
+        ``self.root_dir``, if defined. Otherwise it would simply return
+        original ``path``.
+        This function could be considered as a "soft-chroot" implementation.
+        We're doing this check at a central place, to make calling code more readable
+        and to de-duplicate.
+
+        Raises:
+
+        * :py:exc:`FileNotFoundError`: ``path`` doesn't resolve in chroot, or resolving
+                                       it lead to symbolic links loop
+
+        Examples :
+
+        * if root_dir="/path/to/chroot" and path="folder/../../../../etc/os-release"
+          with "etc" resolving to "/mnt/disk/etc" and "os-release" to
+          "../../usr/lib/os-release", this function returns
+          "/path/to/chroot/mnt/usr/lib/os-release"
+
+        * if root_dir=None and path="/path/to/os-release", this function returns
+          "/path/to/os-release"
+        """
+        path_to_resolve = Path(path)
+
+        if self.root_dir is None:
+            return path_to_resolve
+
+        # resolve `self.root_dir` once and for all
+        chroot_path = Path(self.root_dir).resolve()
+
+        # consider non-absolute `path_to_resolve` relative to chroot
+        if not path_to_resolve.is_absolute():
+            path_to_resolve = chroot_path / path_to_resolve
+
+        seen_paths = set()
+        while True:
+            # although `path_to_resolve` _should_ be relative to chroot (either
+            # passed from trusted code or already resolved by previous loop
+            # iteration), we enforce this check as some inputs are available through API
+            try:
+                relative_parts = path_to_resolve.relative_to(chroot_path).parts
+            except ValueError:
+                raise FileNotFoundError
+
+            # iterate over (relative) path segments and try to resolve each one of them
+            for i, part in enumerate(relative_parts, start=1):
+                if part == os.pardir:
+                    # normalize path parts up to this segment (relatively to chroot)
+                    path_to_resolve = self.__abs_path_join(
+                        chroot_path,
+                        Path(os.path.normpath("/" / Path(*relative_parts[:i]))),
+                    ) / Path(*relative_parts[i:])
+                    break  # restart path resolution as path has just been normalized
+
+                # attempt symbolic link resolution on current path segment
+                symlink_candidate = chroot_path / Path(*relative_parts[:i])
+                try:
+                    symlink_resolved = Path(os.readlink(symlink_candidate))
+                except (
+                    AttributeError,  # `readlink` isn't supported by system
+                    OSError,  # not a symlink, go to next path segment
+                ):
+                    continue
+
+                # "bend" **absolute** resolved path inside the chroot
+                # consider **non-absolute** resolved path relatively to chroot
+                if symlink_resolved.is_absolute():
+                    path_to_resolve = self.__abs_path_join(
+                        chroot_path, symlink_resolved
+                    )
+                else:
+                    path_to_resolve = symlink_candidate.parent / symlink_resolved
+
+                # append remaining path segments to resolved path
+                path_to_resolve /= Path(*relative_parts[i:])
+                break  # restart path resolution as a symlink has just been resolved
+            else:
+                # `path_to_resolve` can be considered resolved, return it
+                return path_to_resolve
+
+            # prevent symlinks infinite loop by tracking successive resolutions
+            if path_to_resolve in seen_paths:
+                raise FileNotFoundError
+            seen_paths.add(path_to_resolve)
+
     @cached_property
     def _os_release_info(self) -> Dict[str, str]:
         """
@@ -1160,10 +1262,14 @@ class LinuxDistribution:
         Returns:
             A dictionary containing all information items.
         """
-        if os.path.isfile(self.os_release_file):
-            with open(self.os_release_file, encoding="utf-8") as release_file:
+        try:
+            with open(
+                self._resolve_path_relatively_to_chroot(self.os_release_file),
+                encoding="utf-8",
+            ) as release_file:
                 return self._parse_os_release_content(release_file)
-        return {}
+        except FileNotFoundError:
+            return {}
 
     @staticmethod
     def _parse_os_release_content(lines: TextIO) -> Dict[str, str]:
@@ -1286,7 +1392,10 @@ class LinuxDistribution:
     def _debian_version(self) -> str:
         try:
             with open(
-                os.path.join(self.etc_dir, "debian_version"), encoding="ascii"
+                self._resolve_path_relatively_to_chroot(
+                    os.path.join(self.etc_dir, "debian_version")
+                ),
+                encoding="ascii",
             ) as fp:
                 return fp.readline().rstrip()
         except FileNotFoundError:
@@ -1296,7 +1405,10 @@ class LinuxDistribution:
     def _armbian_version(self) -> str:
         try:
             with open(
-                os.path.join(self.etc_dir, "armbian-release"), encoding="ascii"
+                self._resolve_path_relatively_to_chroot(
+                    os.path.join(self.etc_dir, "armbian-release")
+                ),
+                encoding="ascii",
             ) as fp:
                 return self._parse_os_release_content(fp).get("version", "")
         except FileNotFoundError:
@@ -1348,9 +1460,10 @@ class LinuxDistribution:
             try:
                 basenames = [
                     basename
-                    for basename in os.listdir(self.etc_dir)
+                    for basename in os.listdir(
+                        self._resolve_path_relatively_to_chroot(self.etc_dir)
+                    )
                     if basename not in _DISTRO_RELEASE_IGNORE_BASENAMES
-                    and os.path.isfile(os.path.join(self.etc_dir, basename))
                 ]
                 # We sort for repeatability in cases where there are multiple
                 # distro specific files; e.g. CentOS, Oracle, Enterprise all
@@ -1366,12 +1479,13 @@ class LinuxDistribution:
                 match = _DISTRO_RELEASE_BASENAME_PATTERN.match(basename)
                 if match is None:
                     continue
-                filepath = os.path.join(self.etc_dir, basename)
-                distro_info = self._parse_distro_release_file(filepath)
+                # NOTE: _parse_distro_release_file below will be resolving for us
+                unresolved_filepath = os.path.join(self.etc_dir, basename)
+                distro_info = self._parse_distro_release_file(unresolved_filepath)
                 # The name is always present if the pattern matches.
                 if "name" not in distro_info:
                     continue
-                self.distro_release_file = filepath
+                self.distro_release_file = unresolved_filepath
                 break
             else:  # the loop didn't "break": no candidate.
                 return {}
@@ -1405,7 +1519,10 @@ class LinuxDistribution:
             A dictionary containing all information items.
         """
         try:
-            with open(filepath, encoding="utf-8") as fp:
+            with open(
+                self._resolve_path_relatively_to_chroot(filepath),
+                encoding="utf-8",
+            ) as fp:
                 # Only parse the first line. For instance, on SLES there
                 # are multiple lines. We don't want them...
                 return self._parse_distro_release_content(fp.readline())
@@ -1465,12 +1582,7 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.root_dir:
-        dist = LinuxDistribution(
-            include_lsb=False,
-            include_uname=False,
-            include_oslevel=False,
-            root_dir=args.root_dir,
-        )
+        dist = LinuxDistribution(root_dir=args.root_dir)
     else:
         dist = _distro
 

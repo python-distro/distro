@@ -139,7 +139,6 @@ class TestOSRelease:
     def setup_method(self, test_method: FunctionType) -> None:
         dist = test_method.__name__.split("_")[1]
         self.distro = distro.LinuxDistribution(
-            include_lsb=False,
             distro_release_file="path-to-non-existing-file",
             root_dir=os.path.join(DISTROS_DIR, dist),
         )
@@ -559,9 +558,6 @@ class TestWithRootDir(TestOSRelease):
         dist = test_method.__name__.split("_")[1]
         root_dir = os.path.join(DISTROS_DIR, dist)
         self.distro = distro.LinuxDistribution(
-            include_lsb=False,
-            include_uname=False,
-            include_oslevel=False,
             os_release_file="",
             distro_release_file="path-to-non-existing-file",
             root_dir=root_dir,
@@ -792,6 +788,58 @@ class TestSpecialRelease(DistroTestCase):
 
         desired_outcome = {"id": "empty"}
         self._test_outcome(desired_outcome)
+
+    def test_root_dir_os_release_file_relative(self) -> None:
+        self.distro = distro.LinuxDistribution(
+            root_dir=os.path.join(TESTDISTROS, "distro", "root_dir_os_release_file"),
+            os_release_file="tmp/os-release",
+        )
+        desired_outcome = {"id": "root_dir_os_release_file"}
+        self._test_outcome(desired_outcome)
+
+    def test_root_dir_os_release_file_absolute(self) -> None:
+        self.distro = distro.LinuxDistribution(
+            root_dir=os.path.join(TESTDISTROS, "distro", "root_dir_os_release_file"),
+            os_release_file="/tmp/os-release",
+        )
+        # as we honor `os_release_file`, loading existing file outside of root_dir has
+        # been prevented (empty data)
+        self._test_outcome({})
+
+    def test_root_dir_absolute_symlinks(self) -> None:
+        self.distro = distro.LinuxDistribution(
+            root_dir=os.path.join(TESTDISTROS, "distro", "root_dir_absolute_symlinks")
+        )
+        desired_outcome = {"id": "absolute_symlinks"}
+        self._test_outcome(desired_outcome)
+
+    def test_root_dir_escape(self) -> None:
+        self.distro = distro.LinuxDistribution(
+            root_dir=os.path.join(TESTDISTROS, "distro", "root_dir_escape")
+        )
+        # loading existing file outside of root_dir has been prevented (empty data)
+        self._test_outcome({})
+
+    def test_root_dir_escape_abs(self) -> None:
+        self.distro = distro.LinuxDistribution(
+            root_dir=os.path.join(TESTDISTROS, "distro", "root_dir_escape_abs")
+        )
+        # loading existing file outside of root_dir has been prevented (empty data)
+        self._test_outcome({})
+
+    def test_root_dir_non_escape(self) -> None:
+        self.distro = distro.LinuxDistribution(
+            root_dir=os.path.join(TESTDISTROS, "distro", "root_dir_non_escape")
+        )
+        desired_outcome = {"id": "root_dir_non_escape"}
+        self._test_outcome(desired_outcome)
+
+    def test_root_dir_symlinks_loop(self) -> None:
+        self.distro = distro.LinuxDistribution(
+            root_dir=os.path.join(TESTDISTROS, "distro", "root_dir_symlinks_loop")
+        )
+        # due to symbolic links loop, loading of file has been prevented (empty data)
+        self._test_outcome({})
 
     def test_dontincludeuname(self) -> None:
         self._setup_for_distro(os.path.join(TESTDISTROS, "distro", "dontincludeuname"))
