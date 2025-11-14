@@ -438,6 +438,19 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
+    def test_almalinux10_os_release(self) -> None:
+        desired_outcome = {
+            "id": "almalinux",
+            "name": "AlmaLinux",
+            "pretty_name": "AlmaLinux 10.0 (Purple Lion)",
+            "version": "10.0",
+            "pretty_version": "10.0 (Purple Lion)",
+            "best_version": "10.0",
+            "like": "rhel centos fedora",
+            "codename": "Purple Lion",
+        }
+        self._test_outcome(desired_outcome)
+
     def test_slackware14_os_release(self) -> None:
         desired_outcome = {
             "id": "slackware",
@@ -1744,6 +1757,29 @@ class TestOverall(DistroTestCase):
             "codename": "Green Obsidian",
         }
         self._test_release_file_info("centos-release", desired_info)
+
+    def test_almalinux10_release(self) -> None:
+        desired_outcome = {
+            "id": "almalinux",
+            "name": "AlmaLinux",
+            "pretty_name": "AlmaLinux 10.0 (Purple Lion)",
+            "version": "10.0",
+            "pretty_version": "10.0 (Purple Lion)",
+            "best_version": "10.0",
+            "like": "rhel centos fedora",
+            "codename": "Purple Lion",
+            "major_version": "10",
+            "minor_version": "0",
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            "id": "almalinux",
+            "name": "AlmaLinux",
+            "version_id": "10.0",
+            "codename": "Purple Lion",
+        }
+        self._test_release_file_info("almalinux-release", desired_info)
 
     def test_slackware14_release(self) -> None:
         desired_outcome = {
