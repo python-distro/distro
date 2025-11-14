@@ -1823,12 +1823,12 @@ class TestOverall(DistroTestCase):
         self._test_outcome(desired_outcome)
 
         desired_info = {
-            "id": "rocky",
+            "id": "centos",
             "name": "Rocky Linux",
             "version_id": "9.3",
             "codename": "Blue Onyx",
         }
-        self._test_release_file_info("rocky-release", desired_info)
+        self._test_release_file_info("centos-release", desired_info)
 
     def test_centosstream9_release(self) -> None:
         desired_outcome = {
@@ -2179,6 +2179,30 @@ class TestOverallWithEtcNotReadable(TestOverall):
         super().teardown_method(test_method)
         if os.listdir is _bad_os_listdir:
             os.listdir = self._old_listdir
+
+    def test_almalinux10_release(self) -> None:
+        # When /etc is not listable, centos-release is found before almalinux-release
+        desired_outcome = {
+            "id": "almalinux",
+            "name": "AlmaLinux",
+            "pretty_name": "AlmaLinux 10.0 (Purple Lion)",
+            "version": "10.0",
+            "pretty_version": "10.0 (Purple Lion)",
+            "best_version": "10.0",
+            "like": "rhel centos fedora",
+            "codename": "Purple Lion",
+            "major_version": "10",
+            "minor_version": "0",
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            "id": "centos",
+            "name": "AlmaLinux",
+            "version_id": "10.0",
+            "codename": "Purple Lion",
+        }
+        self._test_release_file_info("centos-release", desired_info)
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Irrelevant on non-linux")
