@@ -451,6 +451,19 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
+    def test_rocky9_os_release(self) -> None:
+        desired_outcome = {
+            "id": "rocky",
+            "name": "Rocky Linux",
+            "pretty_name": "Rocky Linux 9.3 (Blue Onyx)",
+            "version": "9.3",
+            "pretty_version": "9.3 (Blue Onyx)",
+            "best_version": "9.3",
+            "like": "rhel centos fedora",
+            "codename": "Blue Onyx",
+        }
+        self._test_outcome(desired_outcome)
+
     def test_slackware14_os_release(self) -> None:
         desired_outcome = {
             "id": "slackware",
@@ -1780,6 +1793,29 @@ class TestOverall(DistroTestCase):
             "codename": "Purple Lion",
         }
         self._test_release_file_info("almalinux-release", desired_info)
+
+    def test_rocky9_release(self) -> None:
+        desired_outcome = {
+            "id": "rocky",
+            "name": "Rocky Linux",
+            "pretty_name": "Rocky Linux 9.3 (Blue Onyx)",
+            "version": "9.3",
+            "pretty_version": "9.3 (Blue Onyx)",
+            "best_version": "9.3",
+            "like": "rhel centos fedora",
+            "codename": "Blue Onyx",
+            "major_version": "9",
+            "minor_version": "3",
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            "id": "rocky",
+            "name": "Rocky Linux",
+            "version_id": "9.3",
+            "codename": "Blue Onyx",
+        }
+        self._test_release_file_info("rocky-release", desired_info)
 
     def test_slackware14_release(self) -> None:
         desired_outcome = {
