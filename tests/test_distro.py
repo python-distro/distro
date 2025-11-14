@@ -462,6 +462,19 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
+    def test_ubuntu24_os_release(self) -> None:
+        desired_outcome = {
+            "id": "ubuntu",
+            "name": "Ubuntu",
+            "pretty_name": "Ubuntu 24.04.3 LTS",
+            "version": "24.04",
+            "pretty_version": "24.04 (noble)",
+            "best_version": "24.04.3",
+            "like": "debian",
+            "codename": "noble",
+        }
+        self._test_outcome(desired_outcome)
+
     def test_amazon2016_os_release(self) -> None:
         desired_outcome = {
             "id": "amzn",
@@ -1743,6 +1756,26 @@ class TestOverall(DistroTestCase):
             "like": "debian",
             "codename": "xenial",
             "major_version": "16",
+            "minor_version": "04",
+        }
+        self._test_outcome(desired_outcome)
+
+        # Test the info from the searched distro release file
+        # Does not have one; /etc/debian_version is not considered a distro
+        # release file:
+        self._test_non_existing_release_file()
+
+    def test_ubuntu24_release(self) -> None:
+        desired_outcome = {
+            "id": "ubuntu",
+            "name": "Ubuntu",
+            "pretty_name": "Ubuntu 24.04.3 LTS",
+            "version": "24.04",
+            "pretty_version": "24.04 (noble)",
+            "best_version": "24.04.3",
+            "like": "debian",
+            "codename": "noble",
+            "major_version": "24",
             "minor_version": "04",
         }
         self._test_outcome(desired_outcome)
