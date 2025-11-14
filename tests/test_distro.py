@@ -297,6 +297,18 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
+    def test_fedora42_os_release(self) -> None:
+        desired_outcome = {
+            "id": "fedora",
+            "name": "Fedora Linux",
+            "pretty_name": "Fedora Linux 42 (Forty Two)",
+            "version": "42",
+            "pretty_version": "42",
+            "best_version": "42",
+            "codename": "",
+        }
+        self._test_outcome(desired_outcome)
+
     def test_guix_os_release(self) -> None:
         desired_outcome = {
             "id": "guix",
@@ -1449,6 +1461,27 @@ class TestOverall(DistroTestCase):
             "name": "Fedora",
             "version_id": "30",
             "codename": "Thirty",
+        }
+        self._test_release_file_info("fedora-release", desired_info)
+
+    def test_fedora42_release(self) -> None:
+        desired_outcome = {
+            "id": "fedora",
+            "name": "Fedora Linux",
+            "pretty_name": "Fedora Linux 42 (Forty Two)",
+            "version": "42",
+            "pretty_version": "42",
+            "best_version": "42",
+            "codename": "",
+            "major_version": "42",
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            "id": "fedora",
+            "name": "Fedora",
+            "version_id": "42",
+            "codename": "Forty Two",
         }
         self._test_release_file_info("fedora-release", desired_info)
 
