@@ -464,6 +464,19 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
+    def test_centosstream9_os_release(self) -> None:
+        desired_outcome = {
+            "id": "centos",
+            "name": "CentOS Stream",
+            "pretty_name": "CentOS Stream 9",
+            "version": "9",
+            "pretty_version": "9",
+            "best_version": "9",
+            "like": "rhel fedora",
+            "codename": "",
+        }
+        self._test_outcome(desired_outcome)
+
     def test_slackware14_os_release(self) -> None:
         desired_outcome = {
             "id": "slackware",
@@ -1816,6 +1829,27 @@ class TestOverall(DistroTestCase):
             "codename": "Blue Onyx",
         }
         self._test_release_file_info("rocky-release", desired_info)
+
+    def test_centosstream9_release(self) -> None:
+        desired_outcome = {
+            "id": "centos",
+            "name": "CentOS Stream",
+            "pretty_name": "CentOS Stream 9",
+            "version": "9",
+            "pretty_version": "9",
+            "best_version": "9",
+            "like": "rhel fedora",
+            "codename": "",
+            "major_version": "9",
+        }
+        self._test_outcome(desired_outcome)
+
+        desired_info = {
+            "id": "centos",
+            "name": "CentOS Stream",
+            "version_id": "9",
+        }
+        self._test_release_file_info("centos-release", desired_info)
 
     def test_slackware14_release(self) -> None:
         desired_outcome = {
