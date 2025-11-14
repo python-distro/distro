@@ -233,6 +233,18 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
+    def test_debian13_os_release(self) -> None:
+        desired_outcome = {
+            "id": "debian",
+            "name": "Debian GNU/Linux",
+            "pretty_name": "Debian GNU/Linux 13 (trixie)",
+            "version": "13",
+            "pretty_version": "13 (trixie)",
+            "best_version": "13.1",
+            "codename": "trixie",
+        }
+        self._test_outcome(desired_outcome)
+
     def test_debiantesting_os_release(self) -> None:
         desired_outcome = {
             "id": "debian",
@@ -1337,6 +1349,20 @@ class TestOverall(DistroTestCase):
             "best_version": "10.11",
             "codename": "buster",
             "major_version": "10",
+        }
+        self._test_outcome(desired_outcome)
+        self._test_non_existing_release_file()
+
+    def test_debian13_release(self) -> None:
+        desired_outcome = {
+            "id": "debian",
+            "name": "Debian GNU/Linux",
+            "pretty_name": "Debian GNU/Linux 13 (trixie)",
+            "version": "13",
+            "pretty_version": "13 (trixie)",
+            "best_version": "13.1",
+            "codename": "trixie",
+            "major_version": "13",
         }
         self._test_outcome(desired_outcome)
         self._test_non_existing_release_file()
