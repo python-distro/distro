@@ -1,3 +1,8 @@
+## Unreleased
+
+ENHANCEMENTS:
+* Optimize distro.version() method by querying version sources lazily [[#379](https://github.com/python-distro/distro/pull/379)]
+
 ## 1.9.0 (2023.12.19)
 
 ENHANCEMENTS:
