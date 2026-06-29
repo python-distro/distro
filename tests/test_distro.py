@@ -425,6 +425,32 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
+    def test_rhel9_os_release(self) -> None:
+        desired_outcome = {
+            "id": "rhel",
+            "name": "Red Hat Enterprise Linux",
+            "pretty_name": "Red Hat Enterprise Linux 9.6 (Plow)",
+            "version": "9.6",
+            "pretty_version": "9.6 (Plow)",
+            "best_version": "9.6",
+            "like": "fedora",
+            "codename": "Plow",
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_rhel10_os_release(self) -> None:
+        desired_outcome = {
+            "id": "rhel",
+            "name": "Red Hat Enterprise Linux",
+            "pretty_name": "Red Hat Enterprise Linux 10.0 (Coughlan)",
+            "version": "10.0",
+            "pretty_version": "10.0 (Coughlan)",
+            "best_version": "10.0",
+            "like": "centos fedora",
+            "codename": "Coughlan",
+        }
+        self._test_outcome(desired_outcome)
+
     def test_rocky_os_release(self) -> None:
         desired_outcome = {
             "id": "rocky",
@@ -464,6 +490,19 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
+    def test_rocky10_os_release(self) -> None:
+        desired_outcome = {
+            "id": "rocky",
+            "name": "Rocky Linux",
+            "pretty_name": "Rocky Linux 10.0 (Red Quartz)",
+            "version": "10.0",
+            "pretty_version": "10.0 (Red Quartz)",
+            "best_version": "10.0",
+            "like": "rhel centos fedora",
+            "codename": "Red Quartz",
+        }
+        self._test_outcome(desired_outcome)
+
     def test_centosstream9_os_release(self) -> None:
         desired_outcome = {
             "id": "centos",
@@ -472,6 +511,32 @@ class TestOSRelease:
             "version": "9",
             "pretty_version": "9",
             "best_version": "9",
+            "like": "rhel fedora",
+            "codename": "",
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_centosstream8_os_release(self) -> None:
+        desired_outcome = {
+            "id": "centos",
+            "name": "CentOS Stream",
+            "pretty_name": "CentOS Stream 8",
+            "version": "8",
+            "pretty_version": "8",
+            "best_version": "8",
+            "like": "rhel fedora",
+            "codename": "",
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_centosstream10_os_release(self) -> None:
+        desired_outcome = {
+            "id": "centos",
+            "name": "CentOS Stream",
+            "pretty_name": "CentOS Stream 10",
+            "version": "10",
+            "pretty_version": "10",
+            "best_version": "10",
             "like": "rhel fedora",
             "codename": "",
         }
@@ -538,6 +603,45 @@ class TestOSRelease:
         }
         self._test_outcome(desired_outcome)
 
+    def test_ubuntu2504_os_release(self) -> None:
+        desired_outcome = {
+            "id": "ubuntu",
+            "name": "Ubuntu",
+            "pretty_name": "Ubuntu 25.04",
+            "version": "25.04",
+            "pretty_version": "25.04 (plucky)",
+            "best_version": "25.04",
+            "like": "debian",
+            "codename": "plucky",
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_ubuntu2510_os_release(self) -> None:
+        desired_outcome = {
+            "id": "ubuntu",
+            "name": "Ubuntu",
+            "pretty_name": "Ubuntu 25.10",
+            "version": "25.10",
+            "pretty_version": "25.10 (questing)",
+            "best_version": "25.10",
+            "like": "debian",
+            "codename": "questing",
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_ubuntu2604_os_release(self) -> None:
+        desired_outcome = {
+            "id": "ubuntu",
+            "name": "Ubuntu",
+            "pretty_name": "Ubuntu 26.04 LTS",
+            "version": "26.04",
+            "pretty_version": "26.04 (resolute)",
+            "best_version": "26.04",
+            "like": "debian",
+            "codename": "resolute",
+        }
+        self._test_outcome(desired_outcome)
+
     def test_amazon2016_os_release(self) -> None:
         desired_outcome = {
             "id": "amzn",
@@ -547,6 +651,29 @@ class TestOSRelease:
             "pretty_version": "2016.03",
             "best_version": "2016.03",
             "like": "rhel fedora",
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_amazon2023_os_release(self) -> None:
+        desired_outcome = {
+            "id": "amzn",
+            "name": "Amazon Linux",
+            "pretty_name": "Amazon Linux 2023",
+            "version": "2023",
+            "pretty_version": "2023",
+            "best_version": "2023",
+            "like": "fedora",
+        }
+        self._test_outcome(desired_outcome)
+
+    def test_alpine_os_release(self) -> None:
+        desired_outcome = {
+            "id": "alpine",
+            "name": "Alpine Linux",
+            "pretty_name": "Alpine Linux v3.23",
+            "version": "3.23.2",
+            "pretty_version": "3.23.2",
+            "best_version": "3.23.2",
         }
         self._test_outcome(desired_outcome)
 
