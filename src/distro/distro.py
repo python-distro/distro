@@ -1456,6 +1456,9 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(description="OS distro info tool")
     parser.add_argument(
+        "--version", "-v", action="version", version=f"%(prog)s {__version__}"
+    )
+    parser.add_argument(
         "--json", "-j", help="Output in machine readable format", action="store_true"
     )
 
@@ -1470,6 +1473,10 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.root_dir:
+        if not os.path.isdir(args.root_dir):
+            parser.error(
+                f"Root directory '{args.root_dir}' does not exist or is not a directory"
+            )
         dist = LinuxDistribution(
             include_lsb=False,
             include_uname=False,
