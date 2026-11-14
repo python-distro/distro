@@ -1190,8 +1190,7 @@ class LinuxDistribution:
             lexer.whitespace_split = True
             tokens = list(lexer)
         except ValueError:
-            if hasattr(lines, "seek"):
-                lines.seek(os.SEEK_SET)
+            lines.seek(0)
             tokens = []
             for line in lines:
                 line = line.strip()
