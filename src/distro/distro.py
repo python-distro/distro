@@ -1185,10 +1185,21 @@ class LinuxDistribution:
             A dictionary containing all information items.
         """
         props = {}
-        lexer = shlex.shlex(lines, posix=True)
-        lexer.whitespace_split = True
+        try:
+            lexer = shlex.shlex(lines, posix=True)
+            lexer.whitespace_split = True
+            tokens = list(lexer)
+        except ValueError:
+            lines.seek(0)
+            tokens = []
+            for line in lines:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if "=" in line:
+                    k, v = line.split("=", 1)
+                    tokens.append(f"{k}={v.strip('\"\'')}")
 
-        tokens = list(lexer)
         for token in tokens:
             # At this point, all shell-like parsing has been done (i.e.
             # comments processed, quotes and backslash escape sequences
