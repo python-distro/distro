@@ -2647,6 +2647,14 @@ class TestOSReleaseParsing:
         assert props.get("key1", None) is None
         assert props.get("key2", None) == "value  2"
 
+    def test_kx_03_unclosed_quotes(self) -> None:
+        props = self.distro._parse_os_release_content(
+            io.StringIO('NAME="Ubuntu\nID=ubuntu\nVERSION_ID="24.04"\n')
+        )
+        assert props.get("name", None) == "Ubuntu"
+        assert props.get("id", None) == "ubuntu"
+        assert props.get("version_id", None) == "24.04"
+
 
 @pytest.mark.skipif(not IS_LINUX, reason="Irrelevant on non-linux")
 class TestGlobal:
