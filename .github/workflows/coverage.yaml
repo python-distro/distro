@@ -1,0 +1,43 @@
+name: Coverage
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  coverage:
+    name: Generate coverage badge
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install tox and genbadge
+        run: python -m pip install tox "genbadge[coverage]"
+
+      - name: Run tests with coverage
+        run: tox -e py -- --cov-report xml
+
+      - name: Generate coverage badge
+        run: genbadge coverage -i coverage.xml -o coverage.svg
+
+      - name: Publish badge to coverage-badge branch
+        run: |
+          cp coverage.svg "${RUNNER_TEMP}/coverage.svg"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan coverage-badge
+          git rm -rf . > /dev/null 2>&1 || true
+          cp "${RUNNER_TEMP}/coverage.svg" coverage.svg
+          git add coverage.svg
+          git commit -m "Update coverage badge"
+          git push --force origin coverage-badge
