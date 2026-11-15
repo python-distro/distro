@@ -1198,7 +1198,8 @@ class LinuxDistribution:
                     continue
                 if "=" in line:
                     k, v = line.split("=", 1)
-                    tokens.append(f"{k}={v.strip('\"\'')}")
+                    clean_v = v.strip("'\"")
+                    tokens.append(f"{k}={clean_v}")
 
         for token in tokens:
             # At this point, all shell-like parsing has been done (i.e.
